@@ -1,0 +1,34 @@
+@import './colors';
+@import './css-vars-uikit.scss';
+@import './css-vars-custom.scss';
+
+@mixin palette2CSS($palette) {
+	// VERBATIM
+	@each $key, $value in $palette {
+		--#{$key}: #{$value};
+	}
+
+	// ALTERED UIKIT
+	@include css-vars-uikit($palette);
+
+	// ALTERED CUSTOM
+	@include css-vars-custom($palette);
+}
+
+:root {
+	@media (prefers-color-scheme: dark) {
+		--prefers-color-scheme: dark;	
+	}
+	@media (prefers-color-scheme: light) {
+		--prefers-color-scheme: light;
+	}
+
+	&,
+	&[data-theme="light"] {
+		@include palette2CSS($palette-light);
+	}
+
+	&[data-theme="dark"] {
+		@include palette2CSS($palette-dark);
+	}
+}

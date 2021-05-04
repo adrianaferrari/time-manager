@@ -1,0 +1,68 @@
+@mixin css-vars-uikit($palette) {
+	--inverse-global-color: #{rgba(map-get-strict($palette, global-inverse-color), 0.7)};
+	--alert-primary-background: #{lighten(mix(white, map-get-strict($palette, global-primary-background), 40%), 20%)};
+	--alert-success-background: #{lighten(mix(white, map-get-strict($palette, global-success-background), 40%), 25%)};
+	--alert-warning-background: #{lighten(mix(white, map-get-strict($palette, global-warning-background), 45%), 15%)};
+	--alert-danger-background: #{lighten(mix(white, map-get-strict($palette, global-danger-background), 40%), 20%)};
+	--inverse-global-muted-color: #{rgba(map-get-strict($palette, global-inverse-color), 0.5)};
+	--inverse-global-border: #{rgba(map-get-strict($palette, global-inverse-color), 0.2)};
+	--button-primary-hover-background: #{darken(map-get-strict($palette, button-primary-background), 5%)};
+	--button-primary-active-background: #{darken(map-get-strict($palette, button-primary-background), 10%)};
+	--button-secondary-hover-background: #{darken(map-get-strict($palette, button-secondary-background), 5%)};
+	--button-secondary-active-background: #{darken(map-get-strict($palette, button-secondary-background), 10%)};
+	--button-danger-hover-background: #{darken(map-get-strict($palette, button-danger-background), 5%)};
+	--button-danger-active-background: #{darken(map-get-strict($palette, button-danger-background), 10%)};
+	--inverse-button-primary-hover-background: #{darken(map-get-strict($palette, inverse-button-primary-background), 5%)};
+	--inverse-button-primary-active-background: #{darken(map-get-strict($palette, inverse-button-primary-background), 10%)};
+	--inverse-button-secondary-hover-background: #{darken(
+			map-get-strict($palette, inverse-button-secondary-background),
+			5%
+		)};
+	--inverse-button-secondary-active-background: #{darken(
+			map-get-strict($palette, inverse-button-secondary-background),
+			10%
+		)};
+	--dotnav-item-hover-background: #{rgba(map-get-strict($palette, global-color), 0.6)};
+	--dotnav-item-onclick-background: #{rgba(map-get-strict($palette, global-color), 0.2)};
+	--dotnav-item-active-background: #{rgba(map-get-strict($palette, global-color), 0.6)};
+	--inverse-dotnav-item-hover-background: #{rgba(map-get-strict($palette, inverse-global-color), 0.9)};
+	--inverse-dotnav-item-onclick-background: #{rgba(map-get-strict($palette, inverse-global-color), 0.5)};
+	--inverse-dotnav-item-active-background: #{rgba(map-get-strict($palette, inverse-global-color), 0.9)};
+	--form-range-track-background: #{darken(map-get-strict($palette, global-muted-background), 5%)};
+	--form-range-track-focus-background: #{darken(map-get-strict($palette, global-muted-background), 15%)};
+	--form-radio-checked-focus-background: #{darken(map-get-strict($palette, global-primary-background), 10%)};
+	--inverse-global-muted-background: #{rgba(map-get-strict($palette, global-inverse-color), 0.1)};
+	--inverse-form-radio-background: #{darken(map-get-strict($palette, inverse-global-muted-background), 5%)};
+	--inverse-form-radio-checked-focus-background: #{darken(
+			map-get-strict($palette, inverse-global-primary-background),
+			10%
+		)};
+	--icon-link-active-color: #{darken(map-get-strict($palette, global-color), 5%)};
+	--icon-button-hover-background: #{darken(map-get-strict($palette, icon-button-background), 5%)};
+	--icon-button-active-background: #{darken(map-get-strict($palette, icon-button-background), 10%)};
+	--inverse-icon-button-hover-background: #{darken(map-get-strict($palette, inverse-icon-button-background), 5%)};
+	--inverse-icon-button-active-background: #{darken(map-get-strict($palette, inverse-icon-button-background), 10%)};
+	--inverse-table-row-active-background: #{fade-out(map-get-strict($palette, inverse-global-muted-background), 0.02)};
+	--lightbox-item-color: #{rgba(255, 255, 255, 0.7)};
+	--lightbox-toolbar-background: #{rgba(0, 0, 0, 0.3)};
+	--lightbox-toolbar-color: #{rgba(255, 255, 255, 0.7)};
+	--lightbox-toolbar-icon-color: #{rgba(255, 255, 255, 0.7)};
+	--lightbox-button-color: #{rgba(255, 255, 255, 0.7)};
+	--modal-background: #{rgba(0, 0, 0, 0.6)};
+	--modal-close-outside-color: #{lighten(map-get-strict($palette, global-inverse-color), 20%)};
+	--offcanvas-overlay-background: #{rgba(0, 0, 0, 0.1)};
+	--overlay-default-background: #{rgba(map-get-strict($palette, global-background), 0.8)};
+	--overlay-primary-background: #{rgba(map-get-strict($palette, global-secondary-background), 0.8)};
+	--slidenav-color: #{rgba(map-get-strict($palette, global-color), 0.5)};
+	--slidenav-hover-color: #{rgba(map-get-strict($palette, global-color), 0.9)};
+	--slidenav-active-color: #{rgba(map-get-strict($palette, global-color), 0.5)};
+	--inverse-slidenav-color: #{rgba(map-get-strict($palette, inverse-global-color), 0.7)};
+	--inverse-slidenav-hover-color: #{rgba(map-get-strict($palette, inverse-global-color), 0.95)};
+	--inverse-slidenav-active-color: #{rgba(map-get-strict($palette, inverse-global-color), 0.7)};
+	--button-default-hover-border: #{darken(map-get-strict($palette, global-border), 20%)};
+	--button-default-active-border: #{darken(map-get-strict($palette, global-border), 30%)};
+	--dotnav-item-border: #{rgba(map-get-strict($palette, global-color), 0.4)};
+	--form-range-thumb-border: #{darken(map-get-strict($palette, global-border), 10%)};
+	--form-radio-border: #{darken(map-get-strict($palette, global-border), 10%)};
+	--thumbnav-item-background: #{rgba(map-get-strict($palette, global-background), 0.4)};
+}

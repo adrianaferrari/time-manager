@@ -1,0 +1,47 @@
+{
+	"name": "APP_NAME",
+	"short_name": "APP_SHORT_NAME",
+	"start_url": "PUBLIC_PATH/",
+	"scope": "PUBLIC_PATH/",
+	"display": "standalone",
+	"background_color": "BACKGROUND_COLOR",
+	"theme_color": "THEME_COLOR",
+	"orientation": "portrait-primary",
+	"icons": [
+		{
+			"src": "PUBLIC_PATH/assets/img/logo/16.png",
+			"type": "image/png",
+			"sizes": "16x16"
+		},
+		{
+			"src": "PUBLIC_PATH/assets/img/logo/32.png",
+			"type": "image/png",
+			"sizes": "32x32"
+		},
+		{
+			"src": "PUBLIC_PATH/assets/img/logo/64.png",
+			"type": "image/png",
+			"sizes": "64x64"
+		},
+		{
+			"src": "PUBLIC_PATH/assets/img/logo/128.png",
+			"type": "image/png",
+			"sizes": "128x128"
+		},
+		{
+			"src": "PUBLIC_PATH/assets/img/logo/256.png",
+			"type": "image/png",
+			"sizes": "256x256"
+		},
+		{
+			"src": "PUBLIC_PATH/assets/img/logo/512.png",
+			"type": "image/png",
+			"sizes": "512x512"
+		},
+		{
+			"src": "PUBLIC_PATH/assets/img/logo/1024.png",
+			"type": "image/png",
+			"sizes": "1024x1024"
+		}
+	]
+}

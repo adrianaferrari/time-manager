@@ -1,0 +1,119 @@
+@use 'sass:math';
+
+@import "./variables.scss";
+
+@import "../../node_modules/uikit/src/scss/mixins-theme.scss";
+
+@import "./mixins.scss";
+
+@import "../../node_modules/uikit/src/scss/uikit-theme.scss";
+
+@import "./uikit-overrides.scss";
+
+@import "./fonts.scss";
+
+@import './palette/import';
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	overflow-x: hidden;
+	min-height: 100vh;
+	background-color: var(--global-muted-background);
+}
+
+@import "./utils.scss";
+
+.form-buttons {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: flex-end;
+	align-items: center;
+	> * {
+		&:not(:last-child) {
+			margin-right: $margin-margin;
+		}
+	}
+	> .cancel {
+		margin-right: auto;
+	}
+}
+
+.uppercase-input input {
+	text-transform: uppercase;
+}
+
+.cursor-pointer {
+	cursor: pointer;
+}
+
+.table-hscroll-wrapper {
+	overflow-x: auto;
+	max-width: 100%;
+}
+
+.tr-pointer {
+	tr {
+		cursor: pointer;
+	}
+}
+
+textarea {
+	resize: vertical;
+}
+
+li.uk-nav-header {
+	&:hover {
+		background-color: var(--global-nav-hover-background);
+	}
+}
+
+li.uk-nav-header.active {
+	background-color: var(--global-nav-active-background);
+	> a {
+		color: var(--global-emphasis-color);
+	}
+}
+
+:focus:not(div):not(textarea):not(select):not(input) {
+	outline: none;
+	text-decoration: underline !important;
+	&:not(th):not(button) {
+		> .uk-icon {
+			position: relative;
+			&::before {
+				content: "";
+				position: absolute;
+				bottom: -2px;
+				left: 0;
+				right: 0;
+				border-bottom: 1px solid currentColor;
+			}
+		}
+	}
+}
+
+.toggle-palette-button {
+	position: absolute;
+	z-index: $offcanvas-z-index;
+	bottom: $offcanvas-close-position;
+	right: $offcanvas-close-position;
+	padding: $offcanvas-close-padding;
+	@if (mixin-exists(hook-offcanvas-close)) {
+		@include hook-offcanvas-close();
+	}
+}
+
+.custom-uk-orderable-list > li, .uk-list > li {
+	border: $global-border-width solid $global-border;
+	border-radius: $button-border-radius;
+}
+
+.logo {
+	height: $navbar-nav-item-height * .7;
+}

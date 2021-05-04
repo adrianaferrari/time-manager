@@ -1,0 +1,139 @@
+@function map-get-strict($map, $key) {
+	@if map-has-key($map, $key) {
+		@return map-get($map, $key);
+	} @else {
+		@error "ERR: missing key" $key;
+	}
+}
+$palette-light-base: (
+	global-emphasis-color: #333,
+	global-color: #666,
+	global-inverse-color: #fff,
+	global-muted-background: #f8f8f8,
+	global-primary-background: #49ABA2,
+	global-success-background: #32d296,
+	global-warning-background: #faa05a,
+	global-danger-background: #f0506e,
+	global-muted-color: #999,
+	global-background: #fff,
+	global-secondary-background: #FF7F11,
+	global-link-color: #49ABA2,
+	base-ins-background: #ffd,
+	base-mark-background: #ffd,
+	global-border: #e5e5e5,
+	base-selection-background: #FF7F11,
+	form-select-option-color: #444,
+	lightbox-background: #000,
+	lightbox-toolbar-icon-hover-color: #fff,
+	lightbox-button-hover-color: #fff,
+	table-row-active-background: #ffd,
+	tooltip-background: #666,
+	box-shadow-bottom-background: #444,
+	button-default-background: transparent,
+	button-default-hover-background: transparent,
+	button-default-active-background: transparent,
+	button-disabled-background: transparent,
+	inverse-button-default-background: transparent,
+	inverse-button-default-hover-background: transparent,
+	inverse-button-default-active-background: transparent,
+	dotnav-item-background: transparent,
+	inverse-dotnav-item-background: transparent,
+	form-radio-background: transparent,
+	placeholder-background: transparent,
+	search-default-background: transparent,
+	search-navbar-background: transparent,
+	search-large-background: transparent,
+	inverse-search-default-background: transparent,
+	inverse-search-navbar-background: transparent,
+	inverse-search-large-background: transparent,
+	subnav-pill-item-background: transparent,
+	inverse-subnav-pill-item-background: transparent,
+	dotnav-item-hover-border: transparent,
+	dotnav-item-onclick-border: transparent,
+	dotnav-item-active-border: transparent,
+	form-radio-checked-border: transparent,
+	thumbnav-item-hover-background: transparent,
+	thumbnav-item-active-background: transparent,
+	notification-message-background: #f8f8f8,
+);
+
+$palette-dark-base: (
+	global-emphasis-color: #fff,
+	global-color: #f8f8f8,
+	global-inverse-color: #fff,
+	global-muted-background: #222,
+	global-primary-background: #49ABA2,
+	global-success-background: #32d296,
+	global-warning-background: #faa05a,
+	global-danger-background: #f0506e,
+	global-muted-color: #999,
+	global-background: #333,
+	global-secondary-background: #FF7F11,
+	global-link-color: #FF7F11,
+	base-ins-background: #ffd,
+	base-mark-background: #ffd,
+	global-border: #1c1c1c,
+	base-selection-background: #FF7F11,
+	form-select-option-color: #fff,
+	lightbox-background: #000,
+	lightbox-toolbar-icon-hover-color: #fff,
+	lightbox-button-hover-color: #fff,
+	table-row-active-background: #222,
+	tooltip-background: #666,
+	box-shadow-bottom-background: #444,
+	button-default-background: transparent,
+	button-default-hover-background: transparent,
+	button-default-active-background: transparent,
+	button-disabled-background: transparent,
+	inverse-button-default-background: transparent,
+	inverse-button-default-hover-background: transparent,
+	inverse-button-default-active-background: transparent,
+	dotnav-item-background: transparent,
+	inverse-dotnav-item-background: transparent,
+	form-radio-background: transparent,
+	placeholder-background: transparent,
+	search-default-background: transparent,
+	search-navbar-background: transparent,
+	search-large-background: transparent,
+	inverse-search-default-background: transparent,
+	inverse-search-navbar-background: transparent,
+	inverse-search-large-background: transparent,
+	subnav-pill-item-background: transparent,
+	inverse-subnav-pill-item-background: transparent,
+	dotnav-item-hover-border: transparent,
+	dotnav-item-onclick-border: transparent,
+	dotnav-item-active-border: transparent,
+	form-radio-checked-border: transparent,
+	thumbnav-item-hover-background: transparent,
+	thumbnav-item-active-background: transparent,
+	notification-message-background: #b6b6b6,
+);
+
+@function extend-palette($palette-base) {
+	$result: $palette-base;
+	$result: map-merge(
+		$result,
+		(
+			global-link-hover-color: darken(map-get-strict($result, global-link-color), 5%),
+			button-primary-background: map-get-strict($result, global-primary-background),
+			button-secondary-background: map-get-strict($result, global-secondary-background),
+			button-danger-background: map-get-strict($result, global-danger-background),
+			inverse-global-primary-background: map-get-strict($palette-base, global-inverse-color),
+			inverse-global-color: rgba(map-get-strict($palette-base, global-inverse-color), 0.7),
+			inverse-global-muted-background: rgba(map-get-strict($palette-base, global-inverse-color), 0.1),
+			icon-button-background: map-get-strict($palette-base, global-muted-background),
+		)
+	);
+	$result: map-merge(
+		$result,
+		(
+			inverse-icon-button-background: map-get-strict($result, inverse-global-muted-background),
+			inverse-button-secondary-background: map-get-strict($result, inverse-global-primary-background),
+			inverse-button-primary-background: map-get-strict($result, inverse-global-primary-background),
+		)
+	);
+	@return $result;
+}
+
+$palette-light: extend-palette($palette-light-base);
+$palette-dark: extend-palette($palette-dark-base);

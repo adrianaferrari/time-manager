@@ -1,0 +1,19 @@
+.uk-offcanvas-bar-animation { transition: left 0.15s ease-out; }
+.uk-offcanvas-container { transition: left 0.15s ease-out; }
+.uk-offcanvas-reveal { transition: width 0.15s ease-out; }
+
+.uk-navbar-dropdown {
+	padding: 10px 20px;
+}
+
+.uk-navbar:not(.uk-navbar-transparent) {
+	box-shadow: $global-small-box-shadow;
+}
+
+.uk-navbar .uk-button {
+	box-shadow: none;
+}
+
+.uk-checkbox:checked {
+	background-size: 12px;
+}

@@ -1,0 +1,138 @@
+@mixin hook-form() {
+	border: $form-border-width solid $form-border;
+	transition: 0.2s ease-in-out;
+	transition-property: color, background-color, border;
+	box-shadow: $global-box-shadow;
+
+	background-color: var(--global-background);
+
+	&:focus {
+		background-image: none;
+		background-color: $global-background;
+	}
+}
+
+@mixin hook-button() {
+	// text-transform: $button-text-transform;
+	transition: 0.1s ease-in-out;
+	transition-property: border-color, border;
+}
+
+@mixin hook-form-danger() {
+	color: var(--global-color);
+	border-color: var(--global-danger-background);
+}
+@mixin hook-form-success() {
+	color: var(--global-color);
+}
+
+@mixin hook-button-default() {
+	border: $button-border-width solid $button-default-border;
+	background-color: var(--global-background);
+	box-shadow: $global-box-shadow;
+	border-radius: $button-border-radius;
+}
+@mixin hook-button-default-hover() {
+	border-color: $button-default-hover-border;
+}
+@mixin hook-button-default-active() {
+	border-color: $button-default-active-border;
+	background-color: var(--global-background-darken);
+}
+@mixin hook-button-primary() {
+	box-shadow: $global-box-shadow;
+	border-radius: $button-border-radius;
+	border: $button-border-width solid transparent;
+	background-color: var(--global-primary-background);
+}
+@mixin hook-button-primary-hover() {
+}
+@mixin hook-button-primary-active() {
+	background-color: var(--global-primary-background-darken);
+}
+@mixin hook-button-secondary() {
+	box-shadow: $global-box-shadow;
+	border-radius: $button-border-radius;
+	border: $button-border-width solid transparent;
+	background-color: var(--global-secondary-background);
+}
+@mixin hook-button-secondary-hover() {
+}
+@mixin hook-button-secondary-active() {
+	background-color: var(--global-secondary-background-darken);
+}
+@mixin hook-button-danger() {
+	box-shadow: $global-box-shadow;
+	border-radius: $button-border-radius;
+	border: $button-border-width solid transparent;
+	background-color: var(--global-danger-background);
+}
+@mixin hook-button-danger-hover() {
+}
+@mixin hook-button-danger-active() {
+	background-color: var(--global-danger-background-darken);
+}
+@mixin hook-button-disabled() {
+	border-color: $button-disabled-border;
+	background-image: none;
+	background-color: var(--global-background);
+	box-shadow: inset $global-box-shadow;
+}
+
+@mixin hook-table() {
+	thead {
+		border: $global-border-width solid $global-border;
+		background-color: var(--global-background);
+	}
+	tbody {
+		border: $global-border-width solid $global-border;
+	}
+}
+
+@mixin hook-card() {
+	transition: box-shadow 0.1s ease-in-out;
+	border: $global-border-width solid $global-border;
+}
+
+@mixin hook-navbar-nav-item() {
+	transition: 0.1s ease-in-out;
+	transition-property: color, background-color;
+}
+
+
+@mixin hook-nav-header() {
+	border-radius: $button-border-radius;
+	margin: 10px 5px;
+	padding: 0 5px;
+	transition: .2s background-color, color ease-in-out;
+	background-color: transparent;
+}
+
+@mixin hook-tab() {
+	align-items: flex-start;
+}
+@mixin hook-tab-item() {
+	@include hook-button();
+	@include hook-button-default();
+	color: var(--global-emphasis-color);
+
+	&:active {
+		@include hook-button-default-active();
+	}
+}
+@mixin hook-tab-item-hover() {
+	@include hook-button-default-hover();
+}
+@mixin hook-tab-item-active() {
+	background-image: none;
+	box-shadow: none;
+}
+@mixin hook-tab-item-disabled() {
+	@include hook-button-disabled();
+}
+
+@mixin hook-navbar-container() {
+	background-color: var(--global-background);
+}
+
+@mixin hook-form-disabled(){ border-color: $form-disabled-border; -webkit-text-fill-color: var(--global-muted-color); }

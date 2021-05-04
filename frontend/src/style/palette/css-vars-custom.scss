@@ -1,0 +1,14 @@
+@mixin css-vars-custom($palette) {
+	@if $palette == $palette-light {
+		--global-background-darken: #{mix(map-get-strict($palette, global-background), black, 95%)};
+	} @else {
+		--global-background-darken: #{mix(map-get-strict($palette, global-background), black, 70%)};
+	}
+	--global-primary-background-darken: #{mix(map-get-strict($palette, global-primary-background), black, 80%)};
+	--global-secondary-background-darken: #{mix(map-get-strict($palette, global-secondary-background), black, 80%)};
+	--global-danger-background: #{map-get-strict($palette, button-danger-background)};
+	--global-danger-background-darken: #{mix(map-get-strict($palette, button-danger-background), black, 80%)};
+	--global-muted-background-darken: #{mix(map-get-strict($palette, global-muted-background), black, 80%)};
+	--global-nav-active-background: #{rgba(map-get-strict($palette, global-secondary-background), .2)};
+	--global-nav-hover-background: #{rgba(map-get-strict($palette, global-secondary-background), .1)};
+}

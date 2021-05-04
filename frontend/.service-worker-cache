@@ -1,0 +1,38 @@
+# all paths in this file will be prepended with the PUBLIC_PATH environment variable
+
+# skeleton
+/
+/index.html
+/manifest.json
+
+# logo
+/assets/img/logo/16.png
+/assets/img/logo/32.png
+/assets/img/logo/64.png
+/assets/img/logo/128.png
+/assets/img/logo/256.png
+/assets/img/logo/512.png
+/assets/img/logo/1024.png
+
+# fontawesome
+/assets/webfonts/fa-brands-400.eot
+/assets/webfonts/fa-brands-400.woff2
+/assets/webfonts/fa-brands-400.woff
+/assets/webfonts/fa-brands-400.ttf
+/assets/webfonts/fa-brands-400.svg
+/assets/webfonts/fa-regular-400.eot
+/assets/webfonts/fa-regular-400.woff2
+/assets/webfonts/fa-regular-400.woff
+/assets/webfonts/fa-regular-400.ttf
+/assets/webfonts/fa-regular-400.svg
+/assets/webfonts/fa-solid-900.eot
+/assets/webfonts/fa-solid-900.woff2
+/assets/webfonts/fa-solid-900.woff
+/assets/webfonts/fa-solid-900.ttf
+/assets/webfonts/fa-solid-900.svg
+/assets/plugins/fontawesome.min.css
+
+# build
+/build/main.css
+/build/bundle.css
+/build/bundle.js

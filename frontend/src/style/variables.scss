@@ -1,0 +1,19 @@
+$nav-header-text-transform: none;
+$offcanvas-bar-color-mode: dark;
+$offcanvas-bar-background: var(--global-background);
+$button-border-radius: 5px;
+$global-box-shadow: 0 1px 3px 0 var(--global-background-darken);
+$card-default-box-shadow: $global-box-shadow;
+$global-small-box-shadow: $global-box-shadow;
+$global-medium-box-shadow: $global-box-shadow;
+$global-large-box-shadow: $global-box-shadow;
+$global-xlarge-box-shadow: $global-box-shadow;
+$form-radio-checked-icon-color: #e6ebf1;
+$global-font-family: -apple-system, sans-serif;
+$tab-margin-horizontal: 0;
+$global-gutter: 20px;
+
+$navbar-nav-item-height: 2.5em;
+
+@import './uikit-css-colors.scss';
+@import "../../node_modules/uikit/src/scss/variables-theme.scss";
