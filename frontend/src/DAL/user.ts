@@ -13,7 +13,7 @@ import { HttpStatus } from '../http/status';
 
 export enum Role {
 	admin = 'admin',
-	standard = 'standard',
+	user = 'user',
 }
 
 const authStorageKey = 'authResponse';

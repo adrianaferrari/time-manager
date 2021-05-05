@@ -4,9 +4,15 @@ import { Transaction } from 'knex';
 import { transact } from '@cdellacqua/knex-transact';
 import config from '../config';
 import {
-	fromQueryGenerator, findOneGenerator, insertGetId,
+	fromQueryGenerator, findOneGenerator, insertGetId, findAllGenerator,
 } from '../db/utils';
 import { uuid } from '../types/common';
+
+export enum Role {
+	user = 'user',
+	manager = 'manager',
+	admin = 'admin',
+};
 
 export const table = 'user';
 
@@ -19,7 +25,17 @@ export const cols = {
 	createdAt: 'createdAt',
 };
 
+export const rolesTable = 'userRole';
+
+export const rolesCols = {
+	id: 'id',
+	userId: 'userId',
+	role: 'role',
+};
+
 const columnNames = Object.values(cols);
+
+const rolesColNames = Object.values(rolesCols);
 
 export function createJwt(user: User): string {
 	const token = jwt.sign({}, config.secret, {
@@ -38,17 +54,21 @@ export function generateAuthResponse(user: User): AuthResponse {
 			enabled: user.enabled,
 			id: user.id,
 			minJwtIat: user.minJwtIat,
+			roles: user.roles,
 		},
 	};
 }
 
-function rowMapper(row: UserRaw): Promise<User> {
+async function rowMapper(row: UserRaw, trx?: Transaction): Promise<User> {
 	return Promise.resolve({
 		...row,
+		roles: await findAllRoles({ userId: row.id }, undefined, trx),
 	});
 }
 
 export const find = findOneGenerator(table, columnNames, (row) => rowMapper(row));
+
+export const findAllRoles = findAllGenerator<Record<string, any> | string | number, Role>(rolesTable, rolesColNames, (row) => row.role);
 
 export const fromQuery = fromQueryGenerator<User>(columnNames, (row) => rowMapper(row));
 
@@ -61,6 +81,11 @@ export function create(user: SaveUser, trx?: Transaction): Promise<User> {
 				[cols.enabled]: user.enabled,
 				[cols.minJwtIat]: user.minJwtIat || new Date(),
 			})),
+		async (db, userId) => {
+			await db(rolesTable)
+				.insert(user.roles.map((role) => ({ userId, role })));
+			return userId;
+		},
 		(db, id) => find(id, db),
 	], trx);
 }
@@ -113,6 +138,7 @@ export interface User {
 	enabled: boolean,
 	minJwtIat: Date,
 	createdAt: Date,
+	roles: Role[],
 }
 
 export interface UserRaw {
@@ -129,6 +155,7 @@ export interface SaveUser {
 	password: string,
 	enabled: boolean,
 	minJwtIat?: Date,
+	roles: Role[],
 }
 
 export interface AuthResponse {

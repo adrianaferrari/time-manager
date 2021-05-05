@@ -32,19 +32,19 @@ const columnNames = Object.values(cols);
 
 const technologyColNames = Object.values(technologyCols);
 
-async function rowMapper(row: ProjectRaw): Promise<Project> {
+async function rowMapper(row: ProjectRaw, trx?: Transaction): Promise<Project> {
 	return Promise.resolve({
 		...row,
-		technologyIds: await findAllTechnologies({ projectId: row.id }),
+		technologyIds: await findAllTechnologies({ projectId: row.id }, undefined, trx),
 		estimatedEffort: row.estimatedEffort ? new Interval(row.estimatedEffort) : null,
 	});
 }
 
-export const find = findOneGenerator(table, columnNames, (row) => rowMapper(row));
+export const find = findOneGenerator(table, columnNames, (row, trx) => rowMapper(row, trx));
 
 export const findAllTechnologies = findAllGenerator<Record<string, any> | string | number, uuid>(technologyTable, technologyColNames, (row) => row.technologyId);
 
-export const fromQuery = fromQueryGenerator<Project>(columnNames, (row) => rowMapper(row));
+export const fromQuery = fromQueryGenerator<Project>(columnNames, (row, trx) => rowMapper(row, trx));
 
 export function create(project: SaveProject, trx?: Transaction): Promise<Project> {
 	return transact([
