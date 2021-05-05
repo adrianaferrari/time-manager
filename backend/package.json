@@ -50,7 +50,9 @@
 		"typescript": "^3.9.7"
 	},
 	"dependencies": {
+		"@cdellacqua/date-only": "^1.0.5",
 		"@cdellacqua/express-async-wrapper": "^1.0.2",
+		"@cdellacqua/interval": "^2.1.0",
 		"@cdellacqua/knex-transact": "^2.0.0",
 		"@cdellacqua/serializable-error": "^1.1.0",
 		"bcryptjs": "^2.4.3",
