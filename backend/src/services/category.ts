@@ -1,6 +1,6 @@
 import { transact } from '@cdellacqua/knex-transact';
 import { Transaction } from 'knex';
-import { findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
+import { findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
 import { uuid } from '../types/common';
 
 export const table = 'category';
@@ -20,6 +20,8 @@ function rowMapper(row: CategoryRaw): Promise<Category> {
 }
 
 export const find = findOneGenerator(table, columnNames, (row) => rowMapper(row));
+
+export const findAll = findAllGenerator(table, columnNames, (row) => rowMapper(row));
 
 export const fromQuery = fromQueryGenerator<Category>(columnNames, (row) => rowMapper(row));
 

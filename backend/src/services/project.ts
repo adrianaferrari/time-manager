@@ -42,6 +42,8 @@ async function rowMapper(row: ProjectRaw, trx?: Transaction): Promise<Project> {
 
 export const find = findOneGenerator(table, columnNames, (row, trx) => rowMapper(row, trx));
 
+export const findAll = findAllGenerator(table, columnNames, (row, trx) => rowMapper(row, trx));
+
 export const findAllTechnologies = findAllGenerator<Record<string, any> | string | number, uuid>(technologyTable, technologyColNames, (row) => row.technologyId);
 
 export const fromQuery = fromQueryGenerator<Project>(columnNames, (row, trx) => rowMapper(row, trx));

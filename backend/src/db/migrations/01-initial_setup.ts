@@ -61,7 +61,7 @@ export async function up(knex: Knex): Promise<void> {
 	await knex.schema.createTable('activity', (table) => {
 		table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
 		table.string('description', 1000).notNullable();
-		table.dateTime('date').notNullable();
+		table.date('date').notNullable();
 		table.uuid('userId').references('id').inTable('user').notNullable().onDelete('cascade');;
 		table.uuid('categoryId').references('id').inTable('category').notNullable();
 		table.uuid('projectId').nullable().references('id').inTable('project').onDelete('cascade');;

@@ -18,7 +18,7 @@
 				"@babel/preset-env": "^7.11.5",
 				"@babel/runtime": "^7.13.10",
 				"@cdellacqua/date-only": "^1.0.5",
-				"@cdellacqua/interval": "^1.0.5",
+				"@cdellacqua/interval": "^2.1.0",
 				"@cdellacqua/time": "^2.0.0",
 				"@rollup/plugin-babel": "^5.2.1",
 				"@rollup/plugin-commonjs": "^14.0.0",
