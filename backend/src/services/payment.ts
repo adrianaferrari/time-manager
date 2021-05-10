@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js';
 import { Transaction } from 'knex';
 import { findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
 import { uuid } from '../types/common';
+import * as project from './project';
 
 export const table = 'payment';
 
@@ -38,6 +39,27 @@ export function create(payment: SavePayment, trx?: Transaction): Promise<Payment
 			})),
 		(db, id) => find(id, db),
 	], trx);
+}
+
+export function update(id: uuid, payment: SavePayment, trx?: Transaction): Promise<Payment> {
+	return transact([
+		(db) => db(table)
+			.where({ id })
+			.update({
+				[cols.amount]: payment.amount.toString(),
+				[cols.currency]: payment.currency,
+				[cols.date]: payment.date.toString(),
+				[cols.projectId]: payment.projectId,
+			}),
+		(db, id) => find(id, db),
+	], trx);
+}
+
+export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
+	return transact([
+		(db) => find({ id }, db),
+		(db, payment) => project.find({ userId, id: payment.projectId }, db)
+	], trx).then((res) => !!res);
 }
 
 

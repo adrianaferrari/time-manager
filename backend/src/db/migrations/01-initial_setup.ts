@@ -71,8 +71,8 @@ export async function up(knex: Knex): Promise<void> {
 	await knex.schema.createTable('payment', (table) => {
 		table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
 		table.date('date').notNullable();
-		table.decimal('amount', 19, 4);
-		table.string('currency', 10).nullable();
+		table.decimal('amount', 19, 4).notNullable();
+		table.string('currency', 10).notNullable();
 		table.uuid('projectId').references('id').inTable('project').notNullable().onDelete('cascade');;
 	});
 }

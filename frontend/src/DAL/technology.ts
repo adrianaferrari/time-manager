@@ -18,6 +18,11 @@ export function mapper(raw: TechnologyRaw): Technology {
 	};
 }
 
+export function save(technology: SaveTechnology, id?: string): Promise<Technology> {
+	const axiosCall = id ? axios.put(`/auth/technology/${id}`, technology) : axios.post('/auth/technology', technology);
+	return axiosExtract<TechnologyRaw>(axiosCall)
+		.then((res) => mapper(res));
+}
 export interface TechnologyRaw {
 	id: string,
 	name: string,
@@ -28,4 +33,8 @@ export interface Technology {
 	id: string,
 	name: string,
 	userId: string,
+}
+
+export interface SaveTechnology {
+	name: string,
 }

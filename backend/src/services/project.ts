@@ -71,6 +71,33 @@ export function create(project: SaveProject, trx?: Transaction): Promise<Project
 	], trx);
 }
 
+export function update(id: uuid, project: SaveProject, trx?: Transaction): Promise<Project> {
+	return transact([
+		(db) => db(table)
+			.where({ id })
+			.update({
+				[cols.name]: project.name,
+				[cols.clientId]: project.clientId,
+				[cols.endDate]: project.endDate?.toString(),
+				[cols.estimatedEffort]: project.estimatedEffort?.totalSeconds,
+				[cols.price]: project.price?.toString(),
+				[cols.startDate]: project.startDate.toString(),
+				[cols.currency]: project.currency,
+			}),
+		async (db) => {
+			await db(technologyTable).where({ projectId: id }).delete();
+			if (project.technologyIds && project.technologyIds.length) {
+				await db(technologyTable).insert(project.technologyIds.map((technologyId) => ({ projectId: id, technologyId })));
+			}
+		},
+		(db) => find(id, db),
+	], trx);
+}
+
+export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
+	return find({ id, userId }, trx).then((res) => !!res);
+}
+
 
 export interface ProjectRaw {
 	id: uuid,

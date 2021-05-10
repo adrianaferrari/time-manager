@@ -50,6 +50,21 @@ export function create(activity: SaveActivity, trx?: Transaction): Promise<Activ
 	], trx);
 }
 
+export function update(id: uuid, activity: SaveActivity, trx?: Transaction): Promise<Activity> {
+	return transact([
+		(db) => db(table)
+			.where({ id })
+			.update({
+				[cols.categoryId]: activity.categoryId,
+				[cols.date]: activity.date.toString(),
+				[cols.description]: activity.description,
+				[cols.projectId]: activity.projectId,
+				[cols.timeSpent]: activity.timeSpent.totalSeconds,
+			}),
+		(db) => find(id, db),
+	], trx);
+}
+
 export function list(userId: uuid, filter: FilterActivityRequest, trx?: Transaction): Promise<AsyncDataTableResponse<Activity>> {
 	return transact([ 
 		async (db) => {
@@ -91,6 +106,11 @@ export function list(userId: uuid, filter: FilterActivityRequest, trx?: Transact
 		}
 	], trx);
 }
+
+export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
+	return find({ id, userId }, trx).then((res) => !!res);
+}
+
 export interface ActivityRaw {
 	id: uuid,
 	description: string,

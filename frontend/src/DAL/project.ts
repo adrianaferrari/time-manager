@@ -29,6 +29,12 @@ export function mapper(raw: ProjectRaw): Project {
 	}
 }
 
+export function save(project: SaveProject, id?: string): Promise<Project> {
+	const axiosCall = id ? axios.put(`/auth/project/${id}`, project) : axios.post('/auth/project', project);
+	return axiosExtract<ProjectRaw>(axiosCall)
+		.then((res) => mapper(res));
+}
+
 export interface Project {
 	id: string,
 	name: string,
@@ -53,4 +59,16 @@ export interface ProjectRaw {
 	estimatedEffort: string | null,
 	currency: Currency | null,
 	technologyIds: string[],
+}
+
+export interface SaveProject {
+	name: string,
+	startDate: DateOnly,
+	endDate?: DateOnly | null,
+	userId: string,
+	clientId?: string | null,
+	price?: BigNumber | null,
+	estimatedEffort?: Interval | null,
+	currency?: string | null,
+	technologyIds?: string[],
 }

@@ -1,6 +1,7 @@
 import { transact } from '@cdellacqua/knex-transact';
 import { Transaction } from 'knex';
-import { findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
+import { findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
+import { define } from '../helpers/object';
 import { uuid } from '../types/common';
 
 export const table = 'technology';
@@ -21,6 +22,8 @@ function rowMapper(row: TechnologyRaw): Promise<Technology> {
 
 export const find = findOneGenerator(table, columnNames, (row) => rowMapper(row));
 
+export const findAll = findAllGenerator(table, columnNames, (row) => rowMapper(row));
+
 export const fromQuery = fromQueryGenerator<Technology>(columnNames, (row) => rowMapper(row));
 
 export function create(technology: SaveTechnology, trx?: Transaction): Promise<Technology> {
@@ -32,6 +35,32 @@ export function create(technology: SaveTechnology, trx?: Transaction): Promise<T
 			})),
 		(db, id) => find(id, db),
 	], trx);
+}
+
+export function update(id: uuid, technology: SaveTechnology, trx?: Transaction): Promise<Technology> {
+	return transact([
+		(db) => db(table)
+			.where({ id })
+			.update({
+				[cols.name]: technology.name,
+			}),
+		(db) => find(id, db),
+	], trx);
+}
+
+export function areOwned(ids: uuid[], userId: uuid, trx?: Transaction): Promise<boolean> {
+	return transact([
+		(db) => fromQuery(db(table).where({ userId }).whereIn(cols.id, ids))
+			.then((found) => found.length === ids.length),
+	], trx);
+}
+
+export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
+	return find({ id, userId }, trx).then((res) => !!res);
+}
+
+export function alreadyExists(name: string, userId: uuid, id?: uuid, trx?: Transaction): Promise<boolean> {
+	return find(define({ name, userId }), trx).then((res) => res ? res.id !== id : false);
 }
 
 

@@ -21,6 +21,12 @@ export function list(dataTableReq: AsyncDataTableRequest, filters: ActivityFilte
 		.then((res) => ({ ...res, records: res.records.map((raw) => mapper(raw))}));
 }
 
+export function save(activity: SaveActivity, id?: string): Promise<Activity> {
+	const axiosCall = id ? axios.put(`/auth/activity/${id}`, activity) : axios.post('/auth/activity', activity);
+	return axiosExtract<ActivityRaw>(axiosCall)
+		.then((res) => mapper(res));
+}
+
 export interface Activity {
 	id: string,
 	description: string,
@@ -46,4 +52,13 @@ export interface ActivityFilter {
 	to?: DateOnly | null,
 	categoryId?: string | null,
 	projectId?: string | null,
+}
+
+export interface SaveActivity {
+	description: string,
+	date: DateOnly,
+	userId: string,
+	categoryId: string,
+	projectId?: string | null,
+	timeSpent: Interval,
 }

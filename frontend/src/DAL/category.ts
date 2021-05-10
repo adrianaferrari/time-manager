@@ -18,6 +18,12 @@ export function mapper(raw: CategoryRaw): Category {
 	};
 }
 
+export function save(category: SaveCategory, id?: string): Promise<Category> {
+	const axiosCall = id ? axios.put(`/auth/category/${id}`, category) : axios.post('/auth/category', category);
+	return axiosExtract<CategoryRaw>(axiosCall)
+		.then((res) => mapper(res));
+}
+
 export interface CategoryRaw {
 	id: string,
 	name: string,
@@ -28,4 +34,8 @@ export interface Category {
 	id: string,
 	name: string,
 	userId: string,
+}
+
+export interface SaveCategory {
+	name: string,
 }

@@ -38,6 +38,30 @@ export function create(company: SaveCompany, trx?: Transaction): Promise<Company
 	], trx);
 }
 
+export function update(id: uuid, company: SaveCompany, trx?: Transaction): Promise<Company> {
+	return transact([
+		(db) => db(table)
+			.where({ id })
+			.update({
+				[cols.email]: company.email,
+				[cols.name]: company.name,
+				[cols.vatNumber]: company.vatNumber,
+			}),
+		(db) => find(id, db),
+	], trx);
+}
+
+export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
+	return find({ id, userId }, trx).then((res) => !!res);
+}
+
+export function vatNumberAlreadyExists(vatNumber: string, userId: uuid, id?: uuid, trx?: Transaction): Promise<boolean> {
+	return find(({ vatNumber, userId }), trx).then((res) => res ? res.id !== id : false);
+}
+
+export function emailAlreadyExists(email: string, userId: uuid, id?: uuid, trx?: Transaction): Promise<boolean> {
+	return find(({ email, userId }), trx).then((res) => res ? res.id !== id : false);
+}
 
 export interface CompanyRaw {
 	id: uuid,

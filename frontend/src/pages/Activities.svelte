@@ -1,7 +1,8 @@
 <script>
 import { DateOnly } from '@cdellacqua/date-only';
 import { Interval } from '@cdellacqua/interval';
-import { AsyncDataTable } from 'custom-uikit-svelte';
+import { AsyncDataTable, LoaderWrapper } from 'custom-uikit-svelte';
+import { derived } from 'svelte/store';
 import * as activity from '../DAL/activity';
 import { categories } from '../DAL/category';
 import { projects } from '../DAL/project';
@@ -40,6 +41,10 @@ let columns = [
 	}
 ];
 
+let loading = derived([categories.refreshing, projects.refreshing], ([refreshingCategories, refreshingProjects]) => {
+	return refreshingCategories || refreshingProjects;
+});
+
 function dataProvider(query, orderBy, recordsPerPage, pageIndex) {
 	return activity.list({ orderBy, pageIndex, query, recordsPerPage }, { from, to, categoryId, projectId });
 }
@@ -49,8 +54,12 @@ function dataProviderErrorHandler(err) {
 }
 
 </script>
-<AsyncDataTable 
-	{dataProvider}
-	{dataProviderErrorHandler}
-	{columns}
-/>
+
+<LoaderWrapper loading={$loading}>
+	<AsyncDataTable 
+		{dataProvider}
+		{dataProviderErrorHandler}
+		{columns}		
+	/>
+</LoaderWrapper>
+
