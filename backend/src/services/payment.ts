@@ -55,6 +55,12 @@ export function update(id: uuid, payment: SavePayment, trx?: Transaction): Promi
 	], trx);
 }
 
+export function del(id: uuid, trx?: Transaction): Promise<void> {
+	return transact([
+		(db) => db(table).where({ id }).delete(),
+	], trx);
+}
+
 export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
 	return transact([
 		(db) => find({ id }, db),

@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { param } from 'express-validator';
 import { define } from '../../../helpers/object';
 import { isActivity, isActivityFilter, isAsyncDataTableRequest, rejectOnFailedValidation, sanitizeActivity, sanitizeActivityFilter, sanitizeDataTableRequest } from '../../../helpers/validator';
+import { HttpStatus } from '../../../http/status';
 import * as activity from '../../../services/activity';
 import verifyOwnershipMiddleware, { OwnedEntity } from './_user-ownership-middleware';
 
@@ -28,6 +29,17 @@ r.put('/:id', [
 		timeSpent: req.body.timeSpent,
 		projectId: req.body.projectId,
 	}));
+}));
+
+r.delete('/:id', [
+	param('id').isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req) => ({
+		[OwnedEntity.activity]: req.params.id,
+	})),
+], asyncWrapper(async (req, res) => {
+	await activity.del(req.params.id);
+	res.status(HttpStatus.NoContent).end();
 }));
 
 r.get('/', [

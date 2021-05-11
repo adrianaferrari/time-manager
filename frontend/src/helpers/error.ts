@@ -14,13 +14,13 @@ export function apiErrorHandler(err: Error): void {
 	if ((err as any)?.response?.status) {
 		switch ((err as any)?.response?.status) {
 			case HttpStatus.ServiceUnavailable:
-				notifyErr(__('Servizio in manutenzione, si prega di riprovare più tardi'));
+				notifyErr(__('Service unavailable, please try again later'));
 				break;
 			default:
-				notifyErr(__('Errore di comunicazione col server'));
+				notifyErr(__('Error communicating with the server'));
 				break;
 		}
 	} else {
-		notifyErr(__('Impossibile comunicare col server'));
+		notifyErr(__('Cannot communicate with the server'));
 	}
 }

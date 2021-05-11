@@ -10,6 +10,7 @@ import { Request, Response } from 'express';
 import * as company from '../../../services/company';
 import * as category from '../../../services/category';
 import * as client from '../../../services/client';
+import * as technology from '../../../services/technology';
 
 export enum UniqueEntity {
 	category = 'category',
@@ -53,9 +54,13 @@ function verifyUniquenessMiddleware(paramsExtractor: ((req: Request, res: Respon
 								throw new HttpError(HttpStatus.Conflict, 'a company with this email already exists');
 							}
 						});
-					break;
 				case UniqueEntity.technology:
-					break;
+					return technology.alreadyExists(uniquenessRules[key]!.name, userId, uniquenessRules[key]!.id)
+						.then((res) => {
+							if (res) {
+								throw new HttpError(HttpStatus.Conflict, 'technology already exists for this user');
+							}
+						});
 			}
 		}));
 		next();

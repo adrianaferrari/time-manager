@@ -4,6 +4,7 @@ import { param } from 'express-validator';
 import { isPayment, rejectOnFailedValidation, sanitizePayment } from '../../../helpers/validator';
 import verifyOwnershipMiddleware, { OwnedEntity } from './_user-ownership-middleware';
 import * as payment from '../../../services/payment';
+import { HttpStatus } from '../../../http/status';
 
 const r: Router = Router();
 export default r;
@@ -23,6 +24,17 @@ r.put('/:id', [
 		date: req.body.date,
 		projectId: res.locals.project.id,
 	}));
+}));
+
+r.delete('/:id', [
+	param('id').isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req) => ({
+		[OwnedEntity.payment]: req.params.id,
+	})),
+], asyncWrapper(async (req, res) => {
+	await payment.del(req.params.id);
+	res.status(HttpStatus.NoContent).end();
 }));
 
 r.post('/', [

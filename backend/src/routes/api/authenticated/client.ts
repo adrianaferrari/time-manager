@@ -35,6 +35,21 @@ r.put('/:id', [
 	}));
 }));
 
+r.delete('/:id', [
+	param('id').isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req) => ({
+		[OwnedEntity.client]: req.params.id,
+	})),
+], asyncWrapper(async (req, res) => {
+	await client.del(req.params.id);
+	res.status(HttpStatus.NoContent).end();
+}));
+
+r.get('/', asyncWrapper(async (_, res) => {
+	res.json(await client.findAll({ userId: res.locals.user.id }));
+}));
+
 r.post('/', [
 	...isClient(),
 	...sanitizeClient(),

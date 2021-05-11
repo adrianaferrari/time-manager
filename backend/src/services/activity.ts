@@ -107,6 +107,12 @@ export function list(userId: uuid, filter: FilterActivityRequest, trx?: Transact
 	], trx);
 }
 
+export function del(id: uuid, trx?: Transaction): Promise<void> {
+	return transact([
+		(db) => db(table).where({ id }).delete(),
+	], trx);
+}
+
 export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
 	return find({ id, userId }, trx).then((res) => !!res);
 }

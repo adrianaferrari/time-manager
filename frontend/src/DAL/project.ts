@@ -35,6 +35,10 @@ export function save(project: SaveProject, id?: string): Promise<Project> {
 		.then((res) => mapper(res));
 }
 
+export function del(id: string): Promise<void> {
+	return axiosExtract(axios.delete(`/auth/project/${id}`));
+}
+
 export interface Project {
 	id: string,
 	name: string,
@@ -65,7 +69,6 @@ export interface SaveProject {
 	name: string,
 	startDate: DateOnly,
 	endDate?: DateOnly | null,
-	userId: string,
 	clientId?: string | null,
 	price?: BigNumber | null,
 	estimatedEffort?: Interval | null,

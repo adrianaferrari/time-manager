@@ -6,6 +6,8 @@ import { theme } from '../ui-ux/theme';
 import { categories } from '../DAL/category';
 import { projects } from '../DAL/project';
 import { technologies } from '../DAL/technology';
+import { companies } from '../DAL/company';
+import { clients } from '../DAL/client';
 
 theme.subscribe(noop);
 
@@ -15,9 +17,13 @@ derived([user], identity)
 			categories.refresh();
 			projects.refresh();
 			technologies.refresh();
+			companies.refresh();
+			clients.refresh();
 		} else {
 			categories.setRaw([]);
 			projects.setRaw([]);
 			technologies.setRaw([]);
+			clients.setRaw([]);
+			companies.setRaw([]);
 		}
 	});

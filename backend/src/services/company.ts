@@ -1,6 +1,6 @@
 import { transact } from '@cdellacqua/knex-transact';
 import { Transaction } from 'knex';
-import { findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
+import { findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
 import { uuid } from '../types/common';
 
 export const table = 'company';
@@ -22,6 +22,8 @@ function rowMapper(row: CompanyRaw): Promise<Company> {
 }
 
 export const find = findOneGenerator(table, columnNames, (row) => rowMapper(row));
+
+export const findAll = findAllGenerator(table, columnNames, (row) => rowMapper(row));
 
 export const fromQuery = fromQueryGenerator<Company>(columnNames, (row) => rowMapper(row));
 
@@ -48,6 +50,12 @@ export function update(id: uuid, company: SaveCompany, trx?: Transaction): Promi
 				[cols.vatNumber]: company.vatNumber,
 			}),
 		(db) => find(id, db),
+	], trx);
+}
+
+export function del(id: uuid, trx?: Transaction): Promise<void> {
+	return transact([
+		(db) => db(table).where({ id }).delete(),
 	], trx);
 }
 

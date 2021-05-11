@@ -11,7 +11,7 @@ import verifyOwnershipMiddleware, { OwnedEntity } from './_user-ownership-middle
 const r: Router = Router();
 export default r;
 
-r.put('/', [
+r.put('/:id', [
 	param('id').isUUID(),
 	...isCategory(),
 	rejectOnFailedValidation(),
@@ -26,6 +26,17 @@ r.put('/', [
 		userId: res.locals.user.id,
 		name: req.body.name,
 	}));
+}));
+
+r.delete('/:id', [
+	param('id').isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req) => ({
+		[OwnedEntity.category]: req.params.id,
+	})),
+], asyncWrapper(async (req, res) => {
+	await category.del(req.params.id);
+	res.status(HttpStatus.NoContent).end();
 }));
 
 r.get('/', asyncWrapper(async (_, res) => {

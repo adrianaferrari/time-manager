@@ -27,6 +27,10 @@ export function save(activity: SaveActivity, id?: string): Promise<Activity> {
 		.then((res) => mapper(res));
 }
 
+export function del(id: string): Promise<void> {
+	return axiosExtract(axios.delete(`/auth/activity/${id}`));
+}
+
 export interface Activity {
 	id: string,
 	description: string,
@@ -57,7 +61,6 @@ export interface ActivityFilter {
 export interface SaveActivity {
 	description: string,
 	date: DateOnly,
-	userId: string,
 	categoryId: string,
 	projectId?: string | null,
 	timeSpent: Interval,

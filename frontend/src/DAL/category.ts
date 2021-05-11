@@ -24,6 +24,9 @@ export function save(category: SaveCategory, id?: string): Promise<Category> {
 		.then((res) => mapper(res));
 }
 
+export function del(id: string): Promise<void> {
+	return axiosExtract(axios.delete(`/auth/category/${id}`));
+}
 export interface CategoryRaw {
 	id: string,
 	name: string,

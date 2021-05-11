@@ -47,6 +47,17 @@ r.put('/:id', [
 	}));
 }));
 
+r.delete('/:id', [
+	param('id').isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req) => ({
+		[OwnedEntity.project]: req.params.id,
+	})),
+], asyncWrapper(async (req, res) => {
+	await project.del(req.params.id);
+	res.status(HttpStatus.NoContent).end();
+}));
+
 
 r.get('/', asyncWrapper(async (_, res) => {
 	res.json(await project.findAll({ userId: res.locals.user.id }));

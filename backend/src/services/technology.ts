@@ -48,6 +48,12 @@ export function update(id: uuid, technology: SaveTechnology, trx?: Transaction):
 	], trx);
 }
 
+export function del(id: uuid, trx?: Transaction): Promise<void> {
+	return transact([
+		(db) => db(table).where({ id }).delete(),
+	], trx);
+}
+
 export function areOwned(ids: uuid[], userId: uuid, trx?: Transaction): Promise<boolean> {
 	return transact([
 		(db) => fromQuery(db(table).where({ userId }).whereIn(cols.id, ids))

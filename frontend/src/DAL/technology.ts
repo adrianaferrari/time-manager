@@ -23,6 +23,10 @@ export function save(technology: SaveTechnology, id?: string): Promise<Technolog
 	return axiosExtract<TechnologyRaw>(axiosCall)
 		.then((res) => mapper(res));
 }
+
+export function del(id: string): Promise<void> {
+	return axiosExtract(axios.delete(`/auth/technology/${id}`));
+}
 export interface TechnologyRaw {
 	id: string,
 	name: string,

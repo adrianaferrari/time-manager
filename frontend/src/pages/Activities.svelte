@@ -8,11 +8,19 @@ import { categories } from '../DAL/category';
 import { projects } from '../DAL/project';
 import { statusMatch } from '../helpers/axios';
 import { __ } from '../i18n';
+import SaveActivityModal from '../modals/SaveActivityModal.svelte';
 
 let from = undefined;
 let to = undefined;
 let categoryId = undefined;
 let projectId = undefined;
+
+let selected = undefined;
+let showCreateModal = false;
+let showDeleteModal = false;
+let showUpdateModal = false;
+
+let dataTable = undefined;
 
 let columns = [
 	{
@@ -56,10 +64,19 @@ function dataProviderErrorHandler(err) {
 </script>
 
 <LoaderWrapper loading={$loading}>
-	<AsyncDataTable 
-		{dataProvider}
-		{dataProviderErrorHandler}
-		{columns}		
-	/>
+	<div class="uk-container">
+		<AsyncDataTable 
+			{dataProvider}
+			{dataProviderErrorHandler}
+			{columns}
+			bind:this={dataTable}
+			on:row-dblclick={({ detail }) => (selected = detail, showUpdateModal = true)}
+		/>
+	</div>
 </LoaderWrapper>
 
+<SaveActivityModal
+	entity={selected}
+	bind:show={showUpdateModal}
+	on:save={() => dataTable.reload()}
+/>

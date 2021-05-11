@@ -7,6 +7,7 @@ import { define } from '../../../helpers/object';
 import { param } from 'express-validator';
 import verifyUniquenessMiddleware, { UniqueEntity } from './_uniqueness-middleware';
 import { uuid } from '../../../types/common';
+import { HttpStatus } from '../../../http/status';
 
 const r: Router = Router();
 export default r;
@@ -36,6 +37,21 @@ r.put('/:id', [
 		email: req.body.email,
 		vatNumber: req.body.vatNumber,
 	}));
+}));
+
+r.delete('/:id', [
+	param('id').isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req) => ({
+		[OwnedEntity.company]: req.params.id,
+	})),
+], asyncWrapper(async (req, res) => {
+	await company.del(req.params.id);
+	res.status(HttpStatus.NoContent).end();
+}));
+
+r.get('/', asyncWrapper(async (_, res) => {
+	res.json(await company.findAll({ userId: res.locals.user.id }));
 }));
 
 r.post('/', [

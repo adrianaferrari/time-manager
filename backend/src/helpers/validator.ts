@@ -65,7 +65,7 @@ export function isProject() {
 			return true;
 		}),
 		body('estimatedEffort').optional({ nullable: true }).isString().custom((value) => {
-			if (value && !value.matches(Interval.regex)) {
+			if (value && !value.match(Interval.regex)) {
 				throw new Error('Estimated effort is in an invalid interval format');
 			}
 			return true;
@@ -107,7 +107,7 @@ export function isActivity() {
 		body('categoryId').isUUID(),
 		body('date').isDate(),
 		body('timeSpent').isString().custom((value) => {
-			if (!value.matches(Interval.regex)) {
+			if (!value.match(Interval.regex)) {
 				throw new Error('Time spent is in an invalid interval format');
 			}
 			return true;
