@@ -10,11 +10,19 @@ import { axiosExtract } from '../helpers/axios';
 import { setTheme, theme } from '../ui-ux/theme';
 import config from '../config';
 import { HttpStatus } from '../http/status';
+import { asyncReadable } from 'svelte-async-readable';
 
 export enum Role {
 	admin = 'admin',
 	user = 'user',
 }
+
+export const dayLength = asyncReadable({
+	dataProvider: async () => 8, // TODO use actual api
+	initialValue: 8,
+	storageName: 'dayLength',
+	refresh: false,
+});
 
 const authStorageKey = 'authResponse';
 

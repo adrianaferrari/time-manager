@@ -18,6 +18,7 @@ r.put('/:id', [
 		[OwnedEntity.payment]: req.params.id,
 	})),
 ], asyncWrapper(async (req, res) => {
+	console.log(res.locals.project.id)
 	res.json(await payment.update(req.params.id, {
 		amount: req.body.amount,
 		currency: req.body.currency,

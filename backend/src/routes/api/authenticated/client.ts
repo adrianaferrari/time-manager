@@ -19,7 +19,7 @@ r.put('/:id', [
 	...sanitizeClient(),
 	rejectOnFailedValidation(),
 	verifyOwnershipMiddleware((req) => define({
-		[OwnedEntity.company]: req.body.companyId,
+		[OwnedEntity.company]: req.body.companyId || undefined,
 		[OwnedEntity.client]: req.params.id,
 	})),
 	verifyUniquenessMiddleware((req) => (req.body.email ? {

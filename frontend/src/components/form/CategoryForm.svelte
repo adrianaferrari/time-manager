@@ -41,6 +41,6 @@ $: entity, loadData();
 
 </script>
 <Form {submitAsync}>
-	<TextInput bind:value={name} label={__("Name")} />
+	<TextInput bind:value={name} label={__("Name")} maxlength={100} />
 	<Button type="submit">{__("Save")}</Button>
 </Form>

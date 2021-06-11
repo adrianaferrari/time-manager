@@ -127,7 +127,7 @@ export function isClient() {
 export function isCompany() {
 	return [
 		body('name').isString().isLength({ min: 1, max: 150 }),
-		body('vatNumber').optional({ nullable: true }).isString(),
+		body('vatNumber').optional({ nullable: true }).isString().isLength({ max: 100 }),
 		body('email').optional({ nullable: true }).isEmail().isLength({ max: 150 }),
 	];
 }
@@ -150,7 +150,32 @@ export function isActivityFilter() {
 	];
 }
 
+export function isPaymentFilter() {
+	return [
+		query('from').optional({ nullable: true }).isDate(),
+		query('to').optional({ nullable: true }).isDate(),
+		query('projectId').optional({ nullable: true }).isUUID(),
+	];
+}
+
 export function sanitizeActivityFilter() {
+	return [
+		query('from').customSanitizer((value) => {
+			if (value) {
+				return DateOnly.fromString(value);
+			}
+			return undefined;
+		}),
+		query('to').customSanitizer((value) => {
+			if (value) {
+				return DateOnly.fromString(value);
+			}
+			return undefined;
+		}),
+	]
+}
+
+export function sanitizePaymentFilter() {
 	return [
 		query('from').customSanitizer((value) => {
 			if (value) {

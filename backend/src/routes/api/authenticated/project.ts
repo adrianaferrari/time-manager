@@ -1,15 +1,44 @@
 import { asyncWrapper } from '@cdellacqua/express-async-wrapper';
 import { Router } from 'express';
-import { isProject, rejectOnFailedValidation, sanitizeProject } from '../../../helpers/validator';
+import { isAsyncDataTableRequest, isProject, rejectOnFailedValidation, sanitizeDataTableRequest, sanitizeProject, isPaymentFilter, sanitizePaymentFilter } from '../../../helpers/validator';
 import * as project from '../../../services/project';
+import * as payment from '../../../services/payment';
 import verifyOwnershipMiddleware, { OwnedEntity } from './_user-ownership-middleware';
 import { param } from 'express-validator';
 import paymentRoutes from './payment';
 import { HttpError } from '../../../http/error';
 import { HttpStatus } from '../../../http/status';
+import { define } from '../../../helpers/object';
 
 const r: Router = Router();
 export default r;
+
+r.get('/all/payment',[
+	...isAsyncDataTableRequest([ 
+		payment.cols.date,
+		'project.name',
+		payment.cols.amount,
+		payment.cols.currency,
+	]),
+	...isPaymentFilter(),
+	...sanitizeDataTableRequest(),
+	...sanitizePaymentFilter(),
+	rejectOnFailedValidation()
+], asyncWrapper(async (req, res) => {
+	const query = req.query as any;
+	const filter: payment.FilterPaymentRequest = {
+		pageIndex: query.pageIndex,
+		orderBy: query.orderBy,
+		query: query.query,
+		recordsPerPage: query.recordsPerPage,
+		filters: {
+			projectId: query.projectId,
+			from: query.from,
+			to: query.to,
+		}
+	};
+	res.json(await payment.list(res.locals.user.id, filter));
+}));
 
 r.use('/:id/payment', asyncWrapper(async (req, res, next) => {
 	const projectEntity = await project.find({ id: req.params.id });
@@ -28,8 +57,8 @@ r.put('/:id', [
 	...isProject(),
 	...sanitizeProject(),
 	rejectOnFailedValidation(),
-	verifyOwnershipMiddleware((req) => ({
-		[OwnedEntity.client]: req.body.clientId,
+	verifyOwnershipMiddleware((req) => define({
+		[OwnedEntity.client]: req.body.clientId || undefined,
 		[OwnedEntity.technologies]: req.body.technologyIds,
 		[OwnedEntity.project]: req.params.id,
 	})),

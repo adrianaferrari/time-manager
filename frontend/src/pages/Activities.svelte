@@ -1,7 +1,7 @@
 <script>
 import { DateOnly } from '@cdellacqua/date-only';
 import { Interval } from '@cdellacqua/interval';
-import { AsyncDataTable, LoaderWrapper } from 'custom-uikit-svelte';
+import { AsyncDataTable, Autocomplete, DatePicker, LoaderWrapper } from 'custom-uikit-svelte';
 import { derived } from 'svelte/store';
 import * as activity from '../DAL/activity';
 import { categories } from '../DAL/category';
@@ -54,7 +54,7 @@ let loading = derived([categories.refreshing, projects.refreshing], ([refreshing
 });
 
 function dataProvider(query, orderBy, recordsPerPage, pageIndex) {
-	return activity.list({ orderBy, pageIndex, query, recordsPerPage }, { from, to, categoryId, projectId });
+	return activity.list({ orderBy, pageIndex, query, recordsPerPage }, { from: from || undefined, to: to || undefined, categoryId: categoryId || undefined, projectId: projectId || undefined });
 }
 
 function dataProviderErrorHandler(err) {
@@ -65,6 +65,30 @@ function dataProviderErrorHandler(err) {
 
 <LoaderWrapper loading={$loading}>
 	<div class="uk-container">
+		<div class="uk-flex">
+			<DatePicker 
+				optional
+				label={__("From")}
+				bind:value={from}
+			/>
+			<DatePicker 
+				optional
+				label={__("To")}
+				bind:value={to}
+			/>
+			<Autocomplete
+				optional
+				label={__("Category")}
+				options={$categories.map((c) => ({ label: c.name, value: c.id }))}
+				bind:value={categoryId}
+			/>
+			<Autocomplete
+				label={__('Project')}
+				options={$projects.map((p) => ({ label: p.name, value: p.id }))}
+				bind:value={projectId}
+				optional 
+			/>
+		</div>
 		<AsyncDataTable 
 			{dataProvider}
 			{dataProviderErrorHandler}

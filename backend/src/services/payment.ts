@@ -3,7 +3,9 @@ import { transact } from '@cdellacqua/knex-transact';
 import BigNumber from 'bignumber.js';
 import { Transaction } from 'knex';
 import { findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
-import { uuid } from '../types/common';
+import { define } from '../helpers/object';
+import { AsyncDataTableRequest, AsyncDataTableResponse } from '../types/async-data-table';
+import { Currency, uuid } from '../types/common';
 import * as project from './project';
 
 export const table = 'payment';
@@ -16,7 +18,7 @@ export const cols = {
 	projectId: 'projectId',
 };
 
-const columnNames = Object.values(cols);
+const columnNames = Object.values(cols).map((cn) => `${table}.${cn}`);
 
 function rowMapper(row: PaymentRaw): Promise<Payment> {
 	return Promise.resolve({
@@ -51,7 +53,7 @@ export function update(id: uuid, payment: SavePayment, trx?: Transaction): Promi
 				[cols.date]: payment.date.toString(),
 				[cols.projectId]: payment.projectId,
 			}),
-		(db, id) => find(id, db),
+		(db) => find(id, db),
 	], trx);
 }
 
@@ -68,12 +70,52 @@ export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<bool
 	], trx).then((res) => !!res);
 }
 
+export function list(userId: uuid, filter: FilterPaymentRequest, trx?: Transaction): Promise<AsyncDataTableResponse<Payment>> {
+	return transact([ 
+		async (db) => {
+			const getQuery = (filtered = true) => {
+				let base = db(table)
+				.join(project.table, `${table}.${cols.projectId}`, `${project.table}.${project.cols.id}`)
+				.where(`${project.table}.${project.cols.userId}`, userId)
+				.where(define({
+					[`${table}.${cols.projectId}`]: filter.filters.projectId,
+				}))
+				.where((qb) => {
+					if (filter.filters.from) {
+						qb.where(`${table}.${cols.date}`, '>=', filter.filters.from.toString());
+					}
+					if (filter.filters.to) {
+						qb.where(`${table}.${cols.date}`, '<=', filter.filters.to.toString());
+					}
+					return qb;
+				});
+				if (filtered) {
+					base.where(`${project.table}.${project.cols.name}`, 'like', `%${filter.query || ''}%`);
+				}
+				return base;
+			}
+			const total = (await getQuery(false).count(`${table}.id`, { as: 'count '}))[0].count;
+			const filtered = (await getQuery()
+				.count(`${table}.id`, { as: 'count '}))[0].count;
+			const records = await fromQuery(getQuery()
+				.orderBy(filter.orderBy)
+				.offset(filter.pageIndex * filter.recordsPerPage)
+				.limit(filter.recordsPerPage), db);
+			return {
+				records,
+				filtered,
+				total,
+			};
+		}
+	], trx);
+}
+
 
 export interface PaymentRaw {
 	id: uuid,
 	date: DateOnly,
 	amount: BigNumber,
-	currency: string,
+	currency: Currency,
 	projectId: uuid,
 }
 
@@ -81,13 +123,21 @@ export interface Payment {
 	id: uuid,
 	date: DateOnly,
 	amount: BigNumber,
-	currency: string,
+	currency: Currency,
 	projectId: uuid,
 }
 
 export interface SavePayment {
 	date: DateOnly,
 	amount: BigNumber,
-	currency: string,
+	currency: Currency,
 	projectId: uuid,
+}
+
+export interface FilterPaymentRequest extends AsyncDataTableRequest {
+	filters: {
+		from?: DateOnly | null,
+		to?: DateOnly | null,
+		projectId?: uuid | null,
+	}
 }

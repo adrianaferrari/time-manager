@@ -5,7 +5,9 @@ import { DataTable, LoaderWrapper } from 'custom-uikit-svelte';
 import { clients } from '../DAL/client';
 import { projects } from '../DAL/project';
 import { technologies } from '../DAL/technology';
+import { dayLength } from '../DAL/user';
 import { __ } from '../i18n';
+import SaveProjectModal from '../modals/SaveProjectModal.svelte';
 const loading = projects.refreshing;
 
 const columns = [
@@ -43,7 +45,16 @@ const columns = [
 	{
 		label: __("Estimated effort"),
 		key: "estimatedEffort",
-		render: (estimatedEffort) => estimatedEffort ? estimatedEffort.toString() : '-',
+		render: (estimatedEffort) => {
+			if (estimatedEffort) {
+				const days = Math.floor(estimatedEffort.totalHours / $dayLength);
+				const hours = estimatedEffort.totalHours % $dayLength;
+				const minutes = estimatedEffort.m;
+				return `${days ? days + 'd ' : ''}${hours ? hours + 'h ' : ''}${minutes ? minutes + 'm' : ''}`.trim();
+			} else {
+				return '-';
+			}
+		},
 	},
 	{
 		label: __("Technologies"),
@@ -53,6 +64,11 @@ const columns = [
 ];
 
 let rows = [];
+
+let selected = undefined;
+let showCreateModal = false;
+let showDeleteModal = false;
+let showUpdateModal = false;
 
 function updateRows() {
 	rows = $projects;
@@ -64,6 +80,13 @@ $: $projects, updateRows();
 		<DataTable 
 			{columns}
 			{rows}
+			on:row-dblclick={({ detail }) => (selected = detail, showUpdateModal = true)}
 		/>
 	</div>
 </LoaderWrapper>
+
+
+<SaveProjectModal
+	entity={selected}
+	bind:show={showUpdateModal}
+/>

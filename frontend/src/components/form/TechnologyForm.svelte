@@ -41,6 +41,6 @@ $: entity, loadData(entity);
 
 </script>
 <Form {submitAsync}>
-	<TextInput value={name} on:change={({ target }) => name = target.value} label={__("Name")} />
+	<TextInput value={name} maxlength={100} on:change={({ target }) => name = target.value} label={__("Name")} />
 	<Button type="submit">{__("Save")}</Button>
 </Form>
