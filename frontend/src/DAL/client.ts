@@ -1,3 +1,4 @@
+import { Interval } from '@cdellacqua/interval';
 import axios from 'axios';
 import { asyncReadable } from 'svelte-async-readable'
 import { axiosExtract } from '../helpers/axios';
@@ -11,6 +12,14 @@ export function mapper(raw: ClientRaw): Client {
 		lastName: raw.lastName,
 		userId: raw.userId,
 	}
+}
+
+export function detailsMapper(raw: ClientDetailsRaw): ClientDetails {
+	return { 
+		...mapper(raw), 
+		projectIds: raw.projectIds,
+		timeSpent: new Interval(raw.timeSpent),
+	};
 }
 
 export const clients = asyncReadable({
@@ -31,6 +40,11 @@ export function del(id: string): Promise<void> {
 	return axiosExtract(axios.delete(`/auth/client/${id}`));
 }
 
+export function get(id: string): Promise<ClientDetails> {
+	return axiosExtract<ClientDetailsRaw>(axios.get(`/auth/client/${id}`))
+		.then((res) => detailsMapper(res));
+}
+
 export interface ClientRaw {
 	id: string,
 	firstName: string,
@@ -40,6 +54,10 @@ export interface ClientRaw {
 	userId: string,
 }
 
+export interface ClientDetailsRaw extends ClientRaw {
+	projectIds: string[],
+	timeSpent: string,
+}
 export interface Client {
 	id: string,
 	firstName: string,
@@ -49,6 +67,10 @@ export interface Client {
 	userId: string,
 }
 
+export interface ClientDetails extends Client {
+	projectIds: string[],
+	timeSpent: Interval,
+}
 export interface SaveClient {
 	firstName: string,
 	lastName: string,

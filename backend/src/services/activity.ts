@@ -117,6 +117,25 @@ export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<bool
 	return find({ id, userId }, trx).then((res) => !!res);
 }
 
+export function timeSpentByFilter(userId: uuid, filter?: Record<string, any> | string | number, filterIn?: { col: string, values: any[] }, trx?: Transaction): Promise<Interval> {
+	return transact([
+		(db) => db(table)
+			.where(
+				(builder) => {
+					if (filter) {
+						builder.where(typeof filter === 'object' ? filter : { id: filter });
+					}
+					if (filterIn) {
+						builder.whereIn(filterIn.col, filterIn.values)
+					}
+				}
+			)
+			.where({ userId })
+			.sum(cols.timeSpent),
+		(_db, timeSpent) => Promise.resolve(new Interval(Number(timeSpent?.[0].sum || 0))),
+	], trx);
+}
+
 export interface ActivityRaw {
 	id: uuid,
 	description: string,

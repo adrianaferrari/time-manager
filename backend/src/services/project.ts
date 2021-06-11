@@ -104,6 +104,9 @@ export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<bool
 	return find({ id, userId }, trx).then((res) => !!res);
 }
 
+export function findIdsByClient(clientId: uuid, trx?: Transaction): Promise<uuid[]> {
+	return transact([(db) => db(table).where({ [cols.clientId]: clientId }).pluck(cols.id)], trx);
+}
 
 export interface ProjectRaw {
 	id: uuid,

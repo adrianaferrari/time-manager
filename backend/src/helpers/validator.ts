@@ -22,10 +22,10 @@ export function isAsyncDataTableRequest(allowedKeys: string[]) {
 	return [
 		query('pageIndex').isInt({ min: 0 }),
 		query('recordsPerPage').isInt({ min: 1 }),
-		query('orderBy').optional({ nullable: true }).isArray(),
+		query('orderBy').optional({ nullable: true, checkFalsy: true }).isArray(),
 		query('orderBy.*.key').isIn(allowedKeys),
 		query('orderBy.*.direction').isIn(['asc', 'desc']),
-		query('query').optional({ nullable: true }).isString(),
+		query('query').optional({ nullable: true, checkFalsy: true }).isString(),
 	];
 }
 
@@ -45,32 +45,32 @@ export function isProject() {
 	return [
 		body('name').isString().isLength({ max: 100 }),
 		body('startDate').isDate(),
-		body('endDate').optional({ nullable: true }).isDate().custom((value, { req }) => {
+		body('endDate').optional({ nullable: true, checkFalsy: true }).isDate().custom((value, { req }) => {
 			if (value && value < req.body.startDate) {
 				throw new Error('End date must be equal to or after start date');
 			}
 			return true;
 		}),
-		body('clientId').optional({ nullable: true }).isUUID(),
-		body('currency').optional({ nullable: true }).isIn(Object.values(Currency)).custom((value, { req }) => {
+		body('clientId').optional({ nullable: true, checkFalsy: true }).isUUID(),
+		body('currency').optional({ nullable: true, checkFalsy: true }).isIn(Object.values(Currency)).custom((value, { req }) => {
 			if (!value && req.body.price) {
 				throw new Error('Currency is required when price is specified');
 			}
 			return true;
 		}),
-		body('price').optional({ nullable: true }).isDecimal().custom((value, { req }) => {
+		body('price').optional({ nullable: true, checkFalsy: true }).isDecimal().custom((value, { req }) => {
 			if (!value && req.body.currency) {
 				throw new Error('Price is required when currency is specified');
 			}
 			return true;
 		}),
-		body('estimatedEffort').optional({ nullable: true }).isString().custom((value) => {
+		body('estimatedEffort').optional({ nullable: true, checkFalsy: true }).isString().custom((value) => {
 			if (value && !value.match(Interval.regex)) {
 				throw new Error('Estimated effort is in an invalid interval format');
 			}
 			return true;
 		}),
-		body('technologyIds').optional({ nullable: true }).isArray(),
+		body('technologyIds').optional({ nullable: true, checkFalsy: true }).isArray(),
 		body('technologyIds.*').isUUID(),
 	];
 }
@@ -103,7 +103,7 @@ export function sanitizeProject() {
 export function isActivity() {
 	return [
 		body('description').isString().isLength({ min: 1, max: 1000 }),
-		body('projectId').optional({ nullable: true }).isUUID(),
+		body('projectId').optional({ nullable: true, checkFalsy: true }).isUUID(),
 		body('categoryId').isUUID(),
 		body('date').isDate(),
 		body('timeSpent').isString().custom((value) => {
@@ -119,16 +119,16 @@ export function isClient() {
 	return [
 		body('firstName').isString().isLength({ min: 1, max: 100 }),
 		body('lastName').isString().isLength({ min: 1, max: 100 }),
-		body('email').optional({ nullable: true }).isEmail().isLength({ max: 150 }),
-		body('companyId').optional({ nullable: true }).isUUID(),
+		body('email').optional({ nullable: true, checkFalsy: true }).isEmail().isLength({ max: 150 }),
+		body('companyId').optional({ nullable: true, checkFalsy: true }).isUUID(),
 	];
 }
 
 export function isCompany() {
 	return [
 		body('name').isString().isLength({ min: 1, max: 150 }),
-		body('vatNumber').optional({ nullable: true }).isString().isLength({ max: 100 }),
-		body('email').optional({ nullable: true }).isEmail().isLength({ max: 150 }),
+		body('vatNumber').optional({ nullable: true, checkFalsy: true }).isString().isLength({ max: 100 }),
+		body('email').optional({ nullable: true, checkFalsy: true }).isEmail().isLength({ max: 150 }),
 	];
 }
 
@@ -143,18 +143,18 @@ export function isPayment() {
 
 export function isActivityFilter() {
 	return [
-		query('from').optional({ nullable: true }).isDate(),
-		query('to').optional({ nullable: true }).isDate(),
-		query('projectId').optional({ nullable: true }).isUUID(),
-		query('categoryId').optional({ nullable: true }).isUUID(),
+		query('from').optional({ nullable: true, checkFalsy: true }).isDate(),
+		query('to').optional({ nullable: true, checkFalsy: true }).isDate(),
+		query('projectId').optional({ nullable: true, checkFalsy: true }).isUUID(),
+		query('categoryId').optional({ nullable: true, checkFalsy: true }).isUUID(),
 	];
 }
 
 export function isPaymentFilter() {
 	return [
-		query('from').optional({ nullable: true }).isDate(),
-		query('to').optional({ nullable: true }).isDate(),
-		query('projectId').optional({ nullable: true }).isUUID(),
+		query('from').optional({ nullable: true, checkFalsy: true }).isDate(),
+		query('to').optional({ nullable: true, checkFalsy: true }).isDate(),
+		query('projectId').optional({ nullable: true, checkFalsy: true }).isUUID(),
 	];
 }
 

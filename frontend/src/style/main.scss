@@ -109,7 +109,7 @@ li.uk-nav-header.active {
 	}
 }
 
-.custom-uk-orderable-list > li, .uk-list > li {
+.custom-uk-orderable-list > li {
 	border: $global-border-width solid $global-border;
 	border-radius: $button-border-radius;
 }
@@ -117,3 +117,16 @@ li.uk-nav-header.active {
 .logo {
 	height: $navbar-nav-item-height * .7;
 }
+
+.card-actions {
+	position: absolute;
+	top: $card-body-padding-vertical; 
+	right: $card-body-padding-horizontal;
+	display: flex;
+	flex-flow: column;
+	@media (min-width: $breakpoint-large) {
+		top: $card-body-padding-vertical-l; 
+		right: $card-body-padding-horizontal-l;
+	}
+}
+
