@@ -2,7 +2,10 @@ import { transact } from '@cdellacqua/knex-transact';
 import { Transaction } from 'knex';
 import { DateOnly } from '@cdellacqua/date-only';
 import { Interval } from '@cdellacqua/interval';
-import { findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
+import BigNumber from 'bignumber.js';
+import {
+	findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId,
+} from '../db/utils';
 import { uuid } from '../types/common';
 import { AsyncDataTableRequest, AsyncDataTableResponse } from '../types/async-data-table';
 import knex from '../db';
@@ -32,7 +35,7 @@ async function rowMapper(row: ActivityRaw): Promise<Activity> {
 }
 
 export const find = findOneGenerator(table, columnNames, (row) => rowMapper(row));
-
+export const findAll = findAllGenerator(table, columnNames, (row) => rowMapper(row));
 export const fromQuery = fromQueryGenerator<Activity>(columnNames, (row) => rowMapper(row));
 
 export function create(activity: SaveActivity, trx?: Transaction): Promise<Activity> {
@@ -66,34 +69,34 @@ export function update(id: uuid, activity: SaveActivity, trx?: Transaction): Pro
 }
 
 export function list(userId: uuid, filter: FilterActivityRequest, trx?: Transaction): Promise<AsyncDataTableResponse<Activity>> {
-	return transact([ 
+	return transact([
 		async (db) => {
 			const getQuery = (filtered = true) => {
-				let base = db(table)
-				.leftJoin(project.table, `${table}.${cols.projectId}`, `${project.table}.${project.cols.id}`)
-				.join(category.table, `${table}.${cols.categoryId}`, `${category.table}.${category.cols.id}`)
-				.where(`${table}.${cols.userId}`, userId)
-				.where(define({
-					[`${table}.${cols.projectId}`]: filter.filters.projectId,
-					[`${table}.${cols.categoryId}`]: filter.filters.categoryId, 
-				}))
-				.where((qb) => {
-					if (filter.filters.from) {
-						qb.where(`${table}.${cols.date}`, '>=', filter.filters.from.toString());
-					}
-					if (filter.filters.to) {
-						qb.where(`${table}.${cols.date}`, '<=', filter.filters.to.toString());
-					}
-					return qb;
-				});
+				const base = db(table)
+					.leftJoin(project.table, `${table}.${cols.projectId}`, `${project.table}.${project.cols.id}`)
+					.join(category.table, `${table}.${cols.categoryId}`, `${category.table}.${category.cols.id}`)
+					.where(`${table}.${cols.userId}`, userId)
+					.where(define({
+						[`${table}.${cols.projectId}`]: filter.filters.projectId,
+						[`${table}.${cols.categoryId}`]: filter.filters.categoryId,
+					}))
+					.where((qb) => {
+						if (filter.filters.from) {
+							qb.where(`${table}.${cols.date}`, '>=', filter.filters.from.toString());
+						}
+						if (filter.filters.to) {
+							qb.where(`${table}.${cols.date}`, '<=', filter.filters.to.toString());
+						}
+						return qb;
+					});
 				if (filtered) {
 					base.where(`${table}.${cols.description}`, 'like', `%${filter.query || ''}%`);
 				}
 				return base;
-			}
-			const total = (await getQuery(false).count(`${table}.id`, { as: 'count '}))[0].count;
+			};
+			const total = (await getQuery(false).count(`${table}.id`, { as: 'count ' }))[0].count;
 			const filtered = (await getQuery()
-				.count(`${table}.id`, { as: 'count '}))[0].count;
+				.count(`${table}.id`, { as: 'count ' }))[0].count;
 			const records = await fromQuery(getQuery()
 				.orderBy(filter.orderBy)
 				.offset(filter.pageIndex * filter.recordsPerPage)
@@ -103,7 +106,7 @@ export function list(userId: uuid, filter: FilterActivityRequest, trx?: Transact
 				filtered,
 				total,
 			};
-		}
+		},
 	], trx);
 }
 
@@ -117,7 +120,9 @@ export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<bool
 	return find({ id, userId }, trx).then((res) => !!res);
 }
 
-export function timeSpentByFilter(userId: uuid, filter?: Record<string, any> | string | number, filterIn?: { col: string, values: any[] }, trx?: Transaction): Promise<Interval> {
+export function timeSpentByFilter(
+	userId: uuid, filter?: Record<string, any> | string | number, filterIn?: { col: string, values: any[] }, trx?: Transaction,
+): Promise<Interval> {
 	return transact([
 		(db) => db(table)
 			.where(
@@ -126,13 +131,38 @@ export function timeSpentByFilter(userId: uuid, filter?: Record<string, any> | s
 						builder.where(typeof filter === 'object' ? filter : { id: filter });
 					}
 					if (filterIn) {
-						builder.whereIn(filterIn.col, filterIn.values)
+						builder.whereIn(filterIn.col, filterIn.values);
 					}
-				}
+				},
 			)
 			.where({ userId })
 			.sum(cols.timeSpent),
 		(_db, timeSpent) => Promise.resolve(new Interval(Number(timeSpent?.[0].sum || 0))),
+	], trx);
+}
+
+export function timeSpentByFilterGrouped(
+	userId: uuid, filter?: Record<string, any> | string | number, filterIn?: { col: string, values: any[] }, groupBy?: string, trx?: Transaction,
+): Promise<Interval> {
+	return transact([
+		(db) => db(table)
+			.where(
+				(builder) => {
+					if (filter) {
+						builder.where(typeof filter === 'object' ? filter : { id: filter });
+					}
+					if (filterIn) {
+						builder.whereIn(filterIn.col, filterIn.values);
+					}
+				},
+			)
+			.where({ userId })
+			.groupBy(groupBy || cols.id)
+			.orderByRaw(`sum("${cols.timeSpent}") desc`)
+			.select(db.raw(`sum("${cols.timeSpent}") as "timeSpent", "${groupBy || cols.id}" as group`)),
+		(_db, res: { group: any, timeSpent: BigNumber }[]) => Promise.resolve(
+			res.map(({ group, timeSpent }) => ({ group, timeSpent: new Interval(Number(timeSpent || 0)) })),
+		),
 	], trx);
 }
 

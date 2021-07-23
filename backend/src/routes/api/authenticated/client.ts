@@ -1,5 +1,6 @@
 import { asyncWrapper } from '@cdellacqua/express-async-wrapper';
 import { Router } from 'express';
+import { param } from 'express-validator';
 import { isClient, rejectOnFailedValidation, sanitizeClient } from '../../../helpers/validator';
 import * as company from '../../../services/company';
 import * as client from '../../../services/client';
@@ -9,7 +10,6 @@ import { HttpError } from '../../../http/error';
 import { HttpStatus } from '../../../http/status';
 import verifyOwnershipMiddleware, { OwnedEntity } from './_user-ownership-middleware';
 import { define } from '../../../helpers/object';
-import { param } from 'express-validator';
 import verifyUniquenessMiddleware, { UniqueEntity } from './_uniqueness-middleware';
 
 const r: Router = Router();
@@ -28,7 +28,7 @@ r.put('/:id', [
 		[UniqueEntity.clientEmail]: { name: req.body.email, id: req.params.id },
 	} : {})),
 ], asyncWrapper(async (req, res) => {
-	res.json(await client.update(req.params.id, { 
+	res.json(await client.update(req.params.id, {
 		userId: res.locals.user.id,
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
@@ -70,8 +70,8 @@ r.post('/', [
 	...sanitizeClient(),
 	rejectOnFailedValidation(),
 	verifyOwnershipMiddleware((req) => define({
-		[OwnedEntity.company]: req.body.companyId
-	})),	
+		[OwnedEntity.company]: req.body.companyId || undefined,
+	})),
 	verifyUniquenessMiddleware((req) => (req.body.email ? {
 		[UniqueEntity.clientEmail]: { name: req.body.email },
 	} : {})),
@@ -84,4 +84,3 @@ r.post('/', [
 		email: req.body.email,
 	}));
 }));
-

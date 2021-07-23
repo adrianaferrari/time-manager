@@ -25,8 +25,8 @@ async function submitAsync() {
 		const client = await save(toSave, entity?.id);
 		notifySuccess(__("Client saved"));
 		loadData(entity);
-		dispatch('save', client);
 		await clients.refresh();
+		dispatch('save', client);
 	} catch (err) {
 		statusMatch(err, {
 			[HttpStatus.Forbidden]: () => notifyErr(__("You're not authorised to edit this client")),

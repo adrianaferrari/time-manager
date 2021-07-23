@@ -2,6 +2,8 @@ import { asyncWrapper } from '@cdellacqua/express-async-wrapper';
 import { Router } from 'express';
 import { isClient, isCompany, rejectOnFailedValidation, sanitizeClient, sanitizeCompany } from '../../../helpers/validator';
 import * as company from '../../../services/company';
+import * as client from '../../../services/client';
+import * as project from '../../../services/project';
 import verifyOwnershipMiddleware, { OwnedEntity } from './_user-ownership-middleware';
 import { define } from '../../../helpers/object';
 import { param } from 'express-validator';
@@ -48,6 +50,19 @@ r.delete('/:id', [
 ], asyncWrapper(async (req, res) => {
 	await company.del(req.params.id);
 	res.status(HttpStatus.NoContent).end();
+}));
+
+r.get('/:id', [
+	param('id').isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req) => ({
+		[OwnedEntity.company]: req.params.id,
+	})),
+], asyncWrapper(async (req, res) => {
+	const found = await company.find(req.params.id);
+	const clientIds = await client.findIdsByCompany(req.params.id);
+	const projectIds = await project.findIdsByClients(clientIds);
+	res.json({ ...found, clientIds, projectIds });
 }));
 
 r.get('/', asyncWrapper(async (_, res) => {

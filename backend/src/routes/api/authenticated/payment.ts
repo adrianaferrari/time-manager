@@ -18,7 +18,7 @@ r.put('/:id', [
 		[OwnedEntity.payment]: req.params.id,
 	})),
 ], asyncWrapper(async (req, res) => {
-	console.log(res.locals.project.id)
+	console.log(res.locals.project.id);
 	res.json(await payment.update(req.params.id, {
 		amount: req.body.amount,
 		currency: req.body.currency,
@@ -36,6 +36,17 @@ r.delete('/:id', [
 ], asyncWrapper(async (req, res) => {
 	await payment.del(req.params.id);
 	res.status(HttpStatus.NoContent).end();
+}));
+
+r.get('/:id', [
+	param('id').isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req) => ({
+		[OwnedEntity.payment]: req.params.id,
+	})),
+], asyncWrapper(async (req, res) => {
+	const found = await payment.find(req.params.id);
+	res.json({ ...found });
 }));
 
 r.post('/', [

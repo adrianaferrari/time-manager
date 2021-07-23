@@ -1,7 +1,9 @@
 <script>
 	import { DateOnly } from "@cdellacqua/date-only";
 
-	import { Button, DataTable, LoaderWrapper } from "custom-uikit-svelte";
+	import { Breadcrumb, Button, DataTable, LoaderWrapper } from "custom-uikit-svelte";
+import { push } from 'svelte-stack-router';
+import IconButton from '../components/IconButton.svelte';
 	import { clients } from "../DAL/client";
 	import { projects } from "../DAL/project";
 	import { technologies } from "../DAL/technology";
@@ -65,6 +67,18 @@ import { printInterval } from '../helpers/interval';
 					.map((tId) => $technologies.find((t) => t.id === tId).name)
 					.join(", ") || "-",
 		},
+		{
+			label: "",
+			key: "id",
+			orderable: false,
+			render: (id) => ({
+				component: IconButton,
+				props: {
+					icon: 'chevron-right',
+				},
+				onClick: () => push(`/project/details/${id}`)
+			})
+		}
 	];
 
 	let rows = [];
@@ -81,6 +95,8 @@ import { printInterval } from '../helpers/interval';
 </script>
 
 <LoaderWrapper loading={$loading}>
+	<Breadcrumb
+		path={[{ label: __('Projects') }]} />
 	<div class="uk-container">
 		<DataTable
 			{columns}
@@ -99,4 +115,4 @@ import { printInterval } from '../helpers/interval';
 
 <SaveProjectModal entity={selected} bind:show={showUpdateModal} />
 
-<SaveProjectModal bind:show={showUpdateModal} />
+<SaveProjectModal bind:show={showCreateModal} />

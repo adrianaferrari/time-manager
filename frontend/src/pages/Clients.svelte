@@ -1,7 +1,8 @@
 <script>
-	import { Button, DataTable, LoaderWrapper } from "custom-uikit-svelte";
+	import { Breadcrumb, Button, DataTable, LoaderWrapper } from "custom-uikit-svelte";
 import { push } from 'svelte-stack-router';
 	import { derived } from "svelte/store";
+import IconButton from '../components/IconButton.svelte';
 	import { clients } from "../DAL/client";
 	import { companies } from "../DAL/company";
 	import { __ } from "../i18n";
@@ -34,6 +35,19 @@ import { push } from 'svelte-stack-router';
 			render: (companyId) =>
 				companyId ? $companies.find((c) => c.id === companyId).name : "-",
 		},
+
+		{
+			label: "",
+			key: "id",
+			orderable: false,
+			render: (id) => ({
+				component: IconButton,
+				props: {
+					icon: 'chevron-right',
+				},
+				onClick: () => push(`/client/details/${id}`)
+			})
+		}
 	];
 
 	let rows = [];
@@ -51,11 +65,12 @@ import { push } from 'svelte-stack-router';
 </script>
 
 <LoaderWrapper loading={$loading}>
+	<Breadcrumb
+		path={[{ label: __('Clients') }]} />
 	<div class="uk-container">
 		<DataTable
 			{columns}
 			{rows}
-			on:row-click={({ detail }) => push(`/client/details/${detail.id}`)}
 			on:row-dblclick={({ detail }) => ((selected = detail), (showUpdateModal = true))} />
 	</div>
 </LoaderWrapper>

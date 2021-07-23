@@ -1,6 +1,8 @@
 import { transact } from '@cdellacqua/knex-transact';
 import { Transaction } from 'knex';
-import { findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
+import {
+	findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId,
+} from '../db/utils';
 import { define } from '../helpers/object';
 import { uuid } from '../types/common';
 
@@ -68,7 +70,15 @@ export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<bool
 }
 
 export function alreadyExists(email: string, userId: uuid, id?: uuid, trx?: Transaction): Promise<boolean> {
-	return find(({ email, userId }), trx).then((res) => res ? res.id !== id : false);
+	return find(({ email, userId }), trx).then((res) => (res ? res.id !== id : false));
+}
+
+export function findIdsByCompany(companyId: uuid, trx?: Transaction): Promise<uuid[]> {
+	return transact([(db) => db(table).where({ [cols.companyId]: companyId }).pluck(cols.id)], trx);
+}
+
+export function findIdsByUser(userId: uuid, trx?: Transaction): Promise<uuid[]> {
+	return transact([(db) => db(table).where({ [cols.userId]: userId }).pluck(cols.id)], trx);
 }
 
 export interface ClientRaw {

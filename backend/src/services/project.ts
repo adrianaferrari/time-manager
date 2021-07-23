@@ -2,9 +2,11 @@ import { transact } from '@cdellacqua/knex-transact';
 import { Transaction } from 'knex';
 import { DateOnly } from '@cdellacqua/date-only';
 import { Interval } from '@cdellacqua/interval';
-import { findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
-import { uuid } from '../types/common';
 import BigNumber from 'bignumber.js';
+import {
+	findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId,
+} from '../db/utils';
+import { uuid } from '../types/common';
 
 export const table = 'project';
 
@@ -32,6 +34,10 @@ const columnNames = Object.values(cols);
 
 const technologyColNames = Object.values(technologyCols);
 
+export const findAllTechnologies = findAllGenerator<Record<string, any> | string | number, uuid>(
+	technologyTable, technologyColNames, (row) => row.technologyId,
+);
+
 async function rowMapper(row: ProjectRaw, trx?: Transaction): Promise<Project> {
 	return Promise.resolve({
 		...row,
@@ -43,8 +49,6 @@ async function rowMapper(row: ProjectRaw, trx?: Transaction): Promise<Project> {
 export const find = findOneGenerator(table, columnNames, (row, trx) => rowMapper(row, trx));
 
 export const findAll = findAllGenerator(table, columnNames, (row, trx) => rowMapper(row, trx));
-
-export const findAllTechnologies = findAllGenerator<Record<string, any> | string | number, uuid>(technologyTable, technologyColNames, (row) => row.technologyId);
 
 export const fromQuery = fromQueryGenerator<Project>(columnNames, (row, trx) => rowMapper(row, trx));
 
@@ -106,6 +110,14 @@ export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<bool
 
 export function findIdsByClient(clientId: uuid, trx?: Transaction): Promise<uuid[]> {
 	return transact([(db) => db(table).where({ [cols.clientId]: clientId }).pluck(cols.id)], trx);
+}
+
+export function findIdsByClients(clientIds: uuid[], trx?: Transaction): Promise<uuid[]> {
+	return transact([(db) => db(table).whereIn(cols.clientId, clientIds).pluck(cols.id)], trx);
+}
+
+export function findIdsByUser(userId: uuid, trx?: Transaction): Promise<uuid[]> {
+	return transact([(db) => db(table).where({ [cols.userId]: userId }).pluck(cols.id)], trx);
 }
 
 export interface ProjectRaw {

@@ -1,6 +1,8 @@
 import { transact } from '@cdellacqua/knex-transact';
 import { Transaction } from 'knex';
-import { findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
+import {
+	findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId,
+} from '../db/utils';
 import { uuid } from '../types/common';
 
 export const table = 'company';
@@ -64,13 +66,16 @@ export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<bool
 }
 
 export function vatNumberAlreadyExists(vatNumber: string, userId: uuid, id?: uuid, trx?: Transaction): Promise<boolean> {
-	return find(({ vatNumber, userId }), trx).then((res) => res ? res.id !== id : false);
+	return find(({ vatNumber, userId }), trx).then((res) => (res ? res.id !== id : false));
 }
 
 export function emailAlreadyExists(email: string, userId: uuid, id?: uuid, trx?: Transaction): Promise<boolean> {
-	return find(({ email, userId }), trx).then((res) => res ? res.id !== id : false);
+	return find(({ email, userId }), trx).then((res) => (res ? res.id !== id : false));
 }
 
+export function findIdsByUser(userId: string, trx?: Transaction): Promise<uuid[]> {
+	return transact((db) => db(table).where({ [cols.userId]: userId }).pluck(cols.id), trx);
+}
 export interface CompanyRaw {
 	id: uuid,
 	name: string,

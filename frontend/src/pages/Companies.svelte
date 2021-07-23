@@ -1,5 +1,7 @@
 <script>
-	import { Button, DataTable, LoaderWrapper } from "custom-uikit-svelte";
+	import { Breadcrumb, Button, DataTable, LoaderWrapper } from "custom-uikit-svelte";
+import { push } from 'svelte-stack-router';
+import IconButton from '../components/IconButton.svelte';
 	import { companies } from "../DAL/company";
 	import { __ } from "../i18n";
 	import SaveCompanyModal from "../modals/SaveCompanyModal.svelte";
@@ -21,6 +23,19 @@
 			key: "email",
 			render: (email) => email || "-",
 		},
+
+		{
+			label: "",
+			key: "id",
+			orderable: false,
+			render: (id) => ({
+				component: IconButton,
+				props: {
+					icon: 'chevron-right',
+				},
+				onClick: () => push(`/company/details/${id}`)
+			})
+		}
 	];
 
 	let rows = [];
@@ -38,6 +53,8 @@
 </script>
 
 <LoaderWrapper loading={$loading}>
+	<Breadcrumb
+		path={[{ label: __('Companies') }]} />
 	<div class="uk-container">
 		<DataTable
 			{columns}

@@ -5,10 +5,13 @@
 		AsyncDataTable,
 		Autocomplete,
 		Button,
+		Breadcrumb,
 		DatePicker,
 		LoaderWrapper,
 	} from "custom-uikit-svelte";
+import { push } from 'svelte-stack-router';
 	import { derived } from "svelte/store";
+import IconButton from '../components/IconButton.svelte';
 	import * as activity from "../DAL/activity";
 	import { categories } from "../DAL/category";
 	import { projects } from "../DAL/project";
@@ -56,6 +59,18 @@
 			render: (_, { projectId }) =>
 				$projects.find((project) => project.id === projectId)?.name || "-",
 		},
+		{
+			label: "",
+			key: "id",
+			orderable: false,
+			render: (id) => ({
+				component: IconButton,
+				props: {
+					icon: 'chevron-right',
+				},
+				onClick: () => push(`/activity/details/${id}`)
+			})
+		}
 	];
 
 	let loading = derived(
@@ -83,6 +98,8 @@
 </script>
 
 <LoaderWrapper loading={$loading}>
+	<Breadcrumb
+			path={[{ label: __('Activities') }]} />
 	<div class="uk-container">
 		<div class="uk-flex">
 			<DatePicker optional label={__('From')} bind:value={from} />

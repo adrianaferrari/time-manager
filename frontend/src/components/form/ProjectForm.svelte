@@ -14,7 +14,7 @@
 		Select,
 		TextInput,
 	} from "custom-uikit-svelte";
-	import { createEventDispatcher } from "svelte";
+	import { createEventDispatcher, tick } from "svelte";
 	import { push } from "svelte-stack-router";
 	import { clients } from "../../DAL/client";
 	import { save, projects } from "../../DAL/project";
@@ -24,6 +24,8 @@ import { dayLength } from '../../DAL/user';
 	import { Currency } from "../../helpers/currency";
 	import { notifySuccess } from "../../helpers/notification";
 	import { __ } from "../../i18n";
+import SaveClientModal from '../../modals/SaveClientModal.svelte';
+import IconButton from '../IconButton.svelte';
 
 	/** @type {import('../../DAL/project').Project | null } */
 	export let entity = undefined;
@@ -103,7 +105,14 @@ import { dayLength } from '../../DAL/user';
 		}
 	}
 
+	let showClientCreationModal = false;
+	function createNewClient() {
+		showClientCreationModal = true;
+	}
+
 	$: entity, loadData();
+
+	$: console.log($clients);
 </script>
 
 <Form {submitAsync}>
@@ -115,7 +124,7 @@ import { dayLength } from '../../DAL/user';
 				value={toSave.name}
 				on:change={({ target }) => (toSave.name = target.value.trim())} />
 		</div>
-		<div class="uk-width-1-2">
+		<div class="uk-width-1-2 uk-flex uk-flex-bottom">
 			<Autocomplete
 				optional
 				options={$clients.map((c) => ({
@@ -124,6 +133,9 @@ import { dayLength } from '../../DAL/user';
 				}))}
 				value={toSave.clientId}
 				label={__('Client')} />
+			<span>
+				<IconButton className="uk-margin-bottom uk-margin-small-left" on:click={() => createNewClient()} icon="plus" />
+			</span>
 		</div>
 		<div class="uk-width-1-3">
 			<DatePicker
@@ -221,3 +233,8 @@ import { dayLength } from '../../DAL/user';
 		</div>
 	</div>
 </Form>
+
+<SaveClientModal 
+	bind:show={showClientCreationModal}
+	on:save={({ detail }) => tick().then(_ => toSave.clientId = detail.id)}
+/>

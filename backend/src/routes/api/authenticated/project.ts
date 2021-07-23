@@ -1,10 +1,13 @@
 import { asyncWrapper } from '@cdellacqua/express-async-wrapper';
 import { Router } from 'express';
-import { isAsyncDataTableRequest, isProject, rejectOnFailedValidation, sanitizeDataTableRequest, sanitizeProject, isPaymentFilter, sanitizePaymentFilter } from '../../../helpers/validator';
+import { param } from 'express-validator';
+import {
+	isAsyncDataTableRequest, isProject, rejectOnFailedValidation, sanitizeDataTableRequest, sanitizeProject, isPaymentFilter, sanitizePaymentFilter,
+} from '../../../helpers/validator';
 import * as project from '../../../services/project';
+import * as activity from '../../../services/activity';
 import * as payment from '../../../services/payment';
 import verifyOwnershipMiddleware, { OwnedEntity } from './_user-ownership-middleware';
-import { param } from 'express-validator';
 import paymentRoutes from './payment';
 import { HttpError } from '../../../http/error';
 import { HttpStatus } from '../../../http/status';
@@ -13,8 +16,8 @@ import { define } from '../../../helpers/object';
 const r: Router = Router();
 export default r;
 
-r.get('/all/payment',[
-	...isAsyncDataTableRequest([ 
+r.get('/all/payment', [
+	...isAsyncDataTableRequest([
 		payment.cols.date,
 		'project.name',
 		payment.cols.amount,
@@ -23,7 +26,7 @@ r.get('/all/payment',[
 	...isPaymentFilter(),
 	...sanitizeDataTableRequest(),
 	...sanitizePaymentFilter(),
-	rejectOnFailedValidation()
+	rejectOnFailedValidation(),
 ], asyncWrapper(async (req, res) => {
 	const query = req.query as any;
 	const filter: payment.FilterPaymentRequest = {
@@ -35,7 +38,7 @@ r.get('/all/payment',[
 			projectId: query.projectId,
 			from: query.from,
 			to: query.to,
-		}
+		},
 	};
 	res.json(await payment.list(res.locals.user.id, filter));
 }));
@@ -87,6 +90,27 @@ r.delete('/:id', [
 	res.status(HttpStatus.NoContent).end();
 }));
 
+r.get('/:id', [
+	param('id').isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req) => ({
+		[OwnedEntity.project]: req.params.id,
+	})),
+], asyncWrapper(async (req, res) => {
+	const found = await project.find(req.params.id);
+	const activities = await activity.findAll({ [activity.cols.projectId]: req.params.id }, [{ column: activity.cols.date, order: 'desc' }]);
+	const timeSpent = await activity.timeSpentByFilter(res.locals.user.id, { [activity.cols.projectId]: req.params.id });
+	const timeSpentByCategory = await activity.timeSpentByFilterGrouped(
+		res.locals.user.id,
+		{ [activity.cols.projectId]: req.params.id },
+		undefined,
+		activity.cols.categoryId,
+	);
+	const payments = await payment.findAll({ [payment.cols.projectId]: req.params.id });
+	res.json({
+		...found, activities, timeSpent, payments, timeSpentByCategory,
+	});
+}));
 
 r.get('/', asyncWrapper(async (_, res) => {
 	res.json(await project.findAll({ userId: res.locals.user.id }));

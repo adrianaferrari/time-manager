@@ -1,6 +1,6 @@
 import { Interval } from '@cdellacqua/interval';
 import axios from 'axios';
-import { asyncReadable } from 'svelte-async-readable'
+import { asyncReadable } from 'svelte-async-readable';
 import { axiosExtract } from '../helpers/axios';
 
 export function mapper(raw: ClientRaw): Client {
@@ -11,12 +11,12 @@ export function mapper(raw: ClientRaw): Client {
 		id: raw.id,
 		lastName: raw.lastName,
 		userId: raw.userId,
-	}
+	};
 }
 
 export function detailsMapper(raw: ClientDetailsRaw): ClientDetails {
-	return { 
-		...mapper(raw), 
+	return {
+		...mapper(raw),
 		projectIds: raw.projectIds,
 		timeSpent: new Interval(raw.timeSpent),
 	};

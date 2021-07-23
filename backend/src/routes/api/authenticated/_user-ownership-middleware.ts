@@ -1,8 +1,9 @@
+/* eslint-disable no-shadow */
 import { asyncWrapper } from '@cdellacqua/express-async-wrapper';
+import { Request, Response } from 'express';
 import { HttpError } from '../../../http/error';
 import { HttpStatus } from '../../../http/status';
 import { uuid } from '../../../types/common';
-import { Request, Response } from 'express';
 import * as activity from '../../../services/activity';
 import * as category from '../../../services/category';
 import * as project from '../../../services/project';
@@ -10,6 +11,7 @@ import * as company from '../../../services/company';
 import * as client from '../../../services/client';
 import * as payment from '../../../services/payment';
 import * as technology from '../../../services/technology';
+import { SerializableError } from '@cdellacqua/serializable-error';
 
 export enum OwnedEntity {
 	activity = 'activityId',
@@ -84,6 +86,8 @@ function verifyOwnershipMiddleware(paramsExtractor: ((req: Request, res: Respons
 								throw new HttpError(HttpStatus.Forbidden, 'technology is not owned by this user');
 							}
 						});
+				default:
+					throw new SerializableError('unknown entity');
 			}
 		}));
 		next();

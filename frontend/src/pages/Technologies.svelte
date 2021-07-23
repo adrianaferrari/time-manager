@@ -1,5 +1,5 @@
 <script>
-	import { Button, LoaderWrapper } from "custom-uikit-svelte";
+	import { Breadcrumb, Button, LoaderWrapper } from "custom-uikit-svelte";
 	import { technologies } from "../DAL/technology";
 	import { __ } from "../i18n";
 	import DeleteTechnologyModal from "../modals/DeleteTechnologyModal.svelte";
@@ -30,6 +30,8 @@
 	}} />
 
 <LoaderWrapper loading={$loading}>
+	<Breadcrumb
+		path={[{ label: __('Technologies') }]} />
 	<div class="uk-container">
 		<div uk-grid class="uk-grid-small">
 			<div class="uk-width-5-6@l uk-width-4-5@m uk-width-3-4">

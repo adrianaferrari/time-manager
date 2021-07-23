@@ -31,6 +31,12 @@ export function del(id: string): Promise<void> {
 	return axiosExtract(axios.delete(`/auth/activity/${id}`));
 }
 
+export function get(id: string): Promise<Activity> {
+	return axiosExtract<ActivityRaw>(axios.get(`/auth/activity/${id}`))
+		.then((res) => mapper(res));
+}
+
+
 export interface Activity {
 	id: string,
 	description: string,

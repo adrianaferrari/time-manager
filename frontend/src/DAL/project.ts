@@ -5,6 +5,8 @@ import BigNumber from 'bignumber.js';
 import { asyncReadable } from 'svelte-async-readable';
 import { axiosExtract } from '../helpers/axios';
 import type { Currency } from '../helpers/currency';
+import { Activity, ActivityRaw, mapper as activityMapper } from './activity';
+import { Payment, PaymentRaw, mapper as paymentMapper } from './payment';
 
 export const projects = asyncReadable({
 	initialValue: [],
@@ -26,7 +28,17 @@ export function mapper(raw: ProjectRaw): Project {
 		startDate: DateOnly.fromString(raw.startDate),
 		technologyIds: raw.technologyIds,
 		userId: raw.userId,
-	}
+	};
+}
+
+export function detailsMapper(raw: ProjectDetailsRaw): ProjectDetails {
+	return {
+		...mapper(raw),
+		timeSpent: raw.timeSpent ? new Interval(raw.timeSpent) : null,
+		payments: raw.payments.map((p) => paymentMapper(p)),
+		activities: raw.activities.map((a) => activityMapper(a)),
+		timeSpentByCategory: raw.timeSpentByCategory.map((tsbc) => ({ categoryId: tsbc.group, timeSpent: new Interval(tsbc.timeSpent) })),
+	};
 }
 
 export function save(project: SaveProject, id?: string): Promise<Project> {
@@ -39,6 +51,10 @@ export function del(id: string): Promise<void> {
 	return axiosExtract(axios.delete(`/auth/project/${id}`));
 }
 
+export function get(id: string): Promise<ProjectDetails> {
+	return axiosExtract<ProjectDetailsRaw>(axios.get(`/auth/project/${id}`))
+		.then((res) => detailsMapper(res));
+}
 export interface Project {
 	id: string,
 	name: string,
@@ -52,6 +68,12 @@ export interface Project {
 	technologyIds: string[],
 }
 
+export interface ProjectDetails extends Project {
+	timeSpent: Interval | null,
+	payments: Payment[],
+	activities: Activity[],
+	timeSpentByCategory: { categoryId: string, timeSpent: Interval }[],
+}
 export interface ProjectRaw {
 	id: string,
 	name: string,
@@ -65,6 +87,12 @@ export interface ProjectRaw {
 	technologyIds: string[],
 }
 
+export interface ProjectDetailsRaw extends ProjectRaw {
+	timeSpent: string | null,
+	payments: PaymentRaw[],
+	activities: ActivityRaw[],
+	timeSpentByCategory: { group: string, timeSpent: string }[],
+}
 export interface SaveProject {
 	name: string,
 	startDate: DateOnly,

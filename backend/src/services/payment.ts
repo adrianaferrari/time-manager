@@ -2,7 +2,9 @@ import { DateOnly } from '@cdellacqua/date-only';
 import { transact } from '@cdellacqua/knex-transact';
 import BigNumber from 'bignumber.js';
 import { Transaction } from 'knex';
-import { findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
+import {
+	findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId,
+} from '../db/utils';
 import { define } from '../helpers/object';
 import { AsyncDataTableRequest, AsyncDataTableResponse } from '../types/async-data-table';
 import { Currency, uuid } from '../types/common';
@@ -27,7 +29,7 @@ function rowMapper(row: PaymentRaw): Promise<Payment> {
 }
 
 export const find = findOneGenerator(table, columnNames, (row) => rowMapper(row));
-
+export const findAll = findAllGenerator(table, columnNames, (row) => rowMapper(row));
 export const fromQuery = fromQueryGenerator<Payment>(columnNames, (row) => rowMapper(row));
 
 export function create(payment: SavePayment, trx?: Transaction): Promise<Payment> {
@@ -66,37 +68,37 @@ export function del(id: uuid, trx?: Transaction): Promise<void> {
 export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
 	return transact([
 		(db) => find({ id }, db),
-		(db, payment) => project.find({ userId, id: payment.projectId }, db)
+		(db, payment) => project.find({ userId, id: payment.projectId }, db),
 	], trx).then((res) => !!res);
 }
 
 export function list(userId: uuid, filter: FilterPaymentRequest, trx?: Transaction): Promise<AsyncDataTableResponse<Payment>> {
-	return transact([ 
+	return transact([
 		async (db) => {
 			const getQuery = (filtered = true) => {
-				let base = db(table)
-				.join(project.table, `${table}.${cols.projectId}`, `${project.table}.${project.cols.id}`)
-				.where(`${project.table}.${project.cols.userId}`, userId)
-				.where(define({
-					[`${table}.${cols.projectId}`]: filter.filters.projectId,
-				}))
-				.where((qb) => {
-					if (filter.filters.from) {
-						qb.where(`${table}.${cols.date}`, '>=', filter.filters.from.toString());
-					}
-					if (filter.filters.to) {
-						qb.where(`${table}.${cols.date}`, '<=', filter.filters.to.toString());
-					}
-					return qb;
-				});
+				const base = db(table)
+					.join(project.table, `${table}.${cols.projectId}`, `${project.table}.${project.cols.id}`)
+					.where(`${project.table}.${project.cols.userId}`, userId)
+					.where(define({
+						[`${table}.${cols.projectId}`]: filter.filters.projectId,
+					}))
+					.where((qb) => {
+						if (filter.filters.from) {
+							qb.where(`${table}.${cols.date}`, '>=', filter.filters.from.toString());
+						}
+						if (filter.filters.to) {
+							qb.where(`${table}.${cols.date}`, '<=', filter.filters.to.toString());
+						}
+						return qb;
+					});
 				if (filtered) {
 					base.where(`${project.table}.${project.cols.name}`, 'like', `%${filter.query || ''}%`);
 				}
 				return base;
-			}
-			const total = (await getQuery(false).count(`${table}.id`, { as: 'count '}))[0].count;
+			};
+			const total = (await getQuery(false).count(`${table}.id`, { as: 'count ' }))[0].count;
 			const filtered = (await getQuery()
-				.count(`${table}.id`, { as: 'count '}))[0].count;
+				.count(`${table}.id`, { as: 'count ' }))[0].count;
 			const records = await fromQuery(getQuery()
 				.orderBy(filter.orderBy)
 				.offset(filter.pageIndex * filter.recordsPerPage)
@@ -106,10 +108,9 @@ export function list(userId: uuid, filter: FilterPaymentRequest, trx?: Transacti
 				filtered,
 				total,
 			};
-		}
+		},
 	], trx);
 }
-
 
 export interface PaymentRaw {
 	id: uuid,

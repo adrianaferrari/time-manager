@@ -2,7 +2,9 @@ import { asyncWrapper } from '@cdellacqua/express-async-wrapper';
 import { Router } from 'express';
 import { param } from 'express-validator';
 import { define } from '../../../helpers/object';
-import { isActivity, isActivityFilter, isAsyncDataTableRequest, rejectOnFailedValidation, sanitizeActivity, sanitizeActivityFilter, sanitizeDataTableRequest } from '../../../helpers/validator';
+import {
+	isActivity, isActivityFilter, isAsyncDataTableRequest, rejectOnFailedValidation, sanitizeActivity, sanitizeActivityFilter, sanitizeDataTableRequest,
+} from '../../../helpers/validator';
 import { HttpStatus } from '../../../http/status';
 import * as activity from '../../../services/activity';
 import verifyOwnershipMiddleware, { OwnedEntity } from './_user-ownership-middleware';
@@ -15,11 +17,11 @@ r.put('/:id', [
 	...isActivity(),
 	...sanitizeActivity(),
 	rejectOnFailedValidation(),
-	verifyOwnershipMiddleware((req) => (define({ 
+	verifyOwnershipMiddleware((req) => (define({
 		[OwnedEntity.activity]: req.params.id,
 		[OwnedEntity.category]: req.body.categoryId,
-		[OwnedEntity.project]: req.body.projectId || undefined
-	})))
+		[OwnedEntity.project]: req.body.projectId || undefined,
+	}))),
 ], asyncWrapper(async (req, res) => {
 	res.json(await activity.update(req.params.id, {
 		userId: res.locals.userId,
@@ -42,8 +44,19 @@ r.delete('/:id', [
 	res.status(HttpStatus.NoContent).end();
 }));
 
+r.get('/:id', [
+	param('id').isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req) => ({
+		[OwnedEntity.activity]: req.params.id,
+	})),
+], asyncWrapper(async (req, res) => {
+	const found = await activity.find(req.params.id);
+	res.json({ ...found });
+}));
+
 r.get('/', [
-	...isAsyncDataTableRequest([ 
+	...isAsyncDataTableRequest([
 		activity.cols.date,
 		'category.name',
 		'project.name',
@@ -53,7 +66,7 @@ r.get('/', [
 	...isActivityFilter(),
 	...sanitizeDataTableRequest(),
 	...sanitizeActivityFilter(),
-	rejectOnFailedValidation()
+	rejectOnFailedValidation(),
 ], asyncWrapper(async (req, res) => {
 	const query = req.query as any;
 	const filter: activity.FilterActivityRequest = {
@@ -66,7 +79,7 @@ r.get('/', [
 			projectId: query.projectId,
 			from: query.from,
 			to: query.to,
-		}
+		},
 	};
 	res.json(await activity.list(res.locals.user.id, filter));
 }));
@@ -77,8 +90,8 @@ r.post('/', [
 	rejectOnFailedValidation(),
 	verifyOwnershipMiddleware((req) => (define({
 		[OwnedEntity.category]: req.body.categoryId,
-		[OwnedEntity.project]: req.body.projectId || undefined
-	})))
+		[OwnedEntity.project]: req.body.projectId || undefined,
+	}))),
 ], asyncWrapper(async (req, res) => {
 	res.status(201).json(await activity.create({
 		userId: res.locals.user.id,
@@ -89,4 +102,3 @@ r.post('/', [
 		projectId: req.body.projectId,
 	}));
 }));
-

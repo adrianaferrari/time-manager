@@ -1,7 +1,9 @@
 <script>
 	import { DateOnly } from "@cdellacqua/date-only";
 	import BigNumber from "bignumber.js";
-	import { AsyncDataTable, Button, LoaderWrapper } from "custom-uikit-svelte";
+	import { AsyncDataTable, Breadcrumb, Button, LoaderWrapper } from "custom-uikit-svelte";
+import { push } from 'svelte-stack-router';
+import IconButton from '../components/IconButton.svelte';
 	import * as payment from "../DAL/payment";
 	import { projects } from "../DAL/project";
 	import { statusMatch } from "../helpers/axios";
@@ -41,6 +43,19 @@
 			render: (_, { projectId }) =>
 				$projects.find((project) => project.id === projectId)?.name || "-",
 		},
+
+		{
+			label: "",
+			key: "id",
+			orderable: false,
+			render: (id, { projectId }) => ({
+				component: IconButton,
+				props: {
+					icon: 'chevron-right',
+				},
+				onClick: () => push(`/project/${projectId}/payment/details/${id}`)
+			})
+		}
 	];
 
 	const loading = projects.refreshing;
@@ -58,6 +73,8 @@
 </script>
 
 <LoaderWrapper loading={$loading}>
+	<Breadcrumb
+		path={[{ label: __('Payments') }]} />
 	<div class="uk-container">
 		<AsyncDataTable
 			{dataProvider}
