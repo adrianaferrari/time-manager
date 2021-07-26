@@ -46,6 +46,17 @@ export function getColor(name: string, alpha = 1): string {
 	return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
 
+export function getColorRange(color1: string, color2: string, length: number, alpha = 1): string[] {
+	const baseFrom: Color = Color(getComputedStyle(document.body).getPropertyValue(color1).trim());
+	const baseTo: Color = Color(getComputedStyle(document.body).getPropertyValue(color2).trim());
+	const range: Color[] = new Array(length);
+	const stepSize = 1 / Math.max((length - 1), 1);
+	for (let i = 0; i < length; i++) {
+		range[i] = baseFrom.mix(baseTo, i * stepSize);
+	}
+	return range.map((c) => c.alpha(alpha).string());
+}
+
 function updateOnLoad() {
 	const documentComputedStyle = getComputedStyle(document.documentElement);
 	const currentTheme = get(_theme);

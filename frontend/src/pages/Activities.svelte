@@ -9,9 +9,9 @@
 		DatePicker,
 		LoaderWrapper,
 	} from "custom-uikit-svelte";
-import { push } from 'svelte-stack-router';
+	import { push } from "svelte-stack-router";
 	import { derived } from "svelte/store";
-import IconButton from '../components/IconButton.svelte';
+	import IconButton from "../components/IconButton.svelte";
 	import * as activity from "../DAL/activity";
 	import { categories } from "../DAL/category";
 	import { projects } from "../DAL/project";
@@ -66,11 +66,11 @@ import IconButton from '../components/IconButton.svelte';
 			render: (id) => ({
 				component: IconButton,
 				props: {
-					icon: 'chevron-right',
+					icon: "chevron-right",
 				},
-				onClick: () => push(`/activity/details/${id}`)
-			})
-		}
+				onClick: () => push(`/activity/details/${id}`),
+			}),
+		},
 	];
 
 	let loading = derived(
@@ -98,22 +98,29 @@ import IconButton from '../components/IconButton.svelte';
 </script>
 
 <LoaderWrapper loading={$loading}>
-	<Breadcrumb
-			path={[{ label: __('Activities') }]} />
+	<Breadcrumb path={[{ label: __('Activities') }]} />
 	<div class="uk-container">
-		<div class="uk-flex">
-			<DatePicker optional label={__('From')} bind:value={from} />
-			<DatePicker optional label={__('To')} bind:value={to} />
-			<Autocomplete
-				optional
-				label={__('Category')}
-				options={$categories.map((c) => ({ label: c.name, value: c.id }))}
-				bind:value={categoryId} />
-			<Autocomplete
-				label={__('Project')}
-				options={$projects.map((p) => ({ label: p.name, value: p.id }))}
-				bind:value={projectId}
-				optional />
+		<div class="uk-flex uk-flex-wrap">
+			<div class="uk-width-1-4@m uk-width-1-2">
+				<DatePicker optional label={__('From')} bind:value={from} />
+			</div>
+			<div class="uk-width-1-4@m uk-width-1-2">
+				<DatePicker optional label={__('To')} bind:value={to} />
+			</div>
+			<div class="uk-width-1-4@m uk-width-1-2">
+				<Autocomplete
+					optional
+					label={__('Category')}
+					options={$categories.map((c) => ({ label: c.name, value: c.id }))}
+					bind:value={categoryId} />
+			</div>
+			<div class="uk-width-1-4@m uk-width-1-2">
+				<Autocomplete
+					label={__('Project')}
+					options={$projects.map((p) => ({ label: p.name, value: p.id }))}
+					bind:value={projectId}
+					optional />
+			</div>
 		</div>
 		<AsyncDataTable
 			{dataProvider}

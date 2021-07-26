@@ -1,9 +1,10 @@
 <script>
-	import { LoaderWrapper } from "custom-uikit-svelte";
-import { onMount } from 'svelte';
+	import { Breadcrumb, Card, LoaderWrapper } from "custom-uikit-svelte";
+	import { onMount } from "svelte";
 	import { onAfterLoad } from "svelte-stack-router";
 	import { derived, writable } from "svelte/store";
 	import Chart from "../components/Chart.svelte";
+	import IconButton from "../components/IconButton.svelte";
 	import { clients } from "../DAL/client";
 	import { companies } from "../DAL/company";
 	import { projects } from "../DAL/project";
@@ -18,6 +19,7 @@ import { onMount } from 'svelte';
 	} from "../DAL/stats";
 	import { statusMatch } from "../helpers/axios";
 	import { __ } from "../i18n";
+import { getColorRange } from '../ui-ux/theme';
 
 	const paymentByMonth = writable(null);
 	const paymentByClient = writable(null);
@@ -52,9 +54,13 @@ import { onMount } from 'svelte';
 		if (!$paymentByMonth) {
 			return [];
 		}
-		const tmpData = $paymentByMonth.currencies.map((c) => ({
+		const colors = getColorRange('--global-primary-background', '--global-secondary-background', $paymentByMonth.currencies.length);
+		const colorsBg = getColorRange('--global-primary-background', '--global-secondary-background', $paymentByMonth.currencies.length, 0.5);
+		const tmpData = $paymentByMonth.currencies.map((c, i) => ({
 			label: c,
 			data: new Array(12),
+			borderColor: colors[i],
+			backgroundColor: colorsBg[i],
 		}));
 		$paymentByMonth.data.forEach((pbm) => {
 			const monthPosition = (pbm.month - startMonth - 1 + 12) % 12;
@@ -77,9 +83,11 @@ import { onMount } from 'svelte';
 				if (!client) return __("unknown");
 				return client.firstName + " " + client.lastName;
 			});
+			const colors = getColorRange('--global-primary-background', '--global-secondary-background', $paymentByClient.clientIds.length);
 			const tmpData = $paymentByClient.currencies.map((c) => ({
 				label: c,
 				data: new Array($paymentByClient.clientIds.length),
+				backgroundColor: colors,
 			}));
 			$paymentByClient.data.forEach((pbc) => {
 				const clientIndex = $paymentByClient.clientIds.findIndex(
@@ -97,10 +105,14 @@ import { onMount } from 'svelte';
 		if (!$effortByMonth) {
 			return [];
 		}
+		const colors = getColorRange('--global-primary-background', '--global-secondary-background', 1);
+		const colorsBg = getColorRange('--global-primary-background', '--global-secondary-background', 1, 0.5);
 		const tmpData = [
 			{
 				label: __("Hours"),
 				data: new Array(12),
+				backgroundColor: colorsBg[0],
+				borderColor: colors[0],
 			},
 		];
 		$effortByMonth.forEach((ebm) => {
@@ -124,16 +136,21 @@ import { onMount } from 'svelte';
 			rateByProjectLabels = $rateByProject.projectIds.map(
 				(pId) => $projects.find((p) => p.id === pId)?.name || __("unknown")
 			);
-			const tmpData = $rateByProject.currencies.flatMap((c) => [
+			const colors = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2);
+			const colorsBg = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2, 0.5);
+			const tmpData = $rateByProject.currencies.flatMap((c, i) => [
 				{
 					label: c,
 					data: new Array($rateByProject.projectIds.length),
+					borderColor: colors[i * 2],
+					backgroundColor: colors[i * 2],
 				},
 				{
 					label: __(":currency - avg", { currency: c }),
 					data: new Array($rateByProject.projectIds.length),
 					type: "line",
-					fill: false,
+					borderColor: colors[i * 2 + 1],
+					backgroundColor: colorsBg[i * 2 + 1],
 				},
 			]);
 			$rateByProject.data.forEach((rbp) => {
@@ -161,16 +178,21 @@ import { onMount } from 'svelte';
 			rateByCompanyLabels = $rateByCompany.companyIds.map(
 				(cId) => $companies.find((c) => c.id === cId)?.name || __("unknown")
 			);
-			const tmpData = $rateByCompany.currencies.flatMap((c) => [
+			const colors = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2);
+			const colorsBg = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2, 0.5);
+			const tmpData = $rateByCompany.currencies.flatMap((c, i) => [
 				{
 					label: c,
 					data: new Array($rateByCompany.companyIds.length),
+					backgroundColor: colors[i * 2],
+					borderColor: colors[i * 2]
 				},
 				{
 					label: __(":currency - avg", { currency: c }),
 					data: new Array($rateByCompany.companyIds.length),
 					type: "line",
-					fill: false,
+					backgroundColor: colorsBg[i * 2 + 1],
+					borderColor: colors[i * 2 + 1],
 				},
 			]);
 			$rateByCompany.data.forEach((rbc) => {
@@ -200,16 +222,21 @@ import { onMount } from 'svelte';
 				if (!client) return __("unknown");
 				return client.firstName + " " + client.lastName;
 			});
-			const tmpData = $rateByClient.currencies.flatMap((c) => [
+			const colors = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2);
+			const colorsBg = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2, 0.5);
+			const tmpData = $rateByClient.currencies.flatMap((c, i) => [
 				{
 					label: c,
 					data: new Array($rateByClient.clientIds.length),
+					backgroundColor: colors[i * 2],
+					borderColor: colors[i * 2],
 				},
 				{
 					label: __(":currency - avg", { currency: c }),
 					data: new Array($rateByClient.clientIds.length),
 					type: "line",
-					fill: false,
+					backgroundColor: colorsBg[i * 2 + 1],
+					borderColor: colors[i * 2 + 1],
 				},
 			]);
 			$rateByClient.data.forEach((rbc) => {
@@ -236,9 +263,9 @@ import { onMount } from 'svelte';
 				},
 				subtitle: {
 					display: true,
-					text: __("How much money you received during the last 12 months")
-				}
-			}
+					text: __("How much money you received during the last 12 months"),
+				},
+			},
 		},
 		effortByMonth: {
 			plugins: {
@@ -248,9 +275,9 @@ import { onMount } from 'svelte';
 				},
 				subtitle: {
 					display: true,
-					text: __("How many hours you worked during the last 12 months")
-				}
-			}
+					text: __("How many hours you worked during the last 12 months"),
+				},
+			},
 		},
 		rateByClient: {
 			plugins: {
@@ -260,9 +287,11 @@ import { onMount } from 'svelte';
 				},
 				subtitle: {
 					display: true,
-					text: __("Your hourly rate - your average and the one you have for each client")
-				}
-			}
+					text: __(
+						"Your hourly rate - your average and the one you have for each client"
+					),
+				},
+			},
 		},
 		rateByCompany: {
 			plugins: {
@@ -272,9 +301,11 @@ import { onMount } from 'svelte';
 				},
 				subtitle: {
 					display: true,
-					text: __("Your hourly rate - your average and the one you have for each company")
-				}
-			}
+					text: __(
+						"Your hourly rate - your average and the one you have for each company"
+					),
+				},
+			},
 		},
 		rateByProject: {
 			plugins: {
@@ -284,19 +315,21 @@ import { onMount } from 'svelte';
 				},
 				subtitle: {
 					display: true,
-					text: __("Your hourly rate for the project you worked on in the last 12 months")
-				}
-			}
+					text: __(
+						"Your hourly rate for the project you worked on in the last 12 months"
+					),
+				},
+			},
 		},
 		paymentByClient: {
 			plugins: {
 				title: {
 					display: true,
-					text: __("Payment by client")
+					text: __("Payment by client"),
 				},
 				subtitle: {
 					display: true,
-					text: __("How much money you ever received by each client")
+					text: __("How much money you ever received by each client"),
 				},
 				tooltip: {
 					callbacks: {
@@ -307,86 +340,167 @@ import { onMount } from 'svelte';
 					},
 				},
 			},
-		}
+		},
 	};
 
-	async function loadData() {
+	const chartStores = {
+		paymentByMonth,
+		paymentByClient,
+		effortByMonth,
+		rateByProject,
+		rateByCompany,
+		rateByClient,
+	};
+
+	const chartReloadFns = {
+		paymentByMonth: getPaymentByMonth,
+		paymentByClient: getPaymentByClient,
+		effortByMonth: getEffortByMonth,
+		rateByProject: getRateByProject,
+		rateByCompany: getRateByCompany,
+		rateByClient: getRateByClient,
+	};
+
+	const chartLoading = {
+		paymentByMonth: false,
+		paymentByClient: false,
+		effortByMonth: false,
+		rateByProject: false,
+		rateByCompany: false,
+		rateByClient: false,
+	};
+
+	async function loadData(toLoad) {
 		try {
-			paymentByMonth.set(await getPaymentByMonth());
-			paymentByClient.set(await getPaymentByClient());
-			effortByMonth.set(await getEffortByMonth());
-			rateByProject.set(await getRateByProject());
-			rateByCompany.set(await getRateByCompany());
-			rateByClient.set(await getRateByClient());
+			if (!toLoad) {
+				for (const key of Object.keys(chartStores)) {
+					chartLoading[key] = true;
+					try {
+						chartStores[key].set(await chartReloadFns[key]());
+					} finally {
+						chartLoading[key] = false;
+					}
+				}
+			} else {
+				try {
+					chartLoading[toLoad] = true;
+					chartStores[toLoad].set(await chartReloadFns[toLoad]());
+				} finally {
+					chartLoading[toLoad] = false;
+				}
+			}
 		} catch (err) {
 			statusMatch(err);
 		}
 	}
 
-	onAfterLoad(() => loadData());
+	onMount(() => loadData());
 </script>
 
-<div uk-grid class="uk-grid-small">
-	<div class="uk-width-1-2@s" style="min-height: 300px;">
-		<LoaderWrapper loading={!$paymentByMonthDatasets.length}>
-			<Chart
-				labels={yearByMonthLabels}
-				type="line"
-				options={chartOptions.paymentByMonth}
-				datasets={$paymentByMonthDatasets} />
-		</LoaderWrapper>
-	</div>
-	<div class="uk-width-1-2@s" style="min-height: 300px;">
-		<LoaderWrapper loading={!$paymentByClientDatasets.length}>
-			<Chart
-				labels={paymentByClientLabels}
-				type="pie"
-				options={chartOptions.paymentByClient}
-				datasets={$paymentByClientDatasets} />
-		</LoaderWrapper>
-	</div>
-	<div class="uk-width-1-2@s">
-		<LoaderWrapper
-			loading={!$effortByMonthDatasets.length}
-			style="min-height: 300px;">
-			<Chart
-				labels={yearByMonthLabels}
-				type="line"
-				options={chartOptions.effortByMonth}
-				datasets={$effortByMonthDatasets} />
-		</LoaderWrapper>
-	</div>
-	<div class="uk-width-1-2@s">
-		<LoaderWrapper
-			loading={!$rateByProjectDatasets.length}
-			style="min-height: 300px;">
-			<Chart
-				labels={rateByProjectLabels}
-				type="bar"
-				options={chartOptions.rateByProject}
-				datasets={$rateByProjectDatasets} />
-		</LoaderWrapper>
-	</div>
-	<div class="uk-width-1-2@s">
-		<LoaderWrapper
-			loading={!$rateByCompanyDatasets.length}
-			style="min-height: 300px;">
-			<Chart
-				labels={rateByCompanyLabels}
-				type="bar"
-				options={chartOptions.rateByCompany}
-				datasets={$rateByCompanyDatasets} />
-		</LoaderWrapper>
-	</div>
-	<div class="uk-width-1-2@s">
-		<LoaderWrapper
-			loading={!$rateByClientDatasets.length}
-			style="min-height: 300px;">
-			<Chart
-				labels={rateByClientLabels}
-				type="bar"
-				options={chartOptions.rateByClient}
-				datasets={$rateByClientDatasets} />
-		</LoaderWrapper>
+<Breadcrumb path={[{ label: __('Stats') }]} />
+<div class="uk-container">
+	<div uk-grid class="uk-grid-small">
+		<div class="uk-width-1-2@m">
+			<Card style="position: relative;">
+				<IconButton
+					icon="refresh"
+					style="position: absolute; right: 15px; top: 15px;"
+					on:click={() => !chartLoading.paymentByMonth && loadData('paymentByMonth')} />
+				<LoaderWrapper
+					loading={!$paymentByMonthDatasets.length}
+					style="min-height: 300px;">
+					<Chart
+						labels={yearByMonthLabels}
+						type="line"
+						options={chartOptions.paymentByMonth}
+						datasets={$paymentByMonthDatasets} />
+				</LoaderWrapper>
+			</Card>
+		</div>
+		<div class="uk-width-1-2@m">
+			<Card style="position: relative;">
+				<IconButton
+					icon="refresh"
+					style="position: absolute; right: 15px; top: 15px;"
+					on:click={() => !chartLoading.paymentByClient && loadData('paymentByClient')} />
+				<LoaderWrapper
+					loading={!$paymentByClientDatasets.length}
+					style="min-height: 300px;">
+					<Chart
+						labels={paymentByClientLabels}
+						type="pie"
+						options={chartOptions.paymentByClient}
+						datasets={$paymentByClientDatasets} />
+				</LoaderWrapper>
+			</Card>
+		</div>
+		<div class="uk-width-1-2@m">
+			<Card style="position: relative;">
+				<IconButton
+					icon="refresh"
+					style="position: absolute; right: 15px; top: 15px;"
+					on:click={() => !chartLoading.effortByMonth && loadData('effortByMonth')} />
+				<LoaderWrapper
+					loading={!$effortByMonthDatasets.length}
+					style="min-height: 300px;">
+					<Chart
+						labels={yearByMonthLabels}
+						type="line"
+						options={chartOptions.effortByMonth}
+						datasets={$effortByMonthDatasets} />
+				</LoaderWrapper>
+			</Card>
+		</div>
+		<div class="uk-width-1-2@m">
+			<Card style="position: relative;">
+				<IconButton
+					icon="refresh"
+					style="position: absolute; right: 15px; top: 15px;"
+					on:click={() => !chartLoading.rateByProject && loadData('rateByProject')} />
+				<LoaderWrapper
+					loading={!$rateByProjectDatasets.length}
+					style="min-height: 300px;">
+					<Chart
+						labels={rateByProjectLabels}
+						type="bar"
+						options={chartOptions.rateByProject}
+						datasets={$rateByProjectDatasets} />
+				</LoaderWrapper>
+			</Card>
+		</div>
+		<div class="uk-width-1-2@m">
+			<Card style="position: relative;">
+				<IconButton
+					icon="refresh"
+					style="position: absolute; right: 15px; top: 15px;"
+					on:click={() => !chartLoading.rateByCompany && loadData('rateByCompany')} />
+				<LoaderWrapper
+					loading={!$rateByCompanyDatasets.length}
+					style="min-height: 300px;">
+					<Chart
+						labels={rateByCompanyLabels}
+						type="bar"
+						options={chartOptions.rateByCompany}
+						datasets={$rateByCompanyDatasets} />
+				</LoaderWrapper>
+			</Card>
+		</div>
+		<div class="uk-width-1-2@m">
+			<Card style="position: relative;">
+				<IconButton
+					icon="refresh"
+					style="position: absolute; right: 15px; top: 15px;"
+					on:click={() => !chartLoading.rateByClient && loadData('rateByClient')} />
+				<LoaderWrapper
+					loading={!$rateByClientDatasets.length}
+					style="min-height: 300px;">
+					<Chart
+						labels={rateByClientLabels}
+						type="bar"
+						options={chartOptions.rateByClient}
+						datasets={$rateByClientDatasets} />
+				</LoaderWrapper>
+			</Card>
+		</div>
 	</div>
 </div>

@@ -26,6 +26,7 @@
 				"@rollup/plugin-replace": "^2.4.2",
 				"@rollup/plugin-typescript": "^6.0.0",
 				"@tsconfig/svelte": "^1.0.0",
+				"@types/color": "^3.0.2",
 				"@types/jwt-decode": "^2.2.1",
 				"@types/qs": "^6.9.5",
 				"@typescript-eslint/eslint-plugin": "^3.9.1",
