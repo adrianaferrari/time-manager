@@ -5,6 +5,7 @@ import { RequestHandler } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import { HttpError } from '../http/error';
 import { HttpStatus } from '../http/status';
+import { cols as activityCols } from '../services/activity';
 import { Currency } from '../types/common';
 
 export function rejectOnFailedValidation(): RequestHandler {
@@ -172,7 +173,13 @@ export function sanitizeActivityFilter() {
 			}
 			return undefined;
 		}),
-	]
+		query('orderBy').customSanitizer((value) => {
+			if (!value || !value.length) {
+				return [{ column: activityCols.date, order: 'desc' }];
+			}
+			return value;
+		}),
+	];
 }
 
 export function sanitizePaymentFilter() {
@@ -189,7 +196,7 @@ export function sanitizePaymentFilter() {
 			}
 			return undefined;
 		}),
-	]
+	];
 }
 
 export function sanitizeDataTableRequest() {
@@ -199,7 +206,7 @@ export function sanitizeDataTableRequest() {
 		query('query').customSanitizer((value) => value || ''),
 		query('orderBy').customSanitizer((value) => {
 			if (value) {
-				return value.map(({ key, direction }: any) => ({ column: key, order: direction }))
+				return value.map(({ key, direction }: any) => ({ column: key, order: direction }));
 			}
 			return [];
 		}),
@@ -232,5 +239,5 @@ export function sanitizePayment() {
 	return [
 		body('date').customSanitizer((value) => DateOnly.fromString(value)),
 		body('amount').customSanitizer((value) => new BigNumber(value)),
-	]
+	];
 }
