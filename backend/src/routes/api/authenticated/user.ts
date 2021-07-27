@@ -1,8 +1,11 @@
 import { asyncWrapper } from '@cdellacqua/express-async-wrapper';
 import { Router } from 'express';
 import { body } from 'express-validator';
+import { isUserSettings, rejectOnFailedValidation, sanitizeUserSettings } from '../../../helpers/validator';
 import { HttpStatus } from '../../../http/status';
-import { del, generateAuthResponse, update } from '../../../services/user';
+import {
+	del, findSettings, generateAuthResponse, settingsCols, update, updateSettings,
+} from '../../../services/user';
 
 const r: Router = Router();
 export default r;
@@ -27,4 +30,18 @@ r.put('/minJwtIat', [
 	res.json({
 		minJwtIat,
 	});
+}));
+
+r.get('/settings', asyncWrapper(async (_, res) => {
+	res.json(await findSettings({ [settingsCols.userId]: res.locals.user.id }));
+}));
+
+r.put('/settings', [
+	...isUserSettings(),
+	...sanitizeUserSettings(),
+	rejectOnFailedValidation(),
+], asyncWrapper(async (req, res) => {
+	res.json(await updateSettings(res.locals.user.id, {
+		dayLength: req.body.dayLength,
+	}));
 }));

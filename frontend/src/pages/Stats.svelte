@@ -19,7 +19,7 @@
 	} from "../DAL/stats";
 	import { statusMatch } from "../helpers/axios";
 	import { __ } from "../i18n";
-import { getColorRange } from '../ui-ux/theme';
+	import { getColorRange } from "../ui-ux/theme";
 
 	const paymentByMonth = writable(null);
 	const paymentByClient = writable(null);
@@ -52,10 +52,19 @@ import { getColorRange } from '../ui-ux/theme';
 
 	const paymentByMonthDatasets = derived(paymentByMonth, ($paymentByMonth) => {
 		if (!$paymentByMonth) {
-			return [];
+			return null;
 		}
-		const colors = getColorRange('--global-primary-background', '--global-secondary-background', $paymentByMonth.currencies.length);
-		const colorsBg = getColorRange('--global-primary-background', '--global-secondary-background', $paymentByMonth.currencies.length, 0.5);
+		const colors = getColorRange(
+			"--global-primary-background",
+			"--global-secondary-background",
+			$paymentByMonth.currencies.length
+		);
+		const colorsBg = getColorRange(
+			"--global-primary-background",
+			"--global-secondary-background",
+			$paymentByMonth.currencies.length,
+			0.5
+		);
 		const tmpData = $paymentByMonth.currencies.map((c, i) => ({
 			label: c,
 			data: new Array(12),
@@ -76,14 +85,18 @@ import { getColorRange } from '../ui-ux/theme';
 		[paymentByClient, clients],
 		([$paymentByClient, $clients]) => {
 			if (!$paymentByClient || !$clients) {
-				return [];
+				return null;
 			}
 			paymentByClientLabels = $paymentByClient.clientIds.map((cId) => {
 				const client = $clients.find((c) => c.id === cId);
 				if (!client) return __("unknown");
 				return client.firstName + " " + client.lastName;
 			});
-			const colors = getColorRange('--global-primary-background', '--global-secondary-background', $paymentByClient.clientIds.length);
+			const colors = getColorRange(
+				"--global-primary-background",
+				"--global-secondary-background",
+				$paymentByClient.clientIds.length
+			);
 			const tmpData = $paymentByClient.currencies.map((c) => ({
 				label: c,
 				data: new Array($paymentByClient.clientIds.length),
@@ -103,10 +116,19 @@ import { getColorRange } from '../ui-ux/theme';
 
 	const effortByMonthDatasets = derived(effortByMonth, ($effortByMonth) => {
 		if (!$effortByMonth) {
-			return [];
+			return null;
 		}
-		const colors = getColorRange('--global-primary-background', '--global-secondary-background', 1);
-		const colorsBg = getColorRange('--global-primary-background', '--global-secondary-background', 1, 0.5);
+		const colors = getColorRange(
+			"--global-primary-background",
+			"--global-secondary-background",
+			1
+		);
+		const colorsBg = getColorRange(
+			"--global-primary-background",
+			"--global-secondary-background",
+			1,
+			0.5
+		);
 		const tmpData = [
 			{
 				label: __("Hours"),
@@ -131,13 +153,22 @@ import { getColorRange } from '../ui-ux/theme';
 		[rateByProject, projects],
 		([$rateByProject, $projects]) => {
 			if (!$rateByProject || !$projects) {
-				return [];
+				return null;
 			}
 			rateByProjectLabels = $rateByProject.projectIds.map(
 				(pId) => $projects.find((p) => p.id === pId)?.name || __("unknown")
 			);
-			const colors = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2);
-			const colorsBg = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2, 0.5);
+			const colors = getColorRange(
+				"--global-primary-background",
+				"--global-secondary-background",
+				$rateByProject.currencies.length * 2
+			);
+			const colorsBg = getColorRange(
+				"--global-primary-background",
+				"--global-secondary-background",
+				$rateByProject.currencies.length * 2,
+				0.5
+			);
 			const tmpData = $rateByProject.currencies.flatMap((c, i) => [
 				{
 					label: c,
@@ -173,19 +204,28 @@ import { getColorRange } from '../ui-ux/theme';
 		[rateByCompany, companies],
 		([$rateByCompany, $companies]) => {
 			if (!$rateByCompany || !$companies) {
-				return [];
+				return null;
 			}
 			rateByCompanyLabels = $rateByCompany.companyIds.map(
 				(cId) => $companies.find((c) => c.id === cId)?.name || __("unknown")
 			);
-			const colors = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2);
-			const colorsBg = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2, 0.5);
+			const colors = getColorRange(
+				"--global-primary-background",
+				"--global-secondary-background",
+				$rateByProject.currencies.length * 2
+			);
+			const colorsBg = getColorRange(
+				"--global-primary-background",
+				"--global-secondary-background",
+				$rateByProject.currencies.length * 2,
+				0.5
+			);
 			const tmpData = $rateByCompany.currencies.flatMap((c, i) => [
 				{
 					label: c,
 					data: new Array($rateByCompany.companyIds.length),
 					backgroundColor: colors[i * 2],
-					borderColor: colors[i * 2]
+					borderColor: colors[i * 2],
 				},
 				{
 					label: __(":currency - avg", { currency: c }),
@@ -215,15 +255,24 @@ import { getColorRange } from '../ui-ux/theme';
 		[rateByClient, clients],
 		([$rateByClient, $clients]) => {
 			if (!$rateByClient || !$clients) {
-				return [];
+				return null;
 			}
 			rateByClientLabels = $rateByClient.clientIds.map((cId) => {
 				const client = $clients.find((c) => c.id === cId);
 				if (!client) return __("unknown");
 				return client.firstName + " " + client.lastName;
 			});
-			const colors = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2);
-			const colorsBg = getColorRange('--global-primary-background', '--global-secondary-background', $rateByProject.currencies.length * 2, 0.5);
+			const colors = getColorRange(
+				"--global-primary-background",
+				"--global-secondary-background",
+				$rateByProject.currencies.length * 2
+			);
+			const colorsBg = getColorRange(
+				"--global-primary-background",
+				"--global-secondary-background",
+				$rateByProject.currencies.length * 2,
+				0.5
+			);
 			const tmpData = $rateByClient.currencies.flatMap((c, i) => [
 				{
 					label: c,
@@ -407,13 +456,19 @@ import { getColorRange } from '../ui-ux/theme';
 					style="position: absolute; right: 15px; top: 15px;"
 					on:click={() => !chartLoading.paymentByMonth && loadData('paymentByMonth')} />
 				<LoaderWrapper
-					loading={!$paymentByMonthDatasets.length}
+					loading={!$paymentByMonthDatasets}
 					style="min-height: 300px;">
-					<Chart
-						labels={yearByMonthLabels}
-						type="line"
-						options={chartOptions.paymentByMonth}
-						datasets={$paymentByMonthDatasets} />
+					{#if $paymentByMonthDatasets.length}
+						<Chart
+							labels={yearByMonthLabels}
+							type="line"
+							options={chartOptions.paymentByMonth}
+							datasets={$paymentByMonthDatasets} />
+					{:else}
+						<p class="uk-text-italic uk-text-center">
+							{__("There isn't enough data to display :chartName", { chartName: chartOptions.paymentByMonth.plugins.title.text })}
+						</p>
+					{/if}
 				</LoaderWrapper>
 			</Card>
 		</div>
@@ -424,13 +479,19 @@ import { getColorRange } from '../ui-ux/theme';
 					style="position: absolute; right: 15px; top: 15px;"
 					on:click={() => !chartLoading.paymentByClient && loadData('paymentByClient')} />
 				<LoaderWrapper
-					loading={!$paymentByClientDatasets.length}
+					loading={!$paymentByClientDatasets}
 					style="min-height: 300px;">
-					<Chart
-						labels={paymentByClientLabels}
-						type="pie"
-						options={chartOptions.paymentByClient}
-						datasets={$paymentByClientDatasets} />
+					{#if $paymentByClientDatasets.length}
+						<Chart
+							labels={paymentByClientLabels}
+							type="pie"
+							options={chartOptions.paymentByClient}
+							datasets={$paymentByClientDatasets} />
+					{:else}
+						<p class="uk-text-italic uk-text-center">
+							{__("There isn't enough data to display :chartName", { chartName: chartOptions.paymentByClient.plugins.title.text })}
+						</p>
+					{/if}
 				</LoaderWrapper>
 			</Card>
 		</div>
@@ -441,13 +502,19 @@ import { getColorRange } from '../ui-ux/theme';
 					style="position: absolute; right: 15px; top: 15px;"
 					on:click={() => !chartLoading.effortByMonth && loadData('effortByMonth')} />
 				<LoaderWrapper
-					loading={!$effortByMonthDatasets.length}
+					loading={!$effortByMonthDatasets}
 					style="min-height: 300px;">
-					<Chart
-						labels={yearByMonthLabels}
-						type="line"
-						options={chartOptions.effortByMonth}
-						datasets={$effortByMonthDatasets} />
+					{#if $effortByMonthDatasets.length}
+						<Chart
+							labels={yearByMonthLabels}
+							type="line"
+							options={chartOptions.effortByMonth}
+							datasets={$effortByMonthDatasets} />
+					{:else}
+						<p class="uk-text-italic uk-text-center">
+							{__("There isn't enough data to display :chartName", { chartName: chartOptions.effortByMonth.plugins.title.text })}
+						</p>
+					{/if}
 				</LoaderWrapper>
 			</Card>
 		</div>
@@ -458,13 +525,19 @@ import { getColorRange } from '../ui-ux/theme';
 					style="position: absolute; right: 15px; top: 15px;"
 					on:click={() => !chartLoading.rateByProject && loadData('rateByProject')} />
 				<LoaderWrapper
-					loading={!$rateByProjectDatasets.length}
+					loading={!$rateByProjectDatasets}
 					style="min-height: 300px;">
-					<Chart
-						labels={rateByProjectLabels}
-						type="bar"
-						options={chartOptions.rateByProject}
-						datasets={$rateByProjectDatasets} />
+					{#if $rateByProjectDatasets.length}
+						<Chart
+							labels={rateByProjectLabels}
+							type="bar"
+							options={chartOptions.rateByProject}
+							datasets={$rateByProjectDatasets} />
+					{:else}
+						<p class="uk-text-italic uk-text-center">
+							{__("There isn't enough data to display :chartName", { chartName: chartOptions.rateByProject.plugins.title.text })}
+						</p>
+					{/if}
 				</LoaderWrapper>
 			</Card>
 		</div>
@@ -475,13 +548,19 @@ import { getColorRange } from '../ui-ux/theme';
 					style="position: absolute; right: 15px; top: 15px;"
 					on:click={() => !chartLoading.rateByCompany && loadData('rateByCompany')} />
 				<LoaderWrapper
-					loading={!$rateByCompanyDatasets.length}
+					loading={!$rateByCompanyDatasets}
 					style="min-height: 300px;">
-					<Chart
-						labels={rateByCompanyLabels}
-						type="bar"
-						options={chartOptions.rateByCompany}
-						datasets={$rateByCompanyDatasets} />
+					{#if $rateByCompanyDatasets.length}
+						<Chart
+							labels={rateByCompanyLabels}
+							type="bar"
+							options={chartOptions.rateByCompany}
+							datasets={$rateByCompanyDatasets} />
+					{:else}
+						<p class="uk-text-italic uk-text-center">
+							{__("There isn't enough data to display :chartName", { chartName: chartOptions.rateByCompany.plugins.title.text })}
+						</p>
+					{/if}
 				</LoaderWrapper>
 			</Card>
 		</div>
@@ -492,13 +571,19 @@ import { getColorRange } from '../ui-ux/theme';
 					style="position: absolute; right: 15px; top: 15px;"
 					on:click={() => !chartLoading.rateByClient && loadData('rateByClient')} />
 				<LoaderWrapper
-					loading={!$rateByClientDatasets.length}
+					loading={!$rateByClientDatasets}
 					style="min-height: 300px;">
-					<Chart
-						labels={rateByClientLabels}
-						type="bar"
-						options={chartOptions.rateByClient}
-						datasets={$rateByClientDatasets} />
+					{#if $rateByClientDatasets}
+						<Chart
+							labels={rateByClientLabels}
+							type="bar"
+							options={chartOptions.rateByClient}
+							datasets={$rateByClientDatasets} />
+					{:else}
+						<p class="uk-text-italic uk-text-center">
+							{__("There isn't enough data to display :chartName", { chartName: chartOptions.rateByClient.plugins.title.text })}
+						</p>
+					{/if}
 				</LoaderWrapper>
 			</Card>
 		</div>

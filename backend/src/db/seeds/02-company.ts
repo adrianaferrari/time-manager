@@ -1,9 +1,9 @@
 import { transact } from '@cdellacqua/knex-transact';
-import { Transaction } from 'knex';
+import { Knex } from 'knex';
 import { create } from '../../services/company';
 import * as user from '../../services/user';
 
-export async function seed(trx: Transaction): Promise<void> {
+export async function seed(trx: Knex.Transaction): Promise<void> {
 	return transact([
 		async (db) => {
 			const user1 = (await user.find({ email: 'user@example.com' }, db))!;
@@ -17,6 +17,6 @@ export async function seed(trx: Transaction): Promise<void> {
 				name: 'Another Company',
 				userId: user1.id,
 			}, db);
-		}
+		},
 	], trx);
 }

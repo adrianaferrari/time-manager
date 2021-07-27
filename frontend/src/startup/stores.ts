@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { derived } from 'svelte/store';
 import { identity, noop } from '../helpers/lambdas';
-import { user } from '../DAL/user';
+import { user, userSettings } from '../DAL/user';
 import { theme } from '../ui-ux/theme';
 import { categories } from '../DAL/category';
 import { projects } from '../DAL/project';
@@ -19,11 +19,13 @@ derived([user], identity)
 			technologies.refresh();
 			companies.refresh();
 			clients.refresh();
+			userSettings.refresh();
 		} else {
 			categories.setRaw([]);
 			projects.setRaw([]);
 			technologies.setRaw([]);
 			clients.setRaw([]);
 			companies.setRaw([]);
+			userSettings.setRaw({ dayLength: 8 });
 		}
 	});

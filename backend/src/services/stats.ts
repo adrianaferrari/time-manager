@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { transact } from '@cdellacqua/knex-transact';
 import BigNumber from 'bignumber.js';
-import { Transaction } from 'knex';
+import { Knex } from 'knex';
 import { Interval } from '@cdellacqua/interval';
 import { Currency, uuid } from '../types/common';
 import * as payment from './payment';
@@ -27,7 +27,7 @@ export function paymentByMonth(
 	projectIds: uuid[],
 	firstDate?: Date,
 	lastDate?: Date,
-	trx?: Transaction,
+	trx?: Knex.Transaction,
 ): Promise<{ data: ({ month: number } & { [key in Currency]?: BigNumber })[], currencies: Currency[] }> {
 	return transact([async (db) => {
 		if (!firstDate) {
@@ -43,6 +43,7 @@ export function paymentByMonth(
 			.whereIn(payment.cols.projectId, projectIds)
 			.groupByRaw(`date_part('month', ${payment.cols.date})`)
 			.groupBy(payment.cols.currency);
+		console.log(rawResults);
 		const allCurrencies: Currency[] = [];
 		rawResults.forEach((record) => {
 			if (!allCurrencies.includes(record.currency)) {
@@ -65,7 +66,7 @@ export function paymentByClient(
 	clientIds: uuid[],
 	firstDate?: Date,
 	lastDate?: Date,
-	trx?: Transaction,
+	trx?: Knex.Transaction,
 ): Promise<{ data: ({ clientId: string } & { [key in Currency]?: BigNumber })[], currencies: Currency[], clientIds: uuid[] }> {
 	return transact([async (db) => {
 		const rawResults: { currency: Currency, amount: BigNumber, clientId: uuid }[] = await db.table(payment.table)
@@ -112,7 +113,7 @@ export function effortByMonth(
 	userId: uuid,
 	firstDate?: Date,
 	lastDate?: Date,
-	trx?: Transaction,
+	trx?: Knex.Transaction,
 ): Promise<{ month: number, effort: Interval }[]> {
 	return transact([async (db) => {
 		if (!firstDate) {
@@ -143,7 +144,7 @@ export function rateByProject(
 	projectIds: uuid[],
 	firstDate?: Date,
 	lastDate?: Date,
-	trx?: Transaction,
+	trx?: Knex.Transaction,
 ): Promise<{
 	data: ({ projectId: uuid } & { [key in Currency]?: BigNumber })[],
 	dataAvg: { [key in Currency]?: BigNumber},
@@ -232,7 +233,7 @@ export function rateByCompany(
 	companyIds: uuid[],
 	firstDate?: Date,
 	lastDate?: Date,
-	trx?: Transaction,
+	trx?: Knex.Transaction,
 ): Promise<{
 	data: ({ companyId: uuid } & { [key in Currency]?: BigNumber })[],
 	dataAvg: { [key in Currency]?: BigNumber},
@@ -330,7 +331,7 @@ export function rateByClient(
 	clientIds: uuid[],
 	firstDate?: Date,
 	lastDate?: Date,
-	trx?: Transaction,
+	trx?: Knex.Transaction,
 ): Promise<{
 	data: ({ clientId: uuid } & { [key in Currency]?: BigNumber })[],
 	dataAvg: { [key in Currency]?: BigNumber},

@@ -10,6 +10,7 @@ import Payment from './Payment.svelte';
 import Payments from './Payments.svelte';
 import Project from './Project.svelte';
 import Projects from './Projects.svelte';
+import Settings from './Settings.svelte';
 import Stats from './Stats.svelte';
 import Technologies from './Technologies.svelte';
 import NotFound from './NotFound.svelte';
@@ -27,6 +28,7 @@ export default {
 	'/project/:projectId/payment/details/:id': Payment,
 	'/project/all': Projects,
 	'/project/details/:id': Project,
+	'/settings': Settings,
 	'/stats': Stats,
 	'/technology/all': Technologies,
 	'*': NotFound,

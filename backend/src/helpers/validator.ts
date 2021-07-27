@@ -2,7 +2,9 @@ import { DateOnly } from '@cdellacqua/date-only';
 import { Interval } from '@cdellacqua/interval';
 import BigNumber from 'bignumber.js';
 import { RequestHandler } from 'express';
-import { body, query, validationResult } from 'express-validator';
+import {
+	body, query, ValidationChain, validationResult,
+} from 'express-validator';
 import { HttpError } from '../http/error';
 import { HttpStatus } from '../http/status';
 import { cols as activityCols } from '../services/activity';
@@ -19,7 +21,7 @@ export function rejectOnFailedValidation(): RequestHandler {
 	};
 }
 
-export function isAsyncDataTableRequest(allowedKeys: string[]) {
+export function isAsyncDataTableRequest(allowedKeys: string[]): ValidationChain[] {
 	return [
 		query('pageIndex').isInt({ min: 0 }),
 		query('recordsPerPage').isInt({ min: 1 }),
@@ -30,19 +32,19 @@ export function isAsyncDataTableRequest(allowedKeys: string[]) {
 	];
 }
 
-export function isTechnology() {
+export function isTechnology(): ValidationChain[] {
 	return [
 		body('name').isString().isLength({ max: 100 }),
 	];
 }
 
-export function isCategory() {
+export function isCategory(): ValidationChain[] {
 	return [
 		body('name').isString().isLength({ max: 100 }),
 	];
 }
 
-export function isProject() {
+export function isProject(): ValidationChain[] {
 	return [
 		body('name').isString().isLength({ max: 100 }),
 		body('startDate').isDate(),
@@ -76,7 +78,7 @@ export function isProject() {
 	];
 }
 
-export function sanitizeProject() {
+export function sanitizeProject(): ValidationChain[] {
 	return [
 		body('price').customSanitizer((value) => {
 			if (value) {
@@ -101,7 +103,7 @@ export function sanitizeProject() {
 	];
 }
 
-export function isActivity() {
+export function isActivity(): ValidationChain[] {
 	return [
 		body('description').isString().isLength({ min: 1, max: 1000 }),
 		body('projectId').optional({ nullable: true, checkFalsy: true }).isUUID(),
@@ -116,7 +118,7 @@ export function isActivity() {
 	];
 }
 
-export function isClient() {
+export function isClient(): ValidationChain[] {
 	return [
 		body('firstName').isString().isLength({ min: 1, max: 100 }),
 		body('lastName').isString().isLength({ min: 1, max: 100 }),
@@ -125,7 +127,7 @@ export function isClient() {
 	];
 }
 
-export function isCompany() {
+export function isCompany(): ValidationChain[] {
 	return [
 		body('name').isString().isLength({ min: 1, max: 150 }),
 		body('vatNumber').optional({ nullable: true, checkFalsy: true }).isString().isLength({ max: 100 }),
@@ -133,7 +135,7 @@ export function isCompany() {
 	];
 }
 
-export function isPayment() {
+export function isPayment(): ValidationChain[] {
 	return [
 		body('date').isDate(),
 		body('amount').isDecimal(),
@@ -142,7 +144,7 @@ export function isPayment() {
 	];
 }
 
-export function isActivityFilter() {
+export function isActivityFilter(): ValidationChain[] {
 	return [
 		query('from').optional({ nullable: true, checkFalsy: true }).isDate(),
 		query('to').optional({ nullable: true, checkFalsy: true }).isDate(),
@@ -151,7 +153,7 @@ export function isActivityFilter() {
 	];
 }
 
-export function isPaymentFilter() {
+export function isPaymentFilter(): ValidationChain[] {
 	return [
 		query('from').optional({ nullable: true, checkFalsy: true }).isDate(),
 		query('to').optional({ nullable: true, checkFalsy: true }).isDate(),
@@ -159,7 +161,7 @@ export function isPaymentFilter() {
 	];
 }
 
-export function sanitizeActivityFilter() {
+export function sanitizeActivityFilter(): ValidationChain[] {
 	return [
 		query('from').customSanitizer((value) => {
 			if (value) {
@@ -182,7 +184,7 @@ export function sanitizeActivityFilter() {
 	];
 }
 
-export function sanitizePaymentFilter() {
+export function sanitizePaymentFilter(): ValidationChain[] {
 	return [
 		query('from').customSanitizer((value) => {
 			if (value) {
@@ -199,7 +201,7 @@ export function sanitizePaymentFilter() {
 	];
 }
 
-export function sanitizeDataTableRequest() {
+export function sanitizeDataTableRequest(): ValidationChain[] {
 	return [
 		query('pageIndex').customSanitizer((value) => Number(value)),
 		query('recordsPerPage').customSanitizer((value) => Number(value)),
@@ -213,7 +215,7 @@ export function sanitizeDataTableRequest() {
 	];
 }
 
-export function sanitizeActivity() {
+export function sanitizeActivity(): ValidationChain[] {
 	return [
 		body('date').customSanitizer((value) => DateOnly.fromString(value)),
 		body('timeSpent').customSanitizer((value) => new Interval(value)),
@@ -221,23 +223,38 @@ export function sanitizeActivity() {
 	];
 }
 
-export function sanitizeClient() {
+export function sanitizeClient(): ValidationChain[] {
 	return [
 		body('email').customSanitizer((value) => value || null),
 		body('companyId').customSanitizer((value) => value || null),
 	];
 }
 
-export function sanitizeCompany() {
+export function sanitizeCompany(): ValidationChain[] {
 	return [
 		body('email').customSanitizer((value) => value || null),
 		body('vatNumber').customSanitizer((value) => value || null),
 	];
 }
 
-export function sanitizePayment() {
+export function sanitizePayment(): ValidationChain[] {
 	return [
 		body('date').customSanitizer((value) => DateOnly.fromString(value)),
 		body('amount').customSanitizer((value) => new BigNumber(value)),
+	];
+}
+
+export function isUserSettings(): ValidationChain[] {
+	return [
+		body('dayLength').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0.5, max: 24 }),
+	];
+}
+
+export function sanitizeUserSettings(): ValidationChain[] {
+	return [
+		body('dayLength').customSanitizer((value) => {
+			if (!value) { return null; }
+			return value;
+		}),
 	];
 }

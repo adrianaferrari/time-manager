@@ -1,14 +1,14 @@
 import { transact } from '@cdellacqua/knex-transact';
 import { DateOnly } from '@cdellacqua/date-only';
 import { Interval } from '@cdellacqua/interval';
-import { Transaction } from 'knex';
+import { Knex } from 'knex';
+import BigNumber from 'bignumber.js';
 import * as client from '../../services/client';
 import { create } from '../../services/project';
 import * as user from '../../services/user';
 import * as technology from '../../services/technology';
-import BigNumber from 'bignumber.js';
 
-export async function seed(trx: Transaction): Promise<void> {
+export async function seed(trx: Knex.Transaction): Promise<void> {
 	return transact<void>([
 		async (db) => {
 			const user1 = (await user.find({ email: 'user@example.com' }, db))!;
@@ -22,7 +22,7 @@ export async function seed(trx: Transaction): Promise<void> {
 				startDate: new DateOnly(),
 				userId: user1.id,
 				estimatedEffort: new Interval(1, 5, 3),
-				technologyIds: [ svelte.id, nodejs.id ],
+				technologyIds: [svelte.id, nodejs.id],
 			}, db);
 			await create({
 				name: 'E-Commerce',
@@ -33,7 +33,7 @@ export async function seed(trx: Transaction): Promise<void> {
 				price: new BigNumber(3000),
 				currency: 'EUR',
 				userId: user1.id,
-				technologyIds: [ php.id ],
+				technologyIds: [php.id],
 			}, db);
 			await create({
 				clientId: client2.id,
@@ -43,6 +43,6 @@ export async function seed(trx: Transaction): Promise<void> {
 				name: 'Company Website',
 				userId: user1.id,
 			}, db);
-		}
+		},
 	], trx);
 }

@@ -6,23 +6,25 @@ import { writable as persistentWritable } from 'svelte-persistent-store/dist/loc
 import jwtDecode from 'jwt-decode';
 import axios from 'axios';
 import type { Writable } from 'svelte/store';
+import { asyncReadable } from 'svelte-async-readable';
 import { axiosExtract } from '../helpers/axios';
 import { setTheme, theme } from '../ui-ux/theme';
 import config from '../config';
 import { HttpStatus } from '../http/status';
-import { asyncReadable } from 'svelte-async-readable';
 
 export enum Role {
 	admin = 'admin',
 	user = 'user',
 }
 
-export const dayLength = asyncReadable({
-	dataProvider: async () => 8, // TODO use actual api
-	initialValue: 8,
-	storageName: 'dayLength',
+export const userSettings = asyncReadable<UserSettings | null>({
+	dataProvider: async () => axiosExtract<UserSettings | null>(axios.get('/auth/user/settings')),
+	initialValue: { dayLength: 8 },
+	storageName: 'userSettings',
 	refresh: false,
 });
+
+export const dayLength = derived(userSettings, ($userSettings) => $userSettings?.dayLength || 8);
 
 const authStorageKey = 'authResponse';
 
@@ -182,6 +184,10 @@ if (authResponseRaw) {
 	}
 }
 
+export function saveSettings(settings: SaveSettings): Promise<UserSettings> {
+	return axiosExtract(axios.put('/auth/user/settings', settings));
+}
+
 export interface User {
 	id: string,
 	firstName: string,
@@ -221,4 +227,11 @@ export interface AuthResponse {
 export interface Jwt {
 	exp: number,
 	iat: number,
+}
+
+export interface UserSettings {
+	dayLength: number | null,
+}
+export interface SaveSettings {
+	dayLength: number | null,
 }

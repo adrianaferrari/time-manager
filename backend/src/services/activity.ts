@@ -1,5 +1,5 @@
 import { transact } from '@cdellacqua/knex-transact';
-import { Transaction } from 'knex';
+import { Knex } from 'knex';
 import { DateOnly } from '@cdellacqua/date-only';
 import { Interval } from '@cdellacqua/interval';
 import BigNumber from 'bignumber.js';
@@ -8,7 +8,6 @@ import {
 } from '../db/utils';
 import { uuid } from '../types/common';
 import { AsyncDataTableRequest, AsyncDataTableResponse } from '../types/async-data-table';
-import knex from '../db';
 import { define } from '../helpers/object';
 import * as category from './category';
 import * as project from './project';
@@ -38,7 +37,7 @@ export const find = findOneGenerator(table, columnNames, (row) => rowMapper(row)
 export const findAll = findAllGenerator(table, columnNames, (row) => rowMapper(row));
 export const fromQuery = fromQueryGenerator<Activity>(columnNames, (row) => rowMapper(row));
 
-export function create(activity: SaveActivity, trx?: Transaction): Promise<Activity> {
+export function create(activity: SaveActivity, trx?: Knex.Transaction): Promise<Activity> {
 	return transact([
 		(db) => insertGetId(db(table)
 			.insert({
@@ -53,7 +52,7 @@ export function create(activity: SaveActivity, trx?: Transaction): Promise<Activ
 	], trx);
 }
 
-export function update(id: uuid, activity: SaveActivity, trx?: Transaction): Promise<Activity> {
+export function update(id: uuid, activity: SaveActivity, trx?: Knex.Transaction): Promise<Activity> {
 	return transact([
 		(db) => db(table)
 			.where({ id })
@@ -68,7 +67,7 @@ export function update(id: uuid, activity: SaveActivity, trx?: Transaction): Pro
 	], trx);
 }
 
-export function list(userId: uuid, filter: FilterActivityRequest, trx?: Transaction): Promise<AsyncDataTableResponse<Activity>> {
+export function list(userId: uuid, filter: FilterActivityRequest, trx?: Knex.Transaction): Promise<AsyncDataTableResponse<Activity>> {
 	return transact([
 		async (db) => {
 			const getQuery = (filtered = true) => {
@@ -94,9 +93,9 @@ export function list(userId: uuid, filter: FilterActivityRequest, trx?: Transact
 				}
 				return base;
 			};
-			const total = (await getQuery(false).count(`${table}.id`, { as: 'count ' }))[0].count;
+			const total = (await getQuery(false).count(`${table}.id`, { as: 'count' }))[0].count;
 			const filtered = (await getQuery()
-				.count(`${table}.id`, { as: 'count ' }))[0].count;
+				.count(`${table}.id`, { as: 'count' }))[0].count;
 			const records = await fromQuery(getQuery()
 				.orderBy(filter.orderBy)
 				.offset(filter.pageIndex * filter.recordsPerPage)
@@ -110,18 +109,18 @@ export function list(userId: uuid, filter: FilterActivityRequest, trx?: Transact
 	], trx);
 }
 
-export function del(id: uuid, trx?: Transaction): Promise<void> {
+export function del(id: uuid, trx?: Knex.Transaction): Promise<void> {
 	return transact([
 		(db) => db(table).where({ id }).delete(),
 	], trx);
 }
 
-export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
+export function isOwned(id: uuid, userId: uuid, trx?: Knex.Transaction): Promise<boolean> {
 	return find({ id, userId }, trx).then((res) => !!res);
 }
 
 export function timeSpentByFilter(
-	userId: uuid, filter?: Record<string, any> | string | number, filterIn?: { col: string, values: any[] }, trx?: Transaction,
+	userId: uuid, filter?: Record<string, any> | string | number, filterIn?: { col: string, values: any[] }, trx?: Knex.Transaction,
 ): Promise<Interval> {
 	return transact([
 		(db) => db(table)
@@ -142,7 +141,7 @@ export function timeSpentByFilter(
 }
 
 export function timeSpentByFilterGrouped(
-	userId: uuid, filter?: Record<string, any> | string | number, filterIn?: { col: string, values: any[] }, groupBy?: string, trx?: Transaction,
+	userId: uuid, filter?: Record<string, any> | string | number, filterIn?: { col: string, values: any[] }, groupBy?: string, trx?: Knex.Transaction,
 ): Promise<Interval> {
 	return transact([
 		(db) => db(table)

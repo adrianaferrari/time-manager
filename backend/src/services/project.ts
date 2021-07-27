@@ -1,5 +1,5 @@
 import { transact } from '@cdellacqua/knex-transact';
-import { Transaction } from 'knex';
+import { Knex } from 'knex';
 import { DateOnly } from '@cdellacqua/date-only';
 import { Interval } from '@cdellacqua/interval';
 import BigNumber from 'bignumber.js';
@@ -38,7 +38,7 @@ export const findAllTechnologies = findAllGenerator<Record<string, any> | string
 	technologyTable, technologyColNames, (row) => row.technologyId,
 );
 
-async function rowMapper(row: ProjectRaw, trx?: Transaction): Promise<Project> {
+async function rowMapper(row: ProjectRaw, trx?: Knex.Transaction): Promise<Project> {
 	return Promise.resolve({
 		...row,
 		technologyIds: await findAllTechnologies({ projectId: row.id }, undefined, trx),
@@ -52,7 +52,7 @@ export const findAll = findAllGenerator(table, columnNames, (row, trx) => rowMap
 
 export const fromQuery = fromQueryGenerator<Project>(columnNames, (row, trx) => rowMapper(row, trx));
 
-export function create(project: SaveProject, trx?: Transaction): Promise<Project> {
+export function create(project: SaveProject, trx?: Knex.Transaction): Promise<Project> {
 	return transact([
 		(db) => insertGetId(db(table)
 			.insert({
@@ -75,7 +75,7 @@ export function create(project: SaveProject, trx?: Transaction): Promise<Project
 	], trx);
 }
 
-export function update(id: uuid, project: SaveProject, trx?: Transaction): Promise<Project> {
+export function update(id: uuid, project: SaveProject, trx?: Knex.Transaction): Promise<Project> {
 	return transact([
 		(db) => db(table)
 			.where({ id })
@@ -98,25 +98,25 @@ export function update(id: uuid, project: SaveProject, trx?: Transaction): Promi
 	], trx);
 }
 
-export function del(id: uuid, trx?: Transaction): Promise<void> {
+export function del(id: uuid, trx?: Knex.Transaction): Promise<void> {
 	return transact([
 		(db) => db(table).where({ id }).delete(),
 	], trx);
 }
 
-export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
+export function isOwned(id: uuid, userId: uuid, trx?: Knex.Transaction): Promise<boolean> {
 	return find({ id, userId }, trx).then((res) => !!res);
 }
 
-export function findIdsByClient(clientId: uuid, trx?: Transaction): Promise<uuid[]> {
+export function findIdsByClient(clientId: uuid, trx?: Knex.Transaction): Promise<uuid[]> {
 	return transact([(db) => db(table).where({ [cols.clientId]: clientId }).pluck(cols.id)], trx);
 }
 
-export function findIdsByClients(clientIds: uuid[], trx?: Transaction): Promise<uuid[]> {
+export function findIdsByClients(clientIds: uuid[], trx?: Knex.Transaction): Promise<uuid[]> {
 	return transact([(db) => db(table).whereIn(cols.clientId, clientIds).pluck(cols.id)], trx);
 }
 
-export function findIdsByUser(userId: uuid, trx?: Transaction): Promise<uuid[]> {
+export function findIdsByUser(userId: uuid, trx?: Knex.Transaction): Promise<uuid[]> {
 	return transact([(db) => db(table).where({ [cols.userId]: userId }).pluck(cols.id)], trx);
 }
 

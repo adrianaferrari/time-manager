@@ -1,13 +1,13 @@
 import { transact } from '@cdellacqua/knex-transact';
 import { DateOnly } from '@cdellacqua/date-only';
 import { Interval } from '@cdellacqua/interval';
-import { Transaction } from 'knex';
+import { Knex } from 'knex';
 import * as project from '../../services/project';
 import * as category from '../../services/category';
 import * as user from '../../services/user';
 import { create } from '../../services/activity';
 
-export async function seed(trx: Transaction): Promise<void> {
+export async function seed(trx: Knex.Transaction): Promise<void> {
 	return transact<void>([
 		async (db) => {
 			const user1 = (await user.find({ email: 'user@example.com' }, db))!;
@@ -56,6 +56,6 @@ export async function seed(trx: Transaction): Promise<void> {
 				date: new DateOnly().subDays(10),
 				timeSpent: new Interval(1, 0, 1, 15),
 			}, db);
-		}
+		},
 	], trx);
 }

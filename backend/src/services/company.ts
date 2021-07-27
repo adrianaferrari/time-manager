@@ -1,5 +1,5 @@
 import { transact } from '@cdellacqua/knex-transact';
-import { Transaction } from 'knex';
+import { Knex } from 'knex';
 import {
 	findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId,
 } from '../db/utils';
@@ -29,7 +29,7 @@ export const findAll = findAllGenerator(table, columnNames, (row) => rowMapper(r
 
 export const fromQuery = fromQueryGenerator<Company>(columnNames, (row) => rowMapper(row));
 
-export function create(company: SaveCompany, trx?: Transaction): Promise<Company> {
+export function create(company: SaveCompany, trx?: Knex.Transaction): Promise<Company> {
 	return transact([
 		async (db) => insertGetId(db(table)
 			.insert({
@@ -42,7 +42,7 @@ export function create(company: SaveCompany, trx?: Transaction): Promise<Company
 	], trx);
 }
 
-export function update(id: uuid, company: SaveCompany, trx?: Transaction): Promise<Company> {
+export function update(id: uuid, company: SaveCompany, trx?: Knex.Transaction): Promise<Company> {
 	return transact([
 		(db) => db(table)
 			.where({ id })
@@ -55,25 +55,25 @@ export function update(id: uuid, company: SaveCompany, trx?: Transaction): Promi
 	], trx);
 }
 
-export function del(id: uuid, trx?: Transaction): Promise<void> {
+export function del(id: uuid, trx?: Knex.Transaction): Promise<void> {
 	return transact([
 		(db) => db(table).where({ id }).delete(),
 	], trx);
 }
 
-export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
+export function isOwned(id: uuid, userId: uuid, trx?: Knex.Transaction): Promise<boolean> {
 	return find({ id, userId }, trx).then((res) => !!res);
 }
 
-export function vatNumberAlreadyExists(vatNumber: string, userId: uuid, id?: uuid, trx?: Transaction): Promise<boolean> {
+export function vatNumberAlreadyExists(vatNumber: string, userId: uuid, id?: uuid, trx?: Knex.Transaction): Promise<boolean> {
 	return find(({ vatNumber, userId }), trx).then((res) => (res ? res.id !== id : false));
 }
 
-export function emailAlreadyExists(email: string, userId: uuid, id?: uuid, trx?: Transaction): Promise<boolean> {
+export function emailAlreadyExists(email: string, userId: uuid, id?: uuid, trx?: Knex.Transaction): Promise<boolean> {
 	return find(({ email, userId }), trx).then((res) => (res ? res.id !== id : false));
 }
 
-export function findIdsByUser(userId: string, trx?: Transaction): Promise<uuid[]> {
+export function findIdsByUser(userId: string, trx?: Knex.Transaction): Promise<uuid[]> {
 	return transact((db) => db(table).where({ [cols.userId]: userId }).pluck(cols.id), trx);
 }
 export interface CompanyRaw {

@@ -1,7 +1,7 @@
 import { DateOnly } from '@cdellacqua/date-only';
 import { transact } from '@cdellacqua/knex-transact';
 import BigNumber from 'bignumber.js';
-import { Transaction } from 'knex';
+import { Knex } from 'knex';
 import {
 	findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId,
 } from '../db/utils';
@@ -32,7 +32,7 @@ export const find = findOneGenerator(table, columnNames, (row) => rowMapper(row)
 export const findAll = findAllGenerator(table, columnNames, (row) => rowMapper(row));
 export const fromQuery = fromQueryGenerator<Payment>(columnNames, (row) => rowMapper(row));
 
-export function create(payment: SavePayment, trx?: Transaction): Promise<Payment> {
+export function create(payment: SavePayment, trx?: Knex.Transaction): Promise<Payment> {
 	return transact([
 		async (db) => insertGetId(db(table)
 			.insert({
@@ -45,7 +45,7 @@ export function create(payment: SavePayment, trx?: Transaction): Promise<Payment
 	], trx);
 }
 
-export function update(id: uuid, payment: SavePayment, trx?: Transaction): Promise<Payment> {
+export function update(id: uuid, payment: SavePayment, trx?: Knex.Transaction): Promise<Payment> {
 	return transact([
 		(db) => db(table)
 			.where({ id })
@@ -59,20 +59,20 @@ export function update(id: uuid, payment: SavePayment, trx?: Transaction): Promi
 	], trx);
 }
 
-export function del(id: uuid, trx?: Transaction): Promise<void> {
+export function del(id: uuid, trx?: Knex.Transaction): Promise<void> {
 	return transact([
 		(db) => db(table).where({ id }).delete(),
 	], trx);
 }
 
-export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
+export function isOwned(id: uuid, userId: uuid, trx?: Knex.Transaction): Promise<boolean> {
 	return transact([
 		(db) => find({ id }, db),
 		(db, payment) => (payment ? project.find({ userId, id: payment.projectId }, db) : Promise.resolve(null)),
 	], trx).then((res) => !!res);
 }
 
-export function list(userId: uuid, filter: FilterPaymentRequest, trx?: Transaction): Promise<AsyncDataTableResponse<Payment>> {
+export function list(userId: uuid, filter: FilterPaymentRequest, trx?: Knex.Transaction): Promise<AsyncDataTableResponse<Payment>> {
 	return transact([
 		async (db) => {
 			const getQuery = (filtered = true) => {
@@ -96,9 +96,9 @@ export function list(userId: uuid, filter: FilterPaymentRequest, trx?: Transacti
 				}
 				return base;
 			};
-			const total = (await getQuery(false).count(`${table}.id`, { as: 'count ' }))[0].count;
+			const total = (await getQuery(false).count(`${table}.id`, { as: 'count' }))[0].count;
 			const filtered = (await getQuery()
-				.count(`${table}.id`, { as: 'count ' }))[0].count;
+				.count(`${table}.id`, { as: 'count' }))[0].count;
 			const records = await fromQuery(getQuery()
 				.orderBy(filter.orderBy)
 				.offset(filter.pageIndex * filter.recordsPerPage)

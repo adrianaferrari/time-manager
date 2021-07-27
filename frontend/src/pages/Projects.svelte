@@ -91,7 +91,7 @@ import { printInterval } from '../helpers/interval';
 	function updateRows() {
 		rows = $projects;
 	}
-	$: $projects, updateRows();
+	$: $projects, $dayLength, updateRows();
 </script>
 
 <LoaderWrapper loading={$loading}>

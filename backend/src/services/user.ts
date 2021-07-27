@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { Transaction } from 'knex';
 import { transact } from '@cdellacqua/knex-transact';
+import { Knex } from 'knex';
 import config from '../config';
 import {
 	fromQueryGenerator, findOneGenerator, insertGetId, findAllGenerator,
@@ -12,7 +12,7 @@ export enum Role {
 	user = 'user',
 	manager = 'manager',
 	admin = 'admin',
-};
+}
 
 export const table = 'user';
 
@@ -33,9 +33,18 @@ export const rolesCols = {
 	role: 'role',
 };
 
+export const settingsTable = 'userSettings';
+
+export const settingsCols = {
+	userId: 'userId',
+	dayLength: 'dayLength',
+};
+
 const columnNames = Object.values(cols);
 
 const rolesColNames = Object.values(rolesCols);
+
+const settingsColNames = Object.values(settingsCols);
 
 export function createJwt(user: User): string {
 	const token = jwt.sign({}, config.secret, {
@@ -59,20 +68,29 @@ export function generateAuthResponse(user: User): AuthResponse {
 	};
 }
 
-async function rowMapper(row: UserRaw, trx?: Transaction): Promise<User> {
-	return Promise.resolve({
-		...row,
-		roles: await findAllRoles({ userId: row.id }, undefined, trx),
-	});
-}
-
 export const find = findOneGenerator(table, columnNames, (row) => rowMapper(row));
 
 export const findAllRoles = findAllGenerator<Record<string, any> | string | number, Role>(rolesTable, rolesColNames, (row) => row.role);
 
 export const fromQuery = fromQueryGenerator<User>(columnNames, (row) => rowMapper(row));
 
-export function create(user: SaveUser, trx?: Transaction): Promise<User> {
+export const findSettings = findOneGenerator(settingsTable, settingsColNames, (row) => rowMapperSettings(row));
+
+async function rowMapper(row: UserRaw, trx?: Knex.Transaction): Promise<User> {
+	return Promise.resolve({
+		...row,
+		roles: await findAllRoles({ userId: row.id }, undefined, trx),
+	});
+}
+
+async function rowMapperSettings(row: SettingsRow): Promise<Settings> {
+	return {
+		dayLength: row.dayLength,
+		userId: row.userId,
+	};
+}
+
+export function create(user: SaveUser, trx?: Knex.Transaction): Promise<User> {
 	return transact([
 		async (db) => insertGetId(db(table)
 			.insert({
@@ -90,7 +108,7 @@ export function create(user: SaveUser, trx?: Transaction): Promise<User> {
 	], trx);
 }
 
-export function update(id: uuid, user: Partial<SaveUser>, trx?: Transaction): Promise<User> {
+export function update(id: uuid, user: Partial<SaveUser>, trx?: Knex.Transaction): Promise<User> {
 	return transact([
 		async (db) => db(table)
 			.where({ id })
@@ -104,7 +122,19 @@ export function update(id: uuid, user: Partial<SaveUser>, trx?: Transaction): Pr
 	], trx);
 }
 
-export function del(id: uuid, trx?: Transaction): Promise <void> {
+export function updateSettings(userId: uuid, saveSettings: SaveSettings, trx?: Knex.Transaction): Promise<User> {
+	return transact([
+		(db) => db(settingsTable)
+			.insert({
+				[settingsCols.userId]: userId,
+				[settingsCols.dayLength]: saveSettings.dayLength,
+			})
+			.onConflict(settingsCols.userId).merge(),
+		(db) => findSettings({ [settingsCols.userId]: userId }, db),
+	], trx);
+}
+
+export function del(id: uuid, trx?: Knex.Transaction): Promise <void> {
 	return transact(
 		(db) => db(table).where({ [cols.id]: id }).delete(),
 		trx,
@@ -161,4 +191,17 @@ export interface SaveUser {
 export interface AuthResponse {
 	jwt: string,
 	user: Omit<User, 'passwordHash'>,
+}
+
+export interface SettingsRow {
+	userId: uuid,
+	dayLength: number | null,
+}
+export interface Settings {
+	userId: uuid,
+	dayLength: number | null,
+}
+
+export interface SaveSettings {
+	dayLength: number | null,
 }

@@ -1,12 +1,12 @@
 import { transact } from '@cdellacqua/knex-transact';
 import { DateOnly } from '@cdellacqua/date-only';
-import { Transaction } from 'knex';
+import { Knex } from 'knex';
+import BigNumber from 'bignumber.js';
 import * as project from '../../services/project';
 import { create } from '../../services/payment';
-import BigNumber from 'bignumber.js';
 import { Currency } from '../../types/common';
 
-export async function seed(trx: Transaction): Promise<void> {
+export async function seed(trx: Knex.Transaction): Promise<void> {
 	return transact([
 		async (db) => {
 			const project2 = (await project.find({ name: 'E-Commerce' }, db))!;
@@ -29,6 +29,6 @@ export async function seed(trx: Transaction): Promise<void> {
 				currency: Currency.USD,
 				date: new DateOnly(),
 			}, db);
-		}
+		},
 	], trx);
 }

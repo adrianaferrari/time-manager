@@ -2,6 +2,7 @@
 import { __ } from '../i18n';
 import { link, location } from 'svelte-stack-router';
 import { Size, size } from '../ui-ux/responsive';
+import Anchor from './Anchor.svelte';
 
 	const entries = [
 		{ label: __("Activities"), href: "/activity/all" },
@@ -41,6 +42,9 @@ import { Size, size } from '../ui-ux/responsive';
 					</div>
 				</li>
 			{/if}
+			<li class:uk-active={$location.startsWith('/settings')}>
+				<Anchor href="/settings"><span uk-icon="cog"/></Anchor>
+			</li>
 		</ul>
 	</div>
 </nav>

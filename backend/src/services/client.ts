@@ -1,9 +1,8 @@
 import { transact } from '@cdellacqua/knex-transact';
-import { Transaction } from 'knex';
+import { Knex } from 'knex';
 import {
 	findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId,
 } from '../db/utils';
-import { define } from '../helpers/object';
 import { uuid } from '../types/common';
 
 export const table = 'client';
@@ -31,7 +30,7 @@ export const findAll = findAllGenerator(table, columnNames, (row) => rowMapper(r
 
 export const fromQuery = fromQueryGenerator<Client>(columnNames, (row) => rowMapper(row));
 
-export function create(client: SaveClient, trx?: Transaction): Promise<Client> {
+export function create(client: SaveClient, trx?: Knex.Transaction): Promise<Client> {
 	return transact([
 		async (db) => insertGetId(db(table)
 			.insert({
@@ -45,7 +44,7 @@ export function create(client: SaveClient, trx?: Transaction): Promise<Client> {
 	], trx);
 }
 
-export function update(id: uuid, client: SaveClient, trx?: Transaction): Promise<Client> {
+export function update(id: uuid, client: SaveClient, trx?: Knex.Transaction): Promise<Client> {
 	return transact([
 		(db) => db(table)
 			.where({ id })
@@ -59,25 +58,25 @@ export function update(id: uuid, client: SaveClient, trx?: Transaction): Promise
 	], trx);
 }
 
-export function del(id: uuid, trx?: Transaction): Promise<void> {
+export function del(id: uuid, trx?: Knex.Transaction): Promise<void> {
 	return transact([
 		(db) => db(table).where({ id }).delete(),
 	], trx);
 }
 
-export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
+export function isOwned(id: uuid, userId: uuid, trx?: Knex.Transaction): Promise<boolean> {
 	return find({ id, userId }, trx).then((res) => !!res);
 }
 
-export function alreadyExists(email: string, userId: uuid, id?: uuid, trx?: Transaction): Promise<boolean> {
+export function alreadyExists(email: string, userId: uuid, id?: uuid, trx?: Knex.Transaction): Promise<boolean> {
 	return find(({ email, userId }), trx).then((res) => (res ? res.id !== id : false));
 }
 
-export function findIdsByCompany(companyId: uuid, trx?: Transaction): Promise<uuid[]> {
+export function findIdsByCompany(companyId: uuid, trx?: Knex.Transaction): Promise<uuid[]> {
 	return transact([(db) => db(table).where({ [cols.companyId]: companyId }).pluck(cols.id)], trx);
 }
 
-export function findIdsByUser(userId: uuid, trx?: Transaction): Promise<uuid[]> {
+export function findIdsByUser(userId: uuid, trx?: Knex.Transaction): Promise<uuid[]> {
 	return transact([(db) => db(table).where({ [cols.userId]: userId }).pluck(cols.id)], trx);
 }
 

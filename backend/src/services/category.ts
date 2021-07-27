@@ -1,7 +1,8 @@
 import { transact } from '@cdellacqua/knex-transact';
-import { Transaction } from 'knex';
-import { findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId } from '../db/utils';
-import { define } from '../helpers/object';
+import { Knex } from 'knex';
+import {
+	findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId,
+} from '../db/utils';
 import { uuid } from '../types/common';
 
 export const table = 'category';
@@ -26,7 +27,7 @@ export const findAll = findAllGenerator(table, columnNames, (row) => rowMapper(r
 
 export const fromQuery = fromQueryGenerator<Category>(columnNames, (row) => rowMapper(row));
 
-export function create(category: SaveCategory, trx?: Transaction): Promise<Category> {
+export function create(category: SaveCategory, trx?: Knex.Transaction): Promise<Category> {
 	return transact([
 		async (db) => insertGetId(db(table)
 			.insert({
@@ -37,7 +38,7 @@ export function create(category: SaveCategory, trx?: Transaction): Promise<Categ
 	], trx);
 }
 
-export function update(id: uuid, category: SaveCategory, trx?: Transaction): Promise<Category> {
+export function update(id: uuid, category: SaveCategory, trx?: Knex.Transaction): Promise<Category> {
 	return transact([
 		(db) => db(table).where({ id }).update({
 			[cols.name]: category.name,
@@ -46,18 +47,18 @@ export function update(id: uuid, category: SaveCategory, trx?: Transaction): Pro
 	], trx);
 }
 
-export function del(id: uuid, trx?: Transaction): Promise<void> {
+export function del(id: uuid, trx?: Knex.Transaction): Promise<void> {
 	return transact([
 		(db) => db(table).where({ id }).delete(),
 	], trx);
 }
 
-export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
+export function isOwned(id: uuid, userId: uuid, trx?: Knex.Transaction): Promise<boolean> {
 	return find({ id, userId }, trx).then((res) => !!res);
 }
 
-export function alreadyExists(name: string, userId: uuid, id?: uuid, trx?: Transaction): Promise<boolean> {
-	return find({ name, userId }, trx).then((res) => res ? res.id !== id : false);
+export function alreadyExists(name: string, userId: uuid, id?: uuid, trx?: Knex.Transaction): Promise<boolean> {
+	return find({ name, userId }, trx).then((res) => (res ? res.id !== id : false));
 }
 
 export interface CategoryRaw {
