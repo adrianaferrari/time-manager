@@ -8,6 +8,7 @@ import {
 import { HttpError } from '../http/error';
 import { HttpStatus } from '../http/status';
 import { cols as activityCols } from '../services/activity';
+import { cols as paymentCols } from '../services/payment';
 import { Currency } from '../types/common';
 
 export function rejectOnFailedValidation(): RequestHandler {
@@ -197,6 +198,12 @@ export function sanitizePaymentFilter(): ValidationChain[] {
 				return DateOnly.fromString(value);
 			}
 			return undefined;
+		}),
+		query('orderBy').customSanitizer((value) => {
+			if (!value || !value.length) {
+				return [{ column: paymentCols.date, order: 'desc' }];
+			}
+			return value;
 		}),
 	];
 }
