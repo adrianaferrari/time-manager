@@ -40,9 +40,9 @@ import { Currency } from '../../helpers/currency';
 	function loadData(e) {
 		if (e) {
 			toSave = {
-				date: e.date.clone(),
-				amount: new BigNumber(e.amount),
-				currency: e.currency,
+				date: e.date?.clone() ?? new DateOnly(),
+				amount: new BigNumber(e.amount || 0),
+				currency: e.currency || Currency.EUR,
 				projectId: e.projectId,
 			};
 		} else {

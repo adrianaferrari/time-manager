@@ -1,12 +1,14 @@
 import { asyncWrapper } from '@cdellacqua/express-async-wrapper';
 import { Router } from 'express';
-import { isClient, isCompany, rejectOnFailedValidation, sanitizeClient, sanitizeCompany } from '../../../helpers/validator';
+import { param } from 'express-validator';
+import {
+	isCompany, rejectOnFailedValidation, sanitizeCompany,
+} from '../../../helpers/validator';
 import * as company from '../../../services/company';
 import * as client from '../../../services/client';
 import * as project from '../../../services/project';
 import verifyOwnershipMiddleware, { OwnedEntity } from './_user-ownership-middleware';
 import { define } from '../../../helpers/object';
-import { param } from 'express-validator';
 import verifyUniquenessMiddleware, { UniqueEntity } from './_uniqueness-middleware';
 import { uuid } from '../../../types/common';
 import { HttpStatus } from '../../../http/status';
@@ -33,7 +35,7 @@ r.put('/:id', [
 		return checkUniqueness;
 	}),
 ], asyncWrapper(async (req, res) => {
-	res.json(await company.update(req.params.id, { 
+	res.json(await company.update(req.params.id, {
 		userId: res.locals.user.id,
 		name: req.body.name,
 		email: req.body.email,
@@ -70,8 +72,8 @@ r.get('/', asyncWrapper(async (_, res) => {
 }));
 
 r.post('/', [
-	...isClient(),
-	...sanitizeClient(),
+	...isCompany(),
+	...sanitizeCompany(),
 	rejectOnFailedValidation(),
 	verifyUniquenessMiddleware((req) => {
 		const checkUniqueness = {} as { [key in UniqueEntity]?: { name: string, id?: uuid } };
@@ -91,4 +93,3 @@ r.post('/', [
 		email: req.body.email,
 	}));
 }));
-

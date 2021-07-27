@@ -1,12 +1,14 @@
 <script>
 import { Autocomplete, Button, EmailInput, Form, TextInput } from 'custom-uikit-svelte';
-import { createEventDispatcher } from 'svelte';
+import { createEventDispatcher, tick } from 'svelte';
 import { clients, save } from '../../DAL/client';
 import { companies } from '../../DAL/company';
 import { statusMatch } from '../../helpers/axios';
 import { notifyErr, notifySuccess } from '../../helpers/notification';
 import { HttpStatus } from '../../http/status';
 import { __ } from '../../i18n';
+import SaveCompanyModal from '../../modals/SaveCompanyModal.svelte';
+import IconButton from '../IconButton.svelte';
 
 /** @type {import('../../DAL/client').Client | null } */
 export let entity = undefined;
@@ -53,6 +55,11 @@ function loadData(e) {
 	}
 }
 
+let showCompanyCreationModal = false;
+	function createNewCompany() {
+		showCompanyCreationModal = true;
+	}
+
 $: entity, loadData(entity);
 
 </script>
@@ -67,7 +74,7 @@ $: entity, loadData(entity);
 				label={__("Email")}
 			/>
 		</div>
-		<div class="uk-width-1-2">
+		<div class="uk-width-1-2 uk-flex uk-flex-bottom">
 			<Autocomplete 
 				label={__("Company")}
 				optional
@@ -75,6 +82,12 @@ $: entity, loadData(entity);
 				value={toSave.companyId}
 				on:change={({ detail }) => toSave.companyId = detail}
 			/>
+			<span>
+				<IconButton
+					className="uk-margin-bottom uk-margin-small-left"
+					on:click={() => createNewCompany()}
+					icon="plus" />
+			</span>
 		</div>
 		<div class="uk-width-1-2">
 			<TextInput 
@@ -99,3 +112,7 @@ $: entity, loadData(entity);
 		</div>
 	</div>
 </Form>
+
+<SaveCompanyModal 
+	bind:show={showCompanyCreationModal}
+	on:save={({ detail }) => tick().then((_) => (toSave.companyId = detail.id))} />

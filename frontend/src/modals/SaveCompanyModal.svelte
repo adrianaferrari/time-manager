@@ -10,6 +10,6 @@ export let show = false;
 const dispatch = createEventDispatcher();
 
 </script>
-<Modal bind:show title={entity ? __("Update client") : __("Add client")}>
-	<CompanyForm {entity} on:save={() => (show = false)} />
+<Modal bind:show title={entity ? __("Update company") : __("Add company")}>
+	<CompanyForm {entity} on:save={({ detail }) => (show = false, dispatch('save', detail))} />
 </Modal>

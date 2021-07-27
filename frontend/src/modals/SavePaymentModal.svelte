@@ -10,6 +10,6 @@ export let show = false;
 const dispatch = createEventDispatcher();
 
 </script>
-<Modal bind:show title={entity ? __("Update payment") : __("Add payment")}>
+<Modal bind:show title={(entity && entity.id) ? __("Update payment") : __("Add payment")}>
 	<PaymentForm {entity} on:save={({ detail }) => (show = false, dispatch('save', detail))} />
 </Modal>

@@ -19,8 +19,8 @@ async function submitAsync() {
 		const technology = await save({ name }, entity?.id);
 		notifySuccess(__("Technology saved"));
 		loadData(entity);
-		dispatch('save', technology);
 		await technologies.refresh();
+		dispatch('save', technology);
 	} catch (err) {
 		statusMatch(err, {
 			[HttpStatus.Forbidden]: () => notifyErr(__("You're not authorised to edit this technology")),

@@ -11,7 +11,7 @@
 		Textarea,
 		TimePicker,
 	} from "custom-uikit-svelte";
-	import { createEventDispatcher } from "svelte";
+	import { createEventDispatcher, tick } from "svelte";
 	import { save } from "../../DAL/activity";
 	import { categories } from "../../DAL/category";
 	import { projects } from "../../DAL/project";
@@ -19,6 +19,9 @@
 	import { notifyErr, notifySuccess } from "../../helpers/notification";
 	import { HttpStatus } from "../../http/status";
 	import { __ } from "../../i18n";
+	import SaveCategoryModal from "../../modals/SaveCategoryModal.svelte";
+	import SaveProjectModal from "../../modals/SaveProjectModal.svelte";
+	import IconButton from "../IconButton.svelte";
 
 	/** @type {import('../../DAL/activity').Activity | null } */
 	export let entity = undefined;
@@ -54,9 +57,9 @@
 		if (e) {
 			toSave = {
 				categoryId: e.categoryId,
-				date: e.date.clone(),
-				description: e.description,
-				timeSpent: e.timeSpent.clone(),
+				date: e.date?.clone() ?? new DateOnly(),
+				description: e.description ?? "",
+				timeSpent: e.timeSpent?.clone() ?? new Interval(0),
 				projectId: e.projectId,
 			};
 		} else {
@@ -68,6 +71,15 @@
 				projectId: undefined,
 			};
 		}
+	}
+
+	let showCategoryCreationModal = false;
+	let showProjectCreationModal = false;
+	function createNewCategory() {
+		showCategoryCreationModal = true;
+	}
+	function createNewProject() {
+		showProjectCreationModal = true;
 	}
 
 	$: entity, loadData(entity);
@@ -96,27 +108,39 @@
 			<NumberInput
 				label={__('Minutes')}
 				max={59}
-				min={0}
+				min={toSave.timeSpent.h > 0 ? 0 : 1}
 				step={1}
 				value={toSave.timeSpent.m}
 				on:change={({ target }) => (toSave.timeSpent = toSave.timeSpent
 						.sub(toSave.timeSpent.m + ':00')
 						.add(target.value + ':00'))} />
 		</div>
-		<div class="uk-width-1-2@s uk-width-1-1">
+		<div class="uk-width-1-2@s uk-width-1-1 uk-flex uk-flex-bottom">
 			<Autocomplete
 				label={__('Category')}
 				options={$categories.map((c) => ({ label: c.name, value: c.id }))}
 				value={toSave.categoryId}
 				on:change={({ detail }) => (toSave.categoryId = detail)} />
+			<span>
+				<IconButton
+					className="uk-margin-bottom uk-margin-small-left"
+					on:click={() => createNewCategory()}
+					icon="plus" />
+			</span>
 		</div>
-		<div class="uk-width-1-2@s uk-width-1-1">
+		<div class="uk-width-1-2@s uk-width-1-1 uk-flex uk-flex-bottom">
 			<Autocomplete
 				label={__('Project')}
 				options={$projects.map((p) => ({ label: p.name, value: p.id }))}
 				value={toSave.projectId}
 				optional
 				on:change={({ detail }) => (toSave.projectId = detail)} />
+			<span>
+				<IconButton
+					className="uk-margin-bottom uk-margin-small-left"
+					on:click={() => createNewProject()}
+					icon="plus" />
+			</span>
 		</div>
 		<div class="uk-width-1-1">
 			<Textarea
@@ -131,3 +155,11 @@
 		</div>
 	</div>
 </Form>
+
+<SaveCategoryModal
+	bind:show={showCategoryCreationModal}
+	on:save={({ detail }) => tick().then((_) => (toSave.categoryId = detail.id))} />
+
+<SaveProjectModal
+	bind:show={showProjectCreationModal}
+	on:save={({ detail }) => tick().then((_) => (toSave.projectId = detail.id))} />

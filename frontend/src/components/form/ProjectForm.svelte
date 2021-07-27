@@ -19,13 +19,14 @@
 	import { clients } from "../../DAL/client";
 	import { save, projects } from "../../DAL/project";
 	import { technologies } from "../../DAL/technology";
-import { dayLength } from '../../DAL/user';
+	import { dayLength } from "../../DAL/user";
 	import { statusMatch } from "../../helpers/axios";
 	import { Currency } from "../../helpers/currency";
 	import { notifySuccess } from "../../helpers/notification";
 	import { __ } from "../../i18n";
-import SaveClientModal from '../../modals/SaveClientModal.svelte';
-import IconButton from '../IconButton.svelte';
+	import SaveClientModal from "../../modals/SaveClientModal.svelte";
+	import SaveTechnologyModal from "../../modals/SaveTechnologyModal.svelte";
+	import IconButton from "../IconButton.svelte";
 
 	/** @type {import('../../DAL/project').Project | null } */
 	export let entity = undefined;
@@ -51,8 +52,8 @@ import IconButton from '../IconButton.svelte';
 			const project = await save(toSave, entity?.id);
 			notifySuccess(__("Project saved"));
 			loadData();
-			dispatch("save", project);
 			await projects.refresh();
+			dispatch("save", project);
 		} catch (err) {
 			statusMatch(err);
 		}
@@ -109,10 +110,12 @@ import IconButton from '../IconButton.svelte';
 	function createNewClient() {
 		showClientCreationModal = true;
 	}
+	let showTechnologyCreationModal = false;
+	function createNewTechnology() {
+		showTechnologyCreationModal = true;
+	}
 
 	$: entity, loadData();
-
-	$: console.log($clients);
 </script>
 
 <Form {submitAsync}>
@@ -134,7 +137,10 @@ import IconButton from '../IconButton.svelte';
 				value={toSave.clientId}
 				label={__('Client')} />
 			<span>
-				<IconButton className="uk-margin-bottom uk-margin-small-left" on:click={() => createNewClient()} icon="plus" />
+				<IconButton
+					className="uk-margin-bottom uk-margin-small-left"
+					on:click={() => createNewClient()}
+					icon="plus" />
 			</span>
 		</div>
 		<div class="uk-width-1-3">
@@ -169,7 +175,13 @@ import IconButton from '../IconButton.svelte';
 				on:change={({ target }) => (toSave.estimatedEffort = (
 						toSave.estimatedEffort || new Interval(0)
 					)
-						.sub(Math.floor((toSave.estimatedEffort?.totalHours || 0) / $dayLength) * $dayLength + ':00:00')
+						.sub(
+							Math.floor(
+								(toSave.estimatedEffort?.totalHours || 0) / $dayLength
+							) *
+								$dayLength +
+								':00:00'
+						)
 						.add(target.value * $dayLength + ':00:00'))} />
 		</div>
 		<div class="uk-width-1-3">
@@ -182,7 +194,11 @@ import IconButton from '../IconButton.svelte';
 				on:change={({ target }) => (toSave.estimatedEffort = (
 						toSave.estimatedEffort || new Interval(0)
 					)
-						.sub(Math.floor((toSave.estimatedEffort?.totalHours || 0) % $dayLength) + ':00:00')
+						.sub(
+							Math.floor(
+								(toSave.estimatedEffort?.totalHours || 0) % $dayLength
+							) + ':00:00'
+						)
 						.add(target.value + ':00:00'))} />
 		</div>
 		<div class="uk-width-1-3">
@@ -191,6 +207,7 @@ import IconButton from '../IconButton.svelte';
 				max={59}
 				min={0}
 				step={1}
+				optional
 				value={toSave.estimatedEffort?.m || 0}
 				on:change={({ target }) => (toSave.estimatedEffort = (
 						toSave.estimatedEffort || new Interval(0)
@@ -216,11 +233,16 @@ import IconButton from '../IconButton.svelte';
 				on:change={({ detail }) => (toSave.currency = detail)} />
 		</div>
 		<div class="uk-width-1-1">
-			<label class="uk-form-label">{__("Technologies")}</label>
-			<div class="uk-flex">
+			<label class="uk-form-label">{__('Technologies')}<span>
+					<IconButton
+						className="uk-margin-small-left"
+						on:click={() => createNewTechnology()}
+						icon="plus" />
+				</span></label>
+			<div class="uk-flex uk-flex-wrap">
 				{#each $technologies as technology (technology)}
 					<Checkbox
-						className="uk-margin-small-right"
+						className="uk-margin-small-right uk-margin-small-bottom"
 						value={toSave.technologyIds.includes(technology.id)}
 						on:change={({ target }) => toggleTechnology(target.checked, technology.id)}
 						label={technology.name}
@@ -234,7 +256,10 @@ import IconButton from '../IconButton.svelte';
 	</div>
 </Form>
 
-<SaveClientModal 
+<SaveClientModal
 	bind:show={showClientCreationModal}
-	on:save={({ detail }) => tick().then(_ => toSave.clientId = detail.id)}
-/>
+	on:save={({ detail }) => tick().then((_) => (toSave.clientId = detail.id))} />
+
+<SaveTechnologyModal
+	bind:show={showTechnologyCreationModal}
+	on:save={({ detail }) => tick().then((_) => (toSave.technologyIds = [...toSave.technologyIds, detail.id]))} />

@@ -19,8 +19,8 @@ async function submitAsync() {
 		const category = await save({ name }, entity?.id);
 		notifySuccess(__("Category saved"));
 		loadData();
-		dispatch('save', category);
 		await categories.refresh();
+		dispatch('save', category);
 	} catch (err) {
 		statusMatch(err, {
 			[HttpStatus.Forbidden]: () => notifyErr(__("You're not authorised to edit this category")),

@@ -1,24 +1,32 @@
 <script>
-	import { Interval } from '@cdellacqua/interval';
-import BigNumber from 'bignumber.js';
-import { Breadcrumb, Card, DataTable, LoaderWrapper } from "custom-uikit-svelte";
+	import { Interval } from "@cdellacqua/interval";
+	import BigNumber from "bignumber.js";
+	import {
+		Breadcrumb,
+		Button,
+		Card,
+		DataTable,
+		LoaderWrapper,
+	} from "custom-uikit-svelte";
 	import { onMount } from "svelte";
 
 	import { dive, push, setResumable } from "svelte-stack-router";
 	import Anchor from "../components/Anchor.svelte";
-import CardActions from '../components/CardActions.svelte';
-import IconButton from '../components/IconButton.svelte';
-import { categories } from '../DAL/category';
-import { clients } from '../DAL/client';
+	import CardActions from "../components/CardActions.svelte";
+	import IconButton from "../components/IconButton.svelte";
+	import { categories } from "../DAL/category";
+	import { clients } from "../DAL/client";
 	import { get } from "../DAL/project";
-import { technologies } from '../DAL/technology';
-import { dayLength } from '../DAL/user';
+	import { technologies } from "../DAL/technology";
+	import { dayLength } from "../DAL/user";
 	import { statusMatch } from "../helpers/axios";
-import { Currency } from '../helpers/currency';
-import { printInterval } from '../helpers/interval';
+	import { Currency } from "../helpers/currency";
+	import { printInterval } from "../helpers/interval";
 	import { __ } from "../i18n";
-import SaveProjectModal from '../modals/SaveProjectModal.svelte';
-import Payment from './Payment.svelte';
+import SaveActivityModal from '../modals/SaveActivityModal.svelte';
+	import SavePaymentModal from "../modals/SavePaymentModal.svelte";
+	import SaveProjectModal from "../modals/SaveProjectModal.svelte";
+	import Payment from "./Payment.svelte";
 
 	export let params = {
 		id: null,
@@ -38,10 +46,18 @@ import Payment from './Payment.svelte';
 
 	let showUpdateModal = false;
 	let showDeleteModal = false;
+	let showAddPaymentModal = false;
+	let showAddActivityModal = false;
+
+	/** @type {Partial<import('../DAL/payment').SavePayment> | null}*/
+	let newPaymentDetails = null;
+
+	/** @type {Partial<import('../DAL/activity').SaveActivity> | null}*/
+	let newActivityDetails = null;
 
 	const actions = [
-		{ name: 'edit', tooltip: __("Edit"), icon: 'pencil' },
-		{ name: 'delete', tooltip: __("Delete"), icon: 'trash' },
+		{ name: "edit", tooltip: __("Edit"), icon: "pencil" },
+		{ name: "delete", tooltip: __("Delete"), icon: "trash" },
 	];
 
 	const activityColumns = [
@@ -73,19 +89,31 @@ import Payment from './Payment.svelte';
 		if (!params.id) {
 			return;
 		}
+		newPaymentDetails = { projectId: params.id };
+		newActivityDetails = { projectId: params.id };
 		loading = true;
 		try {
 			details = await get(params.id);
 			client = $clients.find((c) => c.id === details.clientId);
-			timeSpent = details.activities.reduce((sum, curr) => sum.add(curr.timeSpent), new Interval(0));
-			technologyList = details.technologyIds.map((tId) => $technologies.find((t) => t.id === tId));
+			timeSpent = details.activities.reduce(
+				(sum, curr) => sum.add(curr.timeSpent),
+				new Interval(0)
+			);
+			technologyList = details.technologyIds.map((tId) =>
+				$technologies.find((t) => t.id === tId)
+			);
 			let totalPaymentByCurrencyTmp = [];
 			details.payments.forEach((p) => {
-				const paymentByCurrency = totalPaymentByCurrencyTmp.find((pbc) => pbc.currency === p.currency);
+				const paymentByCurrency = totalPaymentByCurrencyTmp.find(
+					(pbc) => pbc.currency === p.currency
+				);
 				if (paymentByCurrency) {
 					paymentByCurrency.amount = paymentByCurrency.amount.plus(p.amount);
 				} else {
-					totalPaymentByCurrencyTmp.push({ currency: p.currency, amount: new BigNumber(p.amount) });
+					totalPaymentByCurrencyTmp.push({
+						currency: p.currency,
+						amount: new BigNumber(p.amount),
+					});
 				}
 			});
 			totalPaymentByCurrency = totalPaymentByCurrencyTmp;
@@ -106,25 +134,32 @@ import Payment from './Payment.svelte';
 		style="position: relative"
 		className="uk-width-3-4@l uk-width-4-5@m uk-width-5-6 uk-margin-auto"
 		title={details.name}>
-		<CardActions 
+		<CardActions
 			{actions}
-			on:edit={() => showUpdateModal = true}
-			on:delete={() => showDeleteModal = true}
-		/>
+			on:edit={() => (showUpdateModal = true)}
+			on:delete={() => (showDeleteModal = true)} />
 		<h5>{__('Duration')}</h5>
-		<p>{`${details.startDate.toLocaleString()} - ${details.endDate?.toLocaleString() ?? __("work in progress")}`}</p>
+		<p>
+			{`${details.startDate.toLocaleString()} - ${details.endDate?.toLocaleString() ?? __('work in progress')}`}
+		</p>
 		<h5>{__('Client')}</h5>
 		<p>
 			{#if client}
-				<Anchor href={`/client/details/${client.id}`}>{`${client.firstName} ${client.lastName}`}</Anchor>
+				<Anchor href={`/client/details/${client.id}`}>
+					{`${client.firstName} ${client.lastName}`}
+				</Anchor>
 			{:else}{__('N/A')}{/if}
 		</p>
 		<h5>{__('Technologies')}</h5>
 		<p>
 			{#each technologyList as technology}
-				<Anchor href={`/technology/details/${technology.id}`} className="uk-margin-small-right">{technology.name}</Anchor>
+				<Anchor
+					href={`/technology/details/${technology.id}`}
+					className="uk-margin-small-right">
+					{technology.name}
+				</Anchor>
 			{:else}
-				<span class="uk-text-italic">{__("No technologies found")}</span>
+				<span class="uk-text-italic">{__('No technologies found')}</span>
 			{/each}
 		</p>
 		{#if details.estimatedEffort}
@@ -137,87 +172,130 @@ import Payment from './Payment.svelte';
 					{`Actual: ${printInterval(timeSpent, $dayLength)}`}
 				</div>
 				<div class="uk-width-1-3">
-					{`Progress: ${new BigNumber(timeSpent.totalSeconds).div(details.estimatedEffort.totalSeconds).times(100).toFormat(2)}%`}
+					{`Progress: ${new BigNumber(timeSpent.totalSeconds)
+						.div(details.estimatedEffort.totalSeconds)
+						.times(100)
+						.toFormat(2)}%`}
 				</div>
 			</div>
 		{:else}
-			<h5>{__("Actual effort")}</h5>
+			<h5>{__('Actual effort')}</h5>
 			<p>{printInterval(timeSpent, $dayLength)}</p>
 		{/if}
 		<h5>{__('Effort by category')}</h5>
 		<ul class="uk-list">
 			{#each details.timeSpentByCategory as tsbc}
 				<li>
-					{`${$categories.find((c) => c.id === tsbc.categoryId)?.name || __("N/A")}: ${printInterval(tsbc.timeSpent, $dayLength)}`}
+					{`${$categories.find((c) => c.id === tsbc.categoryId)?.name || __('N/A')}: ${printInterval(tsbc.timeSpent, $dayLength)}`}
 				</li>
 			{/each}
 		</ul>
-		<h5>{__('Payments')}</h5>
+		<h5>
+			{__('Payments (:len)', { len: details.payments.length })}
+			<IconButton
+				className="uk-margin-small-left"
+				on:click={() => (showAddPaymentModal = true)}
+				icon="plus" />
+		</h5>
+
 		<ul class="uk-list">
 			{#each details.payments as payment}
 				<li>
-					<Anchor href={`/payment/details/${payment.id}`}>{`${payment.date.toLocaleString()} - ${payment.currency} ${payment.amount.toFormat(2)}`}</Anchor>
+					<Anchor href={`/payment/details/${payment.id}`}>
+						{`${payment.date.toLocaleString()} - ${payment.currency} ${payment.amount.toFormat(2)}`}
+					</Anchor>
 				</li>
 			{:else}
-				<span class="uk-text-italic">{__("No payments found")}</span>
+				<span class="uk-text-italic">{__('No payments found')}</span>
 			{/each}
 		</ul>
 		{#if totalPaymentByCurrency.length > 0}
-			<p>{
-				__("Received: :totalPayment", { 
-					totalPayment: totalPaymentByCurrency.map(({ amount, currency }) => `${currency} ${amount.toFormat(2)}`).join(', '),
-				})
-			}</p>
+			<p>
+				{__('Received: :totalPayment', {
+					totalPayment: totalPaymentByCurrency
+						.map(({ amount, currency }) => `${currency} ${amount.toFormat(2)}`)
+						.join(', '),
+				})}
+			</p>
 		{/if}
 		{#if details.price}
-			<p>{
-			__("Expected: :currency :price", { 
-				price: details.price.toFormat(2), 
-				currency: details.currency,
-			})
-		}</p>
+			<p>
+				{__('Expected: :currency :price', {
+					price: details.price.toFormat(2),
+					currency: details.currency,
+				})}
+			</p>
 		{/if}
-		<h5>{__("Hourly rates")}</h5>
+		<h5>{__('Hourly rates')}</h5>
 		<div uk-grid class="uk-grid-small">
 			<div class="uk-width-1-3" />
+			<div class="uk-width-1-3">{__('Estimated effort')}</div>
+			<div class="uk-width-1-3">{__('Actual effort')}</div>
+			<div class="uk-width-1-3">{__('Estimated price')}</div>
 			<div class="uk-width-1-3">
-				{__("Estimated effort")}
+				{details.estimatedEffort?.totalSeconds > 0 && details.price ? `${details.currency} ${details.price
+							.div(details.estimatedEffort.totalSeconds)
+							.times(3600)
+							.toFormat(2)}` : __('n/d')}
 			</div>
 			<div class="uk-width-1-3">
-				{__("Actual effort")}
+				{timeSpent.totalSeconds > 0 && details.price ? `${details.currency} ${details.price
+							.div(timeSpent.totalSeconds)
+							.times(3600)
+							.toFormat(2)}` : __('n/d')}
+			</div>
+			<div class="uk-width-1-3">{__('Actual payments')}</div>
+			<div class="uk-width-1-3">
+				{details.estimatedEffort?.totalSeconds > 0 && totalPaymentByCurrency.length ? totalPaymentByCurrency
+							.map(
+								({ amount, currency }) =>
+									`${currency} ${amount
+										.div(details.estimatedEffort.totalSeconds)
+										.times(3600)
+										.toFormat(2)}`
+							)
+							.join(', ') : __('n/d')}
 			</div>
 			<div class="uk-width-1-3">
-				{__("Estimated price")}
-			</div>
-			<div class="uk-width-1-3">
-				{(details.estimatedEffort?.totalSeconds > 0 && details.price) ? `${details.currency} ${details.price.div(details.estimatedEffort.totalSeconds).times(3600).toFormat(2)}` : __("n/d")}
-			</div>
-			<div class="uk-width-1-3">
-				{(timeSpent.totalSeconds > 0 && details.price) ? `${details.currency} ${details.price.div(timeSpent.totalSeconds).times(3600).toFormat(2)}` : __("n/d")}
-			</div>
-			<div class="uk-width-1-3">
-				{__("Actual payments")}
-			</div>
-			<div class="uk-width-1-3">
-				{(details.estimatedEffort?.totalSeconds > 0 && totalPaymentByCurrency.length) ? totalPaymentByCurrency.map(({ amount, currency }) => `${currency} ${amount.div(details.estimatedEffort.totalSeconds).times(3600).toFormat(2)}`).join(', ') : __("n/d")}
-			</div>
-			<div class="uk-width-1-3">
-				{(timeSpent.totalSeconds > 0 && totalPaymentByCurrency.length) ? totalPaymentByCurrency.map(({ amount, currency }) => `${currency} ${amount.div(timeSpent.totalSeconds).times(3600).toFormat(2)}`).join(', ') : __("n/d")}
+				{timeSpent.totalSeconds > 0 && totalPaymentByCurrency.length ? totalPaymentByCurrency
+							.map(
+								({ amount, currency }) =>
+									`${currency} ${amount
+										.div(timeSpent.totalSeconds)
+										.times(3600)
+										.toFormat(2)}`
+							)
+							.join(', ') : __('n/d')}
 			</div>
 		</div>
-		<h5>{__("Activities")}</h5>
-		<DataTable 
+		<h5>
+			{__('Activities (:len)', { len: details.activities.length })}
+			<IconButton
+				className="uk-margin-small-left"
+				on:click={() => (showAddActivityModal = true)}
+				icon="plus" />
+		</h5>
+		<DataTable
 			columns={activityColumns}
 			rows={details.activities}
 			recordsPerPage={10}
-			noResultText={__("No activities found")}
-			on:row-click={({ detail }) => push(`/activity/details/${detail.id}`)}
-		/>
+			noResultText={__('No activities found')}
+			on:row-click={({ detail }) => push(`/activity/details/${detail.id}`)} />
 	</Card>
 </LoaderWrapper>
 
-<SaveProjectModal 
+<SaveProjectModal
 	entity={details}
 	bind:show={showUpdateModal}
+	on:save={() => loadData()} />
+
+<SavePaymentModal
+	entity={newPaymentDetails}
+	bind:show={showAddPaymentModal}
+	on:save={() => loadData()} />
+
+<SaveActivityModal
+	entity={newActivityDetails}
+	bind:show={showAddActivityModal}
 	on:save={() => loadData()}
 />

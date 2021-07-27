@@ -10,6 +10,6 @@ export let show = false;
 const dispatch = createEventDispatcher();
 
 </script>
-<Modal bind:show title={entity ? __("Update activity") : __("Add activity")}>
+<Modal bind:show title={(entity && entity.id) ? __("Update activity") : __("Add activity")}>
 	<ActivityForm {entity} on:save={({ detail }) => (show = false, dispatch('save', detail))} />
 </Modal>

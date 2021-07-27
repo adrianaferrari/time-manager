@@ -11,5 +11,5 @@ const dispatch = createEventDispatcher();
 
 </script>
 <Modal bind:show title={entity ? __("Update project") : __("Add project")}>
-	<ProjectForm {entity} on:save={() => (show = false)} />
+	<ProjectForm {entity} on:save={({ detail }) => (show = false, dispatch('save', detail))} />
 </Modal>

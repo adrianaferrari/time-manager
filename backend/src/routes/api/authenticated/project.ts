@@ -120,8 +120,8 @@ r.post('/', [
 	...isProject(),
 	...sanitizeProject(),
 	rejectOnFailedValidation(),
-	verifyOwnershipMiddleware((req) => ({
-		[OwnedEntity.client]: req.body.clientId,
+	verifyOwnershipMiddleware((req) => define({
+		[OwnedEntity.client]: req.body.clientId || undefined,
 		[OwnedEntity.technologies]: req.body.technologyIds,
 	})),
 ], asyncWrapper(async (req, res) => {
