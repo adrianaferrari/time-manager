@@ -1,7 +1,7 @@
 <script>
 	import { Button, FormModal } from "custom-uikit-svelte";
 import { createEventDispatcher } from 'svelte';
-	import { del, technologies } from "../DAL/technology";
+	import { del, clients } from "../DAL/client";
 import { statusMatch } from '../helpers/axios';
 	import { notifyErr, notifySuccess } from "../helpers/notification";
 import { HttpStatus } from '../http/status';
@@ -16,13 +16,13 @@ import { HttpStatus } from '../http/status';
 		try {
 			await del(entity.id);
 			show = false;
-			await technologies.refresh();
+			await clients.refresh();
 			dispatch('delete', entity);
-			notifySuccess(__("Technology deleted"));
+			notifySuccess(__("Client deleted"));
 		} catch (err) {
 			statusMatch(err, {
 				[HttpStatus.Forbidden]: () =>
-					notifyErr(__("You're not authorised to delete this technology")),
+					notifyErr(__("You're not authorised to delete this client")),
 			});
 		}
 	}
@@ -32,8 +32,8 @@ import { HttpStatus } from '../http/status';
 	{#if entity}
 		<p>
 			{__(
-				'Are you sure you want to delete :name from your list of technologies?',
-				{ name: entity.name }
+				'Are you sure you want to delete :firstName :lastName from your list of clients?',
+				entity
 			)}
 		</p>
 		<div class="uk-flex uk-flex-end" />

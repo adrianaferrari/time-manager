@@ -2,7 +2,9 @@
 	import { Button, FormModal } from "custom-uikit-svelte";
 import { createEventDispatcher } from 'svelte';
 	import { del, categories } from "../DAL/category";
+import { statusMatch } from '../helpers/axios';
 	import { notifyErr, notifySuccess } from "../helpers/notification";
+import { HttpStatus } from '../http/status';
 	import { __ } from "../i18n";
 
 	export let entity = undefined;

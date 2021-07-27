@@ -2,7 +2,7 @@
 	import { DateOnly } from "@cdellacqua/date-only";
 	import BigNumber from "bignumber.js";
 	import { AsyncDataTable, Breadcrumb, Button, LoaderWrapper } from "custom-uikit-svelte";
-import { push } from 'svelte-stack-router';
+import { onResume, push } from 'svelte-stack-router';
 import IconButton from '../components/IconButton.svelte';
 	import * as payment from "../DAL/payment";
 	import { projects } from "../DAL/project";
@@ -70,6 +70,12 @@ import IconButton from '../components/IconButton.svelte';
 	function dataProviderErrorHandler(err) {
 		statusMatch(err);
 	}
+
+	onResume((resumeParams) => {
+		if (resumeParams?.refresh) {
+			dataTable.reload();
+		}
+	})
 </script>
 
 <LoaderWrapper loading={$loading}>

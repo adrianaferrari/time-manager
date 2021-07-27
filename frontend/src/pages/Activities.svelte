@@ -9,7 +9,7 @@
 		DatePicker,
 		LoaderWrapper,
 	} from "custom-uikit-svelte";
-	import { push } from "svelte-stack-router";
+	import { onResume, push } from "svelte-stack-router";
 	import { derived } from "svelte/store";
 	import IconButton from "../components/IconButton.svelte";
 	import * as activity from "../DAL/activity";
@@ -95,6 +95,12 @@
 	function dataProviderErrorHandler(err) {
 		statusMatch(err);
 	}
+
+	onResume((resumeParams) => {
+		if (resumeParams?.refresh) {
+			dataTable?.reload();
+		}
+	});
 </script>
 
 <LoaderWrapper loading={$loading}>

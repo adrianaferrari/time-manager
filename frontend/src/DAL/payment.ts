@@ -33,6 +33,10 @@ export function get(id: string, projectId: string): Promise<Payment> {
 		.then((res) => mapper(res));
 }
 
+export function del(id: string, projectId: string): Promise<void> {
+	return axiosExtract(axios.delete(`/auth/project/${projectId}/payment/${id}`));
+}
+
 export interface PaymentRaw {
 	id: string,
 	date: string,

@@ -2,7 +2,7 @@
 	import { Breadcrumb, Card, LoaderWrapper } from "custom-uikit-svelte";
 	import { onMount } from "svelte";
 
-	import { setResumable } from "svelte-stack-router";
+	import { pop, setResumable } from "svelte-stack-router";
 	import Anchor from "../components/Anchor.svelte";
 import CardActions from '../components/CardActions.svelte';
 import IconButton from '../components/IconButton.svelte';
@@ -14,6 +14,7 @@ import { printInterval } from '../helpers/interval';
 	import { __ } from "../i18n";
 import { categories } from '../DAL/category';
 import SaveActivityModal from '../modals/SaveActivityModal.svelte';
+import DeleteActivityModal from '../modals/DeleteActivityModal.svelte';
 
 	export let params = {
 		id: null,
@@ -91,4 +92,10 @@ import SaveActivityModal from '../modals/SaveActivityModal.svelte';
 	entity={details}
 	bind:show={showUpdateModal}
 	on:save={() => loadData()}
+/>
+
+<DeleteActivityModal 
+	entity={details}
+	bind:show={showDeleteModal}
+	on:delete={() => pop({ refresh: true })}
 />

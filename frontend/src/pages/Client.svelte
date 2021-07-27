@@ -2,7 +2,7 @@
 	import { Breadcrumb, Card, LoaderWrapper } from "custom-uikit-svelte";
 	import { onMount } from "svelte";
 
-	import { setResumable } from "svelte-stack-router";
+	import { pop, setResumable } from "svelte-stack-router";
 	import Anchor from "../components/Anchor.svelte";
 import CardActions from '../components/CardActions.svelte';
 import IconButton from '../components/IconButton.svelte';
@@ -13,6 +13,7 @@ import { dayLength } from '../DAL/user';
 	import { statusMatch } from "../helpers/axios";
 import { printInterval } from '../helpers/interval';
 	import { __ } from "../i18n";
+import DeleteClientModal from '../modals/DeleteClientModal.svelte';
 import SaveClientModal from '../modals/SaveClientModal.svelte';
 
 	export let params = {
@@ -97,4 +98,10 @@ import SaveClientModal from '../modals/SaveClientModal.svelte';
 	entity={details}
 	bind:show={showUpdateModal}
 	on:save={() => loadData()}
+/>
+
+<DeleteClientModal
+	entity={details}
+	bind:show={showDeleteModal}
+	on:delete={() => pop()}
 />

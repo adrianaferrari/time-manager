@@ -68,7 +68,7 @@ export function del(id: uuid, trx?: Transaction): Promise<void> {
 export function isOwned(id: uuid, userId: uuid, trx?: Transaction): Promise<boolean> {
 	return transact([
 		(db) => find({ id }, db),
-		(db, payment) => project.find({ userId, id: payment.projectId }, db),
+		(db, payment) => (payment ? project.find({ userId, id: payment.projectId }, db) : Promise.resolve(null)),
 	], trx).then((res) => !!res);
 }
 

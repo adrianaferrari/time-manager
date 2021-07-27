@@ -7,23 +7,27 @@ import { onAfterLoad, onAfterUnload, onBeforeLoad, onBeforeUnload } from 'svelte
 	let originalWrapperRef;
 
 	onBeforeLoad(() => {
-		originalWrapperRef.removeChild(slotWrapperRef);
-		document.body.appendChild(slotWrapperRef);
-		slotWrapperRef.classList.add('fade-in');
+		if (slotWrapperRef) {
+			originalWrapperRef?.removeChild(slotWrapperRef);
+			document.body.appendChild(slotWrapperRef);
+			slotWrapperRef.classList.add('fade-in');
+		}
 	});
 
 	onBeforeUnload(() => {
-		slotWrapperRef.classList.add('fade-out');
+		slotWrapperRef?.classList?.add('fade-out');
 	});
 
 	onAfterLoad(() => {
-		slotWrapperRef.classList.remove('fade-in');
+		slotWrapperRef?.classList?.remove('fade-in');
 	})
 
 	onAfterUnload(() => {
-		document.body.removeChild(slotWrapperRef);
-		originalWrapperRef.appendChild(slotWrapperRef);
-		slotWrapperRef.classList.remove('fade-out');
+		if (slotWrapperRef) {
+			document.body.removeChild(slotWrapperRef);
+			originalWrapperRef?.appendChild(slotWrapperRef);
+			slotWrapperRef.classList.remove('fade-out');
+		}
 	});
 </script>
 
