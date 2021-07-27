@@ -5,7 +5,12 @@ import { axiosExtract } from '../helpers/axios';
 import { Currency } from '../helpers/currency';
 
 export function getPaymentByMonth(): Promise<{ data: ({ month: number } & { [key in Currency]?: BigNumber })[], currencies: Currency[] }> {
-	return axiosExtract<{ data:({ month: number } & { [key in Currency]?: string })[], currencies: Currency[] }>(axios.get('/auth/stats/payment/by-month'))
+	return axiosExtract<{
+			data:({ month: number } & { [key in Currency]?: string })[],
+			avgByMonth:({ month: number } & { [key in Currency]?: string })[],
+			avg: { [key in Currency]?: string },
+			currencies: Currency[]
+				}>(axios.get('/auth/stats/payment/by-month'))
 		.then((res) => ({
 			currencies: res.currencies,
 			data: res.data.map((el) => {
@@ -17,6 +22,19 @@ export function getPaymentByMonth(): Promise<{ data: ({ month: number } & { [key
 				});
 				return mapped;
 			}),
+			avgByMonth: res.avgByMonth.map((el) => {
+				const mapped = { month: el.month };
+				Object.keys(Currency).forEach((key) => {
+					if (el[key]) {
+						mapped[key] = new BigNumber(el[key]);
+					}
+				});
+				return mapped;
+			}),
+			avg: Object.keys(res.avg).reduce((acc, key) => {
+				acc[key] = new BigNumber(res.avg[key]);
+				return acc;
+			}, {}),
 		}));
 }
 

@@ -57,24 +57,36 @@
 		const colors = getColorRange(
 			"--global-primary-background",
 			"--global-secondary-background",
-			$paymentByMonth.currencies.length
+			$paymentByMonth.currencies.length * 3
 		);
 		const colorsBg = getColorRange(
 			"--global-primary-background",
 			"--global-secondary-background",
-			$paymentByMonth.currencies.length,
+			$paymentByMonth.currencies.length * 3,
 			0.5
 		);
-		const tmpData = $paymentByMonth.currencies.map((c, i) => ({
+		const tmpData = $paymentByMonth.currencies.flatMap((c, i) => [{
 			label: c,
 			data: new Array(12),
-			borderColor: colors[i],
-			backgroundColor: colorsBg[i],
-		}));
-		$paymentByMonth.data.forEach((pbm) => {
+			borderColor: colors[i * 3],
+			backgroundColor: colorsBg[i * 3],
+		}, {
+			label: __(":c - avg by month", { c }),
+			data: new Array(12),
+			borderColor: colors[i * 3 + 1],
+			backgroundColor: colorsBg[i * 3 + 1],
+		}, {
+			label: __(":c - avg", { c }),
+			data: new Array(12),
+			borderColor: colors[i * 3 + 2],
+			backgroundColor: colorsBg[i * 3 + 2],
+		}]);
+		$paymentByMonth.data.forEach((pbm, pbmIndex) => {
 			const monthPosition = (pbm.month - startMonth + 12) % 12;
 			$paymentByMonth.currencies.forEach((c, cIndex) => {
-				tmpData[cIndex].data[monthPosition] = pbm[c].toFixed(2);
+				tmpData[cIndex * 3].data[monthPosition] = pbm[c].toFixed(2);
+				tmpData[cIndex * 3 + 1].data[monthPosition] = $paymentByMonth.avgByMonth[pbmIndex][c].toFixed(2),
+				tmpData[cIndex * 3 + 2].data[monthPosition] = $paymentByMonth.avg[c].toFixed(2);
 			});
 		});
 		return tmpData;

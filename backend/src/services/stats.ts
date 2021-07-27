@@ -3,6 +3,7 @@ import { transact } from '@cdellacqua/knex-transact';
 import BigNumber from 'bignumber.js';
 import { Knex } from 'knex';
 import { Interval } from '@cdellacqua/interval';
+import { DateOnly } from '@cdellacqua/date-only';
 import { Currency, uuid } from '../types/common';
 import * as payment from './payment';
 import * as project from './project';
@@ -28,7 +29,12 @@ export function paymentByMonth(
 	firstDate?: Date,
 	lastDate?: Date,
 	trx?: Knex.Transaction,
-): Promise<{ data: ({ month: number } & { [key in Currency]?: BigNumber })[], currencies: Currency[] }> {
+): Promise<{
+	data: ({ month: number } & { [key in Currency]?: BigNumber })[],
+	avgByMonth: ({ month: number } & { [key in Currency]?: BigNumber })[],
+	avg: { [key in Currency]?: BigNumber },
+	currencies: Currency[]
+}> {
 	return transact([async (db) => {
 		if (!firstDate) {
 			firstDate = computeFirstDate();
@@ -43,22 +49,82 @@ export function paymentByMonth(
 			.whereIn(payment.cols.projectId, projectIds)
 			.groupByRaw(`date_part('month', ${payment.cols.date})`)
 			.groupBy(payment.cols.currency);
-		console.log(rawResults);
+		const referenceDate: DateOnly | null = (await db.table(payment.table)
+			.whereIn(payment.cols.projectId, projectIds)
+			.orderBy(payment.cols.date, 'asc')
+			.first(payment.cols.date))?.[payment.cols.date] ?? null;
+		const withExtraYear = [];
+		const withOneLessYear = [];
+		let baseYearDifference = null;
+		let totalMonths = null;
+		if (referenceDate) {
+			let lastDayOfLastMonth = new DateOnly(lastDate);
+			lastDayOfLastMonth = lastDayOfLastMonth.subDays(1);
+			if (referenceDate.month < lastDayOfLastMonth.month) {
+				for (let m = referenceDate.month; m <= lastDayOfLastMonth.month; m++) {
+					withExtraYear.push(m);
+				}
+			} else if (referenceDate.month > lastDayOfLastMonth.month) {
+				for (let m = lastDayOfLastMonth.month + 1; m < referenceDate.month; m++) {
+					withOneLessYear.push(m);
+				}
+			} else {
+				withExtraYear.push(referenceDate.month);
+			}
+			baseYearDifference = lastDayOfLastMonth.year - referenceDate.year;
+			totalMonths = baseYearDifference * 12 - withOneLessYear.length + withExtraYear.length;
+			if (baseYearDifference === 0) {
+				withOneLessYear.splice(0);
+				withExtraYear.splice(0);
+				withExtraYear.push(-1); // empty array breaks query
+				withOneLessYear.push(-1); // empty array breaks query
+				baseYearDifference = 1;
+			}
+		}
+		const rawResultsAvgByMonth: { currency: Currency, amount: BigNumber, month: number }[] = referenceDate ? await db.table(payment.table)
+			.select(db.raw(`
+				sum("${payment.cols.amount}") / (${baseYearDifference} + 
+					(case when (date_part('month', "${payment.cols.date}") - 1) in (${withOneLessYear.join(', ')}) then -1 
+					when (date_part('month', "${payment.cols.date}") - 1) in (${withExtraYear.join(', ')}) then 1 
+					else 0 end) 
+				) as amount, 
+				"${payment.cols.currency}", date_part('month', ${payment.cols.date}) as month`))
+			.where(payment.cols.date, '<', lastDate)
+			.whereIn(payment.cols.projectId, projectIds)
+			.groupByRaw(`date_part('month', ${payment.cols.date})`)
+			.groupBy(payment.cols.currency) : [];
+		const rawResultsAvg: { currency: Currency, amount: BigNumber }[] = referenceDate ? await db.table(payment.table)
+			.select(db.raw(`sum("${payment.cols.amount}") / ${totalMonths} as amount, "${payment.cols.currency}"`))
+			.whereIn(payment.cols.projectId, projectIds)
+			.where(payment.cols.date, '<', lastDate)
+			.groupByRaw(`date_part('month', ${payment.cols.date})`)
+			.groupBy(payment.cols.currency) : [];
 		const allCurrencies: Currency[] = [];
-		rawResults.forEach((record) => {
+		rawResultsAvg.forEach((record) => {
 			if (!allCurrencies.includes(record.currency)) {
 				allCurrencies.push(record.currency);
 			}
 		});
 		const results = new Array(12);
+		const resultsAvgByMonth = new Array(12);
+		const resultsAvg = rawResultsAvg.reduce((acc, curr) => {
+			acc[curr.currency] = curr.amount;
+			return acc;
+		}, { } as {[key in Currency]?: BigNumber});
 		for (let i = 0; i < 12; i++) {
 			const current: { [key in Currency]?: BigNumber } & { month: number } = { month: i };
+			const currentAvgByMonth: { [key in Currency]?: BigNumber } & { month: number } = { month: i };
 			allCurrencies.forEach((currency) => {
 				current[currency] = rawResults.find((res) => res.currency === currency && res.month === (i + 1))?.amount || new BigNumber(0);
+				currentAvgByMonth[currency] = rawResultsAvgByMonth
+					.find((res) => res.currency === currency && res.month === (i + 1))?.amount || new BigNumber(0);
 			});
 			results[i] = current;
+			resultsAvgByMonth[i] = currentAvgByMonth;
 		}
-		return { data: results, currencies: allCurrencies };
+		return {
+			data: results, avg: resultsAvg, avgByMonth: resultsAvgByMonth, currencies: allCurrencies,
+		};
 	}], trx);
 }
 
