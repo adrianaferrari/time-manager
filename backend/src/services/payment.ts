@@ -92,7 +92,7 @@ export function list(userId: uuid, filter: FilterPaymentRequest, trx?: Transacti
 						return qb;
 					});
 				if (filtered) {
-					base.where(`${project.table}.${project.cols.name}`, 'like', `%${filter.query || ''}%`);
+					base.where(`${project.table}.${project.cols.name}`, 'ilike', `%${filter.query || ''}%`);
 				}
 				return base;
 			};
