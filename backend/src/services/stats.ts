@@ -76,9 +76,13 @@ export function paymentByMonth(
 			if (baseYearDifference === 0) {
 				withOneLessYear.splice(0);
 				withExtraYear.splice(0);
-				withExtraYear.push(-1); // empty array breaks query
-				withOneLessYear.push(-1); // empty array breaks query
 				baseYearDifference = 1;
+			}
+			if (!withExtraYear.length) {
+				withExtraYear.push(-1); // empty array breaks query
+			}
+			if (!withOneLessYear.length) {
+				withOneLessYear.push(-1); // empty array breaks query
 			}
 		}
 		const rawResultsAvgByMonth: { currency: Currency, amount: BigNumber, month: number }[] = referenceDate ? await db.table(payment.table)
