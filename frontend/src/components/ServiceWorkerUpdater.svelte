@@ -25,14 +25,14 @@
 
 <FormModal
 	bind:show={$showUpdateModal}
-	title={__('Aggiornamento disponibile')}
+	title={__('Update available')}
 	formSubmitAsync={handleSubmit}>
 	<div>
-		{__("È stato trovato un aggiornamento dell'App, puoi aggiornare adesso o rimandare a più tardi, l'aggiornamento richiederà pochi secondi.")}
+		{__("There is an update for this application, you can download it now or wait until later. The update will only take a few seconds.")}
 	</div>
 	<hr />
 	<div class="uk-text-small">
-		{__('N.B: Alcune funzionalità potrebbero non essere disponibili o non funzionare con la versione attualmente in esecuzione.')}
+		{__('N.B: Some features might not be available or working with the current version.')}
 	</div>
 
 	<div slot="footer" class="form-buttons">
@@ -40,8 +40,8 @@
 			type="button"
 			className="cancel"
 			on:click={() => ($showUpdateModal = false)}>
-			{__('Non ora')}
+			{__('Not now')}
 		</Button>
-		<Button type="submit">{__('Aggiorna')}</Button>
+		<Button type="submit">{__('Update')}</Button>
 	</div>
 </FormModal>
