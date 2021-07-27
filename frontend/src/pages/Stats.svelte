@@ -63,7 +63,7 @@ import { getColorRange } from '../ui-ux/theme';
 			backgroundColor: colorsBg[i],
 		}));
 		$paymentByMonth.data.forEach((pbm) => {
-			const monthPosition = (pbm.month - startMonth - 1 + 12) % 12;
+			const monthPosition = (pbm.month - startMonth + 12) % 12;
 			$paymentByMonth.currencies.forEach((c, cIndex) => {
 				tmpData[cIndex].data[monthPosition] = pbm[c].toFixed(2);
 			});
@@ -116,7 +116,7 @@ import { getColorRange } from '../ui-ux/theme';
 			},
 		];
 		$effortByMonth.forEach((ebm) => {
-			const monthPosition = (ebm.month - startMonth - 1 + 12) % 12;
+			const monthPosition = (ebm.month - startMonth + 12) % 12;
 			tmpData[0].data[monthPosition] = (
 				ebm.effort.d * 24 +
 				ebm.effort.h +

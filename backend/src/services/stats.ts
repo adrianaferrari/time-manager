@@ -53,7 +53,7 @@ export function paymentByMonth(
 		for (let i = 0; i < 12; i++) {
 			const current: { [key in Currency]?: BigNumber } & { month: number } = { month: i };
 			allCurrencies.forEach((currency) => {
-				current[currency] = rawResults.find((res) => res.currency === currency && res.month === i)?.amount || new BigNumber(0);
+				current[currency] = rawResults.find((res) => res.currency === currency && res.month === (i + 1))?.amount || new BigNumber(0);
 			});
 			results[i] = current;
 		}
@@ -130,7 +130,7 @@ export function effortByMonth(
 		const results = new Array(12);
 		for (let i = 0; i < 12; i++) {
 			const current: { month: number, effort?: Interval } = { month: i };
-			const rawCurrent = rawResults.find((r) => r.month === i);
+			const rawCurrent = rawResults.find((r) => r.month === i + 1); // date_part starts from 1
 			current.effort = new Interval(rawCurrent?.effort || 0);
 			results[i] = current;
 		}
