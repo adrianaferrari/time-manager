@@ -142,6 +142,46 @@ export function paymentByMonth(
 	}], trx);
 }
 
+export function paymentByYear(
+	projectIds: uuid[],
+	trx?: Knex.Transaction,
+): Promise<{
+	data: ({ year: number } & { [key in Currency]?: BigNumber })[],
+	currencies: Currency[],
+	years: number[],
+}> {
+	return transact([async (db) => {
+		const rawResults: { currency: Currency, amount: BigNumber, year: number }[] = await db.table(payment.table)
+			.select(db.raw(`sum("${payment.cols.amount}") as amount, "${payment.cols.currency}", date_part('year', ${payment.cols.date}) as year`))
+			.whereIn(payment.cols.projectId, projectIds)
+			.groupByRaw(`date_part('year', ${payment.cols.date})`)
+			.groupBy(payment.cols.currency)
+			.orderByRaw(`date_part('year', ${payment.cols.date})`);
+
+		const allCurrencies: Currency[] = [];
+		rawResults.forEach((record) => {
+			if (!allCurrencies.includes(record.currency)) {
+				allCurrencies.push(record.currency);
+			}
+		});
+		const currentYear = new DateOnly().year;
+		const firstYear = rawResults[0]?.year || currentYear;
+		const results = new Array(currentYear - firstYear + 1);
+		const years = new Array(currentYear - firstYear + 1);
+		for (let y = firstYear; y <= currentYear; y++) {
+			const current: { year: number } & { [key in Currency]?: BigNumber } = { year: y };
+			allCurrencies.forEach((c) => {
+				current[c] = rawResults.find((r) => r.currency === c && r.year === y)?.amount ?? new BigNumber(0);
+			});
+			results[y - firstYear] = current;
+			years[y - firstYear] = y;
+		}
+		return {
+			data: results, currencies: allCurrencies, years,
+		};
+	}], trx);
+}
+
 export function paymentByClient(
 	clientIds: uuid[],
 	firstDate?: Date,

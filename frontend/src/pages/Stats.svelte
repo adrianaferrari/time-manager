@@ -13,6 +13,7 @@
 		getEffortByMonth,
 		getPaymentByClient,
 		getPaymentByMonth,
+		getPaymentByYear,
 		getRateByClient,
 		getRateByCompany,
 		getRateByProject,
@@ -23,6 +24,7 @@
 
 	const paymentByMonth = writable(null);
 	const paymentByClient = writable(null);
+	const paymentByYear = writable(null);
 	const effortByMonth = writable(null);
 	const rateByProject = writable(null);
 	const rateByCompany = writable(null);
@@ -87,6 +89,40 @@
 				tmpData[cIndex * 3].data[monthPosition] = pbm[c].toFixed(2);
 				tmpData[cIndex * 3 + 1].data[monthPosition] = $paymentByMonth.avgByMonth[pbmIndex][c].toFixed(2),
 				tmpData[cIndex * 3 + 2].data[monthPosition] = $paymentByMonth.avg[c].toFixed(2);
+			});
+		});
+		return tmpData;
+	});
+
+	let paymentByYearLabels = [];
+	const paymentByYearDatasets = derived(paymentByYear, ($paymentByYear) => {
+		if (!$paymentByYear) {
+			return null;
+		}
+		paymentByYearLabels = $paymentByYear.years;
+		const colors = getColorRange(
+			"--global-primary-background",
+			"--global-secondary-background",
+			$paymentByYear.currencies.length,
+		);
+		const colorsBg = getColorRange(
+			"--global-primary-background",
+			"--global-secondary-background",
+			$paymentByYear.currencies.length,
+			0.5
+		);
+		const tmpData = $paymentByYear.currencies.map((c, i) => ({
+			label: c,
+			data: new Array($paymentByYear.years.length),
+			borderColor: colors[i],
+			backgroundColor: colorsBg[i],
+		}));
+		$paymentByYear.data.forEach((pby) => {
+			const yearIndex = $paymentByYear.years.findIndex(
+				(y) => y === pby.year
+			);
+			$paymentByYear.currencies.forEach((c, cIndex) => {
+				tmpData[cIndex].data[yearIndex] = pby[c].toFixed(2);
 			});
 		});
 		return tmpData;
@@ -342,6 +378,18 @@
 				},
 			},
 		},
+		paymentByYear: {
+			plugins: {
+				title: {
+					display: true,
+					text: __("Payment by year"),
+				},
+				subtitle: {
+					display: true,
+					text: __("How much money you received each year"),
+				},
+			},
+		},
 		effortByMonth: {
 			plugins: {
 				title: {
@@ -425,6 +473,7 @@
 		rateByProject,
 		rateByCompany,
 		rateByClient,
+		paymentByYear,
 	};
 
 	const chartReloadFns = {
@@ -434,6 +483,7 @@
 		rateByProject: getRateByProject,
 		rateByCompany: getRateByCompany,
 		rateByClient: getRateByClient,
+		paymentByYear: getPaymentByYear,
 	};
 
 	const chartLoading = {
@@ -443,6 +493,7 @@
 		rateByProject: false,
 		rateByCompany: false,
 		rateByClient: false,
+		paymentByYear: false,
 	};
 
 	async function loadData(toLoad) {
@@ -493,6 +544,29 @@
 					{:else}
 						<p class="uk-text-italic uk-text-center">
 							{__("There isn't enough data to display :chartName", { chartName: chartOptions.paymentByMonth.plugins.title.text })}
+						</p>
+					{/if}
+				</LoaderWrapper>
+			</Card>
+		</div>
+		<div class="uk-width-1-2@m">
+			<Card style="position: relative;">
+				<IconButton
+					icon="refresh"
+					style="position: absolute; right: 15px; top: 15px;"
+					on:click={() => !chartLoading.paymentByYear && loadData('paymentByYear')} />
+				<LoaderWrapper
+					loading={!$paymentByYearDatasets}
+					style="min-height: 300px;">
+					{#if $paymentByYearDatasets.length}
+						<Chart
+							labels={paymentByYearLabels}
+							type="line"
+							options={chartOptions.paymentByYear}
+							datasets={$paymentByYearDatasets} />
+					{:else}
+						<p class="uk-text-italic uk-text-center">
+							{__("There isn't enough data to display :chartName", { chartName: chartOptions.paymentByYear.plugins.title.text })}
 						</p>
 					{/if}
 				</LoaderWrapper>

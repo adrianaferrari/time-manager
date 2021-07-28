@@ -21,6 +21,11 @@ r.get('/payment/by-month', [
 	res.json(await stats.paymentByMonth(projectsByUser, fromDate, toDate));
 }));
 
+r.get('/payment/by-year', asyncWrapper(async (_, res) => {
+	const projectsByUser = await project.findIdsByUser(res.locals.user.id);
+	res.json(await stats.paymentByYear(projectsByUser));
+}));
+
 r.get('/payment/by-client', [
 	query('from').optional({ nullable: true, checkFalsy: true }).isDate(),
 	query('to').optional({ nullable: true, checkFalsy: true }).isDate(),

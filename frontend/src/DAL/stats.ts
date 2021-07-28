@@ -42,6 +42,31 @@ export function getPaymentByMonth(): Promise<{
 		}));
 }
 
+export function getPaymentByYear(): Promise<{
+	data: ({ year: number } & { [key in Currency]?: BigNumber})[],
+	currencies: Currency[],
+	years: number[]
+}> {
+	return axiosExtract<{
+		data:({ year: number } & { [key in Currency]?: string })[],
+		currencies: Currency[],
+		years: number[]
+			}>(axios.get('/auth/stats/payment/by-year'))
+		.then((res) => ({
+			data: res.data.map((el) => {
+				const mapped = { year: el.year };
+				Object.keys(Currency).forEach((key) => {
+					if (el[key]) {
+						mapped[key] = new BigNumber(el[key]);
+					}
+				});
+				return mapped;
+			}),
+			currencies: res.currencies,
+			years: res.years,
+		}));
+}
+
 export function getPaymentByClient(): Promise<{
 	data: ({ clientId: string } & { [key in Currency]?: BigNumber })[],
 	currencies: Currency[],
