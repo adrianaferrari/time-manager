@@ -22,6 +22,7 @@ export const cols = {
 	categoryId: 'categoryId',
 	projectId: 'projectId',
 	timeSpent: 'timeSpent',
+	createdAt: 'createdAt',
 };
 
 const columnNames = Object.values(cols).map((col) => `${table}.${col}`);
@@ -173,6 +174,7 @@ export interface ActivityRaw {
 	categoryId: uuid,
 	projectId: uuid | null,
 	timeSpent: number,
+	createdAt: Date,
 }
 
 export interface Activity {
@@ -183,6 +185,7 @@ export interface Activity {
 	categoryId: uuid,
 	projectId: uuid | null,
 	timeSpent: Interval,
+	createdAt: Date,
 }
 
 export interface SaveActivity {

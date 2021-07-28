@@ -22,6 +22,7 @@ export const cols = {
 	price: 'price',
 	estimatedEffort: 'estimatedEffort',
 	currency: 'currency',
+	createdAt: 'createdAt',
 };
 
 export const technologyCols = {
@@ -131,6 +132,7 @@ export interface ProjectRaw {
 	estimatedEffort: number | null,
 	currency: string | null,
 	technologyIds: uuid[],
+	createdAt: Date,
 }
 
 export interface Project {
@@ -144,6 +146,7 @@ export interface Project {
 	estimatedEffort: Interval | null,
 	currency: string | null,
 	technologyIds: uuid[],
+	createdAt: Date,
 }
 
 export interface SaveProject {

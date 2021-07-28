@@ -13,12 +13,13 @@ export function mapper(raw: ActivityRaw): Activity {
 		projectId: raw.projectId,
 		timeSpent: Interval.fromString(raw.timeSpent),
 		userId: raw.userId,
+		createdAt: new Date(raw.createdAt),
 	};
 }
 
 export function list(dataTableReq: AsyncDataTableRequest, filters: ActivityFilter): Promise<AsyncDataTableResponse<Activity>> {
-	return axiosExtract<AsyncDataTableResponse<ActivityRaw>>(axios.get('/auth/activity', { params: { ...dataTableReq, ...filters }}))
-		.then((res) => ({ ...res, records: res.records.map((raw) => mapper(raw))}));
+	return axiosExtract<AsyncDataTableResponse<ActivityRaw>>(axios.get('/auth/activity', { params: { ...dataTableReq, ...filters } }))
+		.then((res) => ({ ...res, records: res.records.map((raw) => mapper(raw)) }));
 }
 
 export function save(activity: SaveActivity, id?: string): Promise<Activity> {
@@ -36,7 +37,6 @@ export function get(id: string): Promise<Activity> {
 		.then((res) => mapper(res));
 }
 
-
 export interface Activity {
 	id: string,
 	description: string,
@@ -45,6 +45,7 @@ export interface Activity {
 	categoryId: string,
 	projectId: string | null,
 	timeSpent: Interval,
+	createdAt: Date,
 }
 
 export interface ActivityRaw {
@@ -55,6 +56,7 @@ export interface ActivityRaw {
 	categoryId: string,
 	projectId: string | null,
 	timeSpent: string,
+	createdAt: string,
 }
 
 export interface ActivityFilter {

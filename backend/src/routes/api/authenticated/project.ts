@@ -113,7 +113,10 @@ r.get('/:id', [
 }));
 
 r.get('/', asyncWrapper(async (_, res) => {
-	res.json(await project.findAll({ userId: res.locals.user.id }, [{ column: project.cols.startDate, order: 'desc' }]));
+	res.json(await project.findAll(
+		{ userId: res.locals.user.id },
+		[{ column: project.cols.startDate, order: 'desc' }, { column: project.cols.createdAt, order: 'desc' }],
+	));
 }));
 
 r.post('/', [

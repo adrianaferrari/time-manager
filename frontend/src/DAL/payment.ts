@@ -12,6 +12,7 @@ export function mapper(raw: PaymentRaw): Payment {
 		date: DateOnly.fromString(raw.date),
 		id: raw.id,
 		projectId: raw.projectId,
+		createdAt: new Date(raw.createdAt),
 	};
 }
 
@@ -43,6 +44,7 @@ export interface PaymentRaw {
 	amount: string,
 	currency: Currency,
 	projectId: string,
+	createdAt: string,
 }
 
 export interface Payment {
@@ -51,6 +53,7 @@ export interface Payment {
 	amount: BigNumber,
 	currency: Currency,
 	projectId: string,
+	createdAt: Date,
 }
 
 export interface SavePayment {

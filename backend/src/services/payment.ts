@@ -18,6 +18,7 @@ export const cols = {
 	date: 'date',
 	amount: 'amount',
 	projectId: 'projectId',
+	createdAt: 'createdAt',
 };
 
 const columnNames = Object.values(cols).map((cn) => `${table}.${cn}`);
@@ -118,6 +119,7 @@ export interface PaymentRaw {
 	amount: BigNumber,
 	currency: Currency,
 	projectId: uuid,
+	createdAt: Date,
 }
 
 export interface Payment {
@@ -126,6 +128,7 @@ export interface Payment {
 	amount: BigNumber,
 	currency: Currency,
 	projectId: uuid,
+	createdAt: Date,
 }
 
 export interface SavePayment {

@@ -178,7 +178,7 @@ export function sanitizeActivityFilter(): ValidationChain[] {
 		}),
 		query('orderBy').customSanitizer((value) => {
 			if (!value || !value.length) {
-				return [{ column: activityCols.date, order: 'desc' }];
+				return [{ column: activityCols.date, order: 'desc' }, { column: activityCols.createdAt, order: 'desc' }];
 			}
 			return value;
 		}),
@@ -201,7 +201,7 @@ export function sanitizePaymentFilter(): ValidationChain[] {
 		}),
 		query('orderBy').customSanitizer((value) => {
 			if (!value || !value.length) {
-				return [{ column: paymentCols.date, order: 'desc' }];
+				return [{ column: paymentCols.date, order: 'desc' }, { column: paymentCols.createdAt, order: 'desc' }];
 			}
 			return value;
 		}),

@@ -28,6 +28,7 @@ export function mapper(raw: ProjectRaw): Project {
 		startDate: DateOnly.fromString(raw.startDate),
 		technologyIds: raw.technologyIds,
 		userId: raw.userId,
+		createdAt: new Date(raw.createdAt),
 	};
 }
 
@@ -66,6 +67,7 @@ export interface Project {
 	estimatedEffort: Interval | null,
 	currency: Currency | null,
 	technologyIds: string[],
+	createdAt: Date,
 }
 
 export interface ProjectDetails extends Project {
@@ -85,6 +87,7 @@ export interface ProjectRaw {
 	estimatedEffort: string | null,
 	currency: Currency | null,
 	technologyIds: string[],
+	createdAt: string,
 }
 
 export interface ProjectDetailsRaw extends ProjectRaw {
