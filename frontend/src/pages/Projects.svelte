@@ -96,7 +96,7 @@ import { printInterval } from '../helpers/interval';
 
 <LoaderWrapper loading={$loading}>
 	<Breadcrumb
-		path={[{ label: __('Projects') }]} />
+		path={[{ label: __("Home"), href: '/#' }, { label: __('Projects') }]} />
 	<div class="uk-container">
 		<DataTable
 			{columns}

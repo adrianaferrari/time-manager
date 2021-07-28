@@ -61,7 +61,7 @@ import SaveClientModal from '../modals/SaveClientModal.svelte';
 
 <LoaderWrapper {loading}>
 	<Breadcrumb
-		path={[{ href: '/#/client/all', label: __('Clients') }, { label: `${details.firstName} ${details.lastName}` }]} />
+		path={[{ label: __("Home"), href: '/#' }, { href: '/#/client/all', label: __('Clients') }, { label: `${details.firstName} ${details.lastName}` }]} />
 	<Card
 		style="position: relative"
 		className="uk-width-3-4@l uk-width-4-5@m uk-width-5-6 uk-margin-auto"

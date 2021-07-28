@@ -42,6 +42,9 @@ import Anchor from './Anchor.svelte';
 					</div>
 				</li>
 			{/if}
+			<li class:uk-active={$location === '/'}>
+				<Anchor href="/"><span uk-icon="home"/></Anchor>
+			</li>
 			<li class:uk-active={$location.startsWith('/settings')}>
 				<Anchor href="/settings"><span uk-icon="cog"/></Anchor>
 			</li>

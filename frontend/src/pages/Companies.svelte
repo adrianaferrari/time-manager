@@ -54,7 +54,7 @@ import IconButton from '../components/IconButton.svelte';
 
 <LoaderWrapper loading={$loading}>
 	<Breadcrumb
-		path={[{ label: __('Companies') }]} />
+		path={[{ label: __("Home"), href: '/#' }, { label: __('Companies') }]} />
 	<div class="uk-container">
 		<DataTable
 			{columns}

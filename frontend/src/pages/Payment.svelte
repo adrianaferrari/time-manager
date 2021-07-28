@@ -64,7 +64,7 @@ import SavePaymentModal from '../modals/SavePaymentModal.svelte';
 <LoaderWrapper {loading}>
 	{#if details}
 		<Breadcrumb
-			path={[{ href: '/#/payment/all', label: __('Payments') }, { label: `${project.name} - ${details.date.toLocaleString()}` }]} />
+			path={[{ label: __("Home"), href: '/#' }, { href: '/#/payment/all', label: __('Payments') }, { label: `${project.name} - ${details.date.toLocaleString()}` }]} />
 		<Card
 			style="position: relative"
 			className="uk-width-3-4@l uk-width-4-5@m uk-width-5-6 uk-margin-auto"

@@ -80,7 +80,7 @@ import IconButton from '../components/IconButton.svelte';
 
 <LoaderWrapper loading={$loading}>
 	<Breadcrumb
-		path={[{ label: __('Payments') }]} />
+		path={[{ label: __("Home"), href: '/#' }, { label: __('Payments') }]} />
 	<div class="uk-container">
 		<AsyncDataTable
 			{dataProvider}

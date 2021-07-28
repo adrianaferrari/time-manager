@@ -136,7 +136,7 @@ import SaveActivityModal from '../modals/SaveActivityModal.svelte';
 <LoaderWrapper {loading}>
 	{#if details}
 		<Breadcrumb
-			path={[{ href: '/#/project/all', label: __('Projects') }, { label: details.name }]} />
+			path={[{ label: __("Home"), href: '/#' }, { href: '/#/project/all', label: __('Projects') }, { label: details.name }]} />
 		<Card
 			style="position: relative"
 			className="uk-width-3-4@l uk-width-4-5@m uk-width-5-6 uk-margin-auto"

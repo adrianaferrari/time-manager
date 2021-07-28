@@ -31,7 +31,7 @@
 
 <LoaderWrapper loading={$loading}>
 	<Breadcrumb
-		path={[{ label: __('Technologies') }]} />
+		path={[{ label: __("Home"), href: '/#' }, { label: __('Technologies') }]} />
 	<div class="uk-container">
 		<div uk-grid class="uk-grid-small">
 			<div class="uk-width-5-6@l uk-width-4-5@m uk-width-3-4">

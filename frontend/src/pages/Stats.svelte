@@ -523,7 +523,7 @@
 	onMount(() => loadData());
 </script>
 
-<Breadcrumb path={[{ label: __('Stats') }]} />
+<Breadcrumb path={[{ label: __("Home"), href: '/#' }, { label: __('Stats') }]} />
 <div class="uk-container">
 	<div uk-grid class="uk-grid-small">
 		<div class="uk-width-1-2@m">

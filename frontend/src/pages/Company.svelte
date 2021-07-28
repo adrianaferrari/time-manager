@@ -61,7 +61,7 @@ import SaveCompanyModal from '../modals/SaveCompanyModal.svelte';
 
 <LoaderWrapper {loading}>
 	<Breadcrumb
-		path={[{ href: '/#/company/all', label: __('Companies') }, { label: details.name }]} />
+		path={[{ label: __("Home"), href: '/#' }, { href: '/#/company/all', label: __('Companies') }, { label: details.name }]} />
 	<Card
 		style="position: relative"
 		className="uk-width-3-4@l uk-width-4-5@m uk-width-5-6 uk-margin-auto"

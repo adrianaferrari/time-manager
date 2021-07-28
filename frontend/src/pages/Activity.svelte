@@ -59,7 +59,7 @@ import DeleteActivityModal from '../modals/DeleteActivityModal.svelte';
 
 <LoaderWrapper {loading}>
 	<Breadcrumb
-		path={[{ href: '/#/activity/all', label: __('Activities') }, { label: `${category.name} - ${details.date.toLocaleString()}` }]} />
+		path={[{ label: __("Home"), href: '/#' }, { href: '/#/activity/all', label: __('Activities') }, { label: `${category.name} - ${details.date.toLocaleString()}` }]} />
 	<Card
 		style="position: relative"
 		className="uk-width-3-4@l uk-width-4-5@m uk-width-5-6 uk-margin-auto"

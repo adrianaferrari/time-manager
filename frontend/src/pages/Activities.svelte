@@ -104,7 +104,7 @@
 </script>
 
 <LoaderWrapper loading={$loading}>
-	<Breadcrumb path={[{ label: __('Activities') }]} />
+	<Breadcrumb path={[{ label: __("Home"), href: '/#' }, { label: __('Activities') }]} />
 	<div class="uk-container">
 		<div class="uk-flex uk-flex-wrap">
 			<div class="uk-width-1-4@m uk-width-1-2">
