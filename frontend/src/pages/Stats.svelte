@@ -133,29 +133,43 @@
 		const colors = getColorRange(
 			"--global-primary-background",
 			"--global-secondary-background",
-			1
+			3
 		);
 		const colorsBg = getColorRange(
 			"--global-primary-background",
 			"--global-secondary-background",
-			1,
+			3,
 			0.5
 		);
-		const tmpData = [
-			{
-				label: __("Hours"),
-				data: new Array(12),
-				backgroundColor: colorsBg[0],
-				borderColor: colors[0],
-			},
-		];
-		$effortByMonth.forEach((ebm) => {
+		const tmpData = [{
+			label: __('Hours'),
+			data: new Array(12),
+			borderColor: colors[0],
+			backgroundColor: colorsBg[0],
+		}, {
+			label: __("Hours - avg by month"),
+			data: new Array(12),
+			borderColor: colors[1],
+			backgroundColor: colorsBg[1],
+		}, {
+			label: __("Hours - avg"),
+			data: new Array(12),
+			borderColor: colors[2],
+			backgroundColor: colorsBg[2],
+		}];
+		$effortByMonth.data.forEach((ebm, ebmIndex) => {
 			const monthPosition = (ebm.month - startMonth + 12) % 12;
 			tmpData[0].data[monthPosition] = (
 				ebm.effort.d * 24 +
 				ebm.effort.h +
 				ebm.effort.m / 60
 			).toFixed(2);
+			tmpData[1].data[monthPosition] = (
+				$effortByMonth.avgByMonth[ebmIndex].effort.d * 24 +
+				$effortByMonth.avgByMonth[ebmIndex].effort.h +
+				$effortByMonth.avgByMonth[ebmIndex].effort.m / 60
+			).toFixed(2);
+			tmpData[2].data[monthPosition] = ($effortByMonth.avg.effort.d * 24 + $effortByMonth.avg.effort.h + $effortByMonth.avg.effort.m / 60).toFixed(2);
 		});
 		return tmpData;
 	});

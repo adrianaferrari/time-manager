@@ -24,6 +24,46 @@ function computeLastDate() {
 	lastDate.setHours(0);
 	return lastDate;
 }
+
+function computeDurationInMonths(referenceDate: DateOnly | null, lastDayOfLastMonth: DateOnly) {
+	const withExtraYear = [];
+	const withOneLessYear = [];
+	let baseYearDifference = null;
+	let totalMonths = null;
+	if (referenceDate) {
+		if (referenceDate.month < lastDayOfLastMonth.month) {
+			for (let m = referenceDate.month; m <= lastDayOfLastMonth.month; m++) {
+				withExtraYear.push(m);
+			}
+		} else if (referenceDate.month > lastDayOfLastMonth.month) {
+			for (let m = lastDayOfLastMonth.month + 1; m < referenceDate.month; m++) {
+				withOneLessYear.push(m);
+			}
+		} else {
+			withExtraYear.push(referenceDate.month);
+		}
+		baseYearDifference = lastDayOfLastMonth.year - referenceDate.year;
+		totalMonths = baseYearDifference * 12 - withOneLessYear.length + withExtraYear.length;
+		if (baseYearDifference === 0) {
+			withOneLessYear.splice(0);
+			withExtraYear.splice(0);
+			baseYearDifference = 1;
+		}
+		if (!withExtraYear.length) {
+			withExtraYear.push(-1); // empty array breaks query
+		}
+		if (!withOneLessYear.length) {
+			withOneLessYear.push(-1); // empty array breaks query
+		}
+	}
+	return {
+		withExtraYear,
+		withOneLessYear,
+		baseYearDifference,
+		totalMonths,
+	};
+}
+
 export function paymentByMonth(
 	projectIds: uuid[],
 	firstDate?: Date,
@@ -53,38 +93,9 @@ export function paymentByMonth(
 			.whereIn(payment.cols.projectId, projectIds)
 			.orderBy(payment.cols.date, 'asc')
 			.first(payment.cols.date))?.[payment.cols.date] ?? null;
-		const withExtraYear = [];
-		const withOneLessYear = [];
-		let baseYearDifference = null;
-		let totalMonths = null;
-		if (referenceDate) {
-			let lastDayOfLastMonth = new DateOnly(lastDate);
-			lastDayOfLastMonth = lastDayOfLastMonth.subDays(1);
-			if (referenceDate.month < lastDayOfLastMonth.month) {
-				for (let m = referenceDate.month; m <= lastDayOfLastMonth.month; m++) {
-					withExtraYear.push(m);
-				}
-			} else if (referenceDate.month > lastDayOfLastMonth.month) {
-				for (let m = lastDayOfLastMonth.month + 1; m < referenceDate.month; m++) {
-					withOneLessYear.push(m);
-				}
-			} else {
-				withExtraYear.push(referenceDate.month);
-			}
-			baseYearDifference = lastDayOfLastMonth.year - referenceDate.year;
-			totalMonths = baseYearDifference * 12 - withOneLessYear.length + withExtraYear.length;
-			if (baseYearDifference === 0) {
-				withOneLessYear.splice(0);
-				withExtraYear.splice(0);
-				baseYearDifference = 1;
-			}
-			if (!withExtraYear.length) {
-				withExtraYear.push(-1); // empty array breaks query
-			}
-			if (!withOneLessYear.length) {
-				withOneLessYear.push(-1); // empty array breaks query
-			}
-		}
+		const {
+			baseYearDifference, withOneLessYear, withExtraYear, totalMonths,
+		} = computeDurationInMonths(referenceDate, new DateOnly(lastDate).subDays(1));
 		const rawResultsAvgByMonth: { currency: Currency, amount: BigNumber, month: number }[] = referenceDate ? await db.table(payment.table)
 			.select(db.raw(`
 				sum("${payment.cols.amount}") / (${baseYearDifference} + 
@@ -183,7 +194,11 @@ export function effortByMonth(
 	firstDate?: Date,
 	lastDate?: Date,
 	trx?: Knex.Transaction,
-): Promise<{ month: number, effort: Interval }[]> {
+): Promise<{
+		data: { month: number, effort: Interval }[],
+		avgByMonth: { month: number, effort: Interval}[],
+		avg: { effort: Interval }
+	}> {
 	return transact([async (db) => {
 		if (!firstDate) {
 			firstDate = computeFirstDate();
@@ -197,14 +212,41 @@ export function effortByMonth(
 			.where(activity.cols.date, '>=', firstDate)
 			.where(activity.cols.date, '<', lastDate)
 			.groupByRaw(`date_part('month', ${activity.cols.date})`);
+		const referenceDate: DateOnly | null = (await db.table(activity.table)
+			.where(activity.cols.userId, userId)
+			.orderBy(activity.cols.date, 'asc')
+			.first(activity.cols.date))?.[activity.cols.date] ?? null;
+		const {
+			baseYearDifference, withOneLessYear, withExtraYear, totalMonths,
+		} = computeDurationInMonths(referenceDate, new DateOnly(lastDate).subDays(1));
+		const rawResultsAvgByMonth: { effort: number, month: number }[] = referenceDate ? await db.table(activity.table)
+			.select(db.raw(`
+				sum("${activity.cols.timeSpent}") / (${baseYearDifference} + 
+					(case when (date_part('month', "${activity.cols.date}") - 1) in (${withOneLessYear.join(', ')}) then -1 
+					when (date_part('month', "${activity.cols.date}") - 1) in (${withExtraYear.join(', ')}) then 1 
+					else 0 end) 
+				) as effort, 
+				date_part('month', ${activity.cols.date}) as month`))
+			.where(activity.cols.date, '<', lastDate)
+			.where(activity.cols.userId, userId)
+			.groupByRaw(`date_part('month', ${activity.cols.date})`) : [];
+		const rawResultsAvg: { effort: number } = referenceDate ? (await db.table(activity.table)
+			.select(db.raw(`sum("${activity.cols.timeSpent}") / ${totalMonths} as effort`))
+			.where(activity.cols.userId, userId)
+			.where(activity.cols.date, '<', lastDate))[0] : { effort: 0 };
 		const results = new Array(12);
+		const resultsAvgByMonth = new Array(12);
 		for (let i = 0; i < 12; i++) {
 			const current: { month: number, effort?: Interval } = { month: i };
+			const currentAvgByMonth: { month: number, effort?: Interval } = { month: i };
 			const rawCurrent = rawResults.find((r) => r.month === i + 1); // date_part starts from 1
+			const rawCurrentAvgByMonth = rawResultsAvgByMonth.find((r) => r.month === i + 1); // date_part starts from 1
 			current.effort = new Interval(rawCurrent?.effort || 0);
 			results[i] = current;
+			currentAvgByMonth.effort = new Interval(rawCurrentAvgByMonth?.effort || 0);
+			resultsAvgByMonth[i] = currentAvgByMonth;
 		}
-		return results;
+		return { data: results, avgByMonth: resultsAvgByMonth, avg: { effort: new Interval(rawResultsAvg.effort) } };
 	}], trx);
 }
 

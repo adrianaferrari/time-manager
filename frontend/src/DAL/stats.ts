@@ -4,7 +4,11 @@ import BigNumber from 'bignumber.js';
 import { axiosExtract } from '../helpers/axios';
 import { Currency } from '../helpers/currency';
 
-export function getPaymentByMonth(): Promise<{ data: ({ month: number } & { [key in Currency]?: BigNumber })[], currencies: Currency[] }> {
+export function getPaymentByMonth(): Promise<{
+	data: ({ month: number } & { [key in Currency]?: BigNumber })[],
+	avgByMonth: ({ month: number } & { [key in Currency]?: BigNumber })[],
+	avg: { [key in Currency]?: BigNumber },
+	currencies: Currency[] }> {
 	return axiosExtract<{
 			data:({ month: number } & { [key in Currency]?: string })[],
 			avgByMonth:({ month: number } & { [key in Currency]?: string })[],
@@ -60,12 +64,21 @@ export function getPaymentByClient(): Promise<{
 		}));
 }
 
-export function getEffortByMonth(): Promise<{ effort: Interval, month: number }[]> {
-	return axiosExtract<{ effort: string, month: number}[]>(axios.get('/auth/stats/effort/by-month'))
-		.then((res) => res.map((ebm) => ({
-			month: ebm.month,
-			effort: new Interval(ebm.effort),
-		})));
+export function getEffortByMonth(): Promise<{
+	data: { month: number, effort: Interval }[],
+	avgByMonth: { month: number, effort: Interval }[],
+	avg: { effort: Interval }
+}> {
+	return axiosExtract<{
+		data: { effort: string, month: number }[],
+		avgByMonth: { effort: string, month: number }[],
+		avg: { effort: string },
+	}>(axios.get('/auth/stats/effort/by-month'))
+		.then((res) => ({
+			data: res.data.map((el) => ({ month: el.month, effort: new Interval(el.effort) })),
+			avgByMonth: res.avgByMonth.map((el) => ({ month: el.month, effort: new Interval(el.effort) })),
+			avg: { effort: new Interval(res.avg.effort) },
+		}));
 }
 
 export function getRateByProject(): Promise<{
