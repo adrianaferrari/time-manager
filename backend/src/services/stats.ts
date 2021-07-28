@@ -101,7 +101,6 @@ export function paymentByMonth(
 			.select(db.raw(`sum("${payment.cols.amount}") / ${totalMonths} as amount, "${payment.cols.currency}"`))
 			.whereIn(payment.cols.projectId, projectIds)
 			.where(payment.cols.date, '<', lastDate)
-			.groupByRaw(`date_part('month', ${payment.cols.date})`)
 			.groupBy(payment.cols.currency) : [];
 		const allCurrencies: Currency[] = [];
 		rawResultsAvg.forEach((record) => {
