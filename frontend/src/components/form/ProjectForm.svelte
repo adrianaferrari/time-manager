@@ -134,6 +134,7 @@
 					label: `${c.firstName} ${c.lastName}`,
 					value: c.id,
 				}))}
+				on:change={({ detail }) => toSave.clientId = detail}
 				value={toSave.clientId}
 				label={__('Client')} />
 			<span>
