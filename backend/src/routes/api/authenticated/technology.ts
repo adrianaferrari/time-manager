@@ -4,6 +4,7 @@ import { param } from 'express-validator';
 import { isTechnology, rejectOnFailedValidation } from '../../../helpers/validator';
 import { HttpStatus } from '../../../http/status';
 import * as technology from '../../../services/technology';
+import * as project from '../../../services/project';
 import verifyUniquenessMiddleware, { UniqueEntity } from './_uniqueness-middleware';
 import verifyOwnershipMiddleware, { OwnedEntity } from './_user-ownership-middleware';
 
@@ -33,6 +34,18 @@ r.delete('/:id', [
 ], asyncWrapper(async (req, res) => {
 	await technology.del(req.params.id);
 	res.status(HttpStatus.NoContent).end();
+}));
+
+r.get('/:id', [
+	param('id').isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req) => ({
+		[OwnedEntity.technology]: req.params.id,
+	})),
+], asyncWrapper(async (req, res) => {
+	const found = await technology.find(req.params.id);
+	const projectIds = await project.findIdsByTechnology(req.params.id);
+	res.json({ ...found, projectIds });
 }));
 
 r.get('/', asyncWrapper(async (_, res) => {

@@ -1,5 +1,6 @@
 <script>
 	import { Breadcrumb, Button, LoaderWrapper } from "custom-uikit-svelte";
+import { push } from 'svelte-stack-router';
 	import { technologies } from "../DAL/technology";
 	import { __ } from "../i18n";
 	import DeleteTechnologyModal from "../modals/DeleteTechnologyModal.svelte";
@@ -54,6 +55,14 @@
 						icon="plus"
 						on:click={(e) => (e.stopPropagation(), (showCreateModal = true))}>
 						{$size > Size.xs ? __('New') : ''}
+					</Button>
+					<Button
+						className="uk-width-1-1@s uk-margin-small-top"
+						disabled={!selected}
+						variant="secondary"
+						icon="forward"
+						on:click={(e) => (e.stopPropagation(), push(`/technology/details/${selected.id}`))}>
+						{$size > Size.xs ? __('Details') : ''}
 					</Button>
 					<Button
 						className="uk-width-1-1@s uk-margin-small-top"

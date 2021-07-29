@@ -121,6 +121,13 @@ export function findIdsByUser(userId: uuid, trx?: Knex.Transaction): Promise<uui
 	return transact([(db) => db(table).where({ [cols.userId]: userId }).pluck(cols.id)], trx);
 }
 
+export function findIdsByTechnology(technologyId: uuid, trx?: Knex.Transaction): Promise<Project[]> {
+	return transact([(db) => db(table).innerJoin(technologyTable, `${technologyTable}.${technologyCols.projectId}`, `${table}.${cols.id}`)
+		.where(`${technologyTable}.${technologyCols.technologyId}`, technologyId)
+		.pluck(`${table}.${cols.id}`),
+	], trx);
+}
+
 export interface ProjectRaw {
 	id: uuid,
 	name: string,

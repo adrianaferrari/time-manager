@@ -18,6 +18,13 @@ export function mapper(raw: TechnologyRaw): Technology {
 	};
 }
 
+export function detailsMapper(raw: TechnologyDetailsRaw): TechnologyDetails {
+	return {
+		...mapper(raw),
+		projectIds: raw.projectIds,
+	};
+}
+
 export function save(technology: SaveTechnology, id?: string): Promise<Technology> {
 	const axiosCall = id ? axios.put(`/auth/technology/${id}`, technology) : axios.post('/auth/technology', technology);
 	return axiosExtract<TechnologyRaw>(axiosCall)
@@ -26,6 +33,11 @@ export function save(technology: SaveTechnology, id?: string): Promise<Technolog
 
 export function del(id: string): Promise<void> {
 	return axiosExtract(axios.delete(`/auth/technology/${id}`));
+}
+
+export function get(id: string): Promise<TechnologyDetails> {
+	return axiosExtract<TechnologyDetailsRaw>(axios.get(`/auth/technology/${id}`))
+		.then((res) => detailsMapper(res));
 }
 export interface TechnologyRaw {
 	id: string,
@@ -39,6 +51,13 @@ export interface Technology {
 	userId: string,
 }
 
+export interface TechnologyDetailsRaw extends TechnologyRaw {
+	projectIds: string[],
+}
+
+export interface TechnologyDetails extends Technology {
+	projectIds: string[],
+}
 export interface SaveTechnology {
 	name: string,
 }

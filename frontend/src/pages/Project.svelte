@@ -98,10 +98,7 @@ import SaveActivityModal from '../modals/SaveActivityModal.svelte';
 		try {
 			details = await get(params.id);
 			client = $clients.find((c) => c.id === details.clientId);
-			timeSpent = details.activities.reduce(
-				(sum, curr) => sum.add(curr.timeSpent),
-				new Interval(0)
-			);
+			timeSpent = details.timeSpent;
 			technologyList = details.technologyIds.map((tId) =>
 				$technologies.find((t) => t.id === tId)
 			);
@@ -193,7 +190,10 @@ import SaveActivityModal from '../modals/SaveActivityModal.svelte';
 			<ul class="uk-list">
 				{#each details.timeSpentByCategory as tsbc}
 					<li>
-						{`${$categories.find((c) => c.id === tsbc.categoryId)?.name || __('N/A')}: ${printInterval(tsbc.timeSpent, $dayLength)}`}
+						{#if $categories.find((c) => c.id === tsbc.categoryId)}
+							<Anchor href={`/category/details/${$categories.find((c) => c.id === tsbc.categoryId).id}`}>{$categories.find((c) => c.id === tsbc.categoryId).name}</Anchor>:
+							{printInterval(tsbc.timeSpent, $dayLength)}
+						{/if}
 					</li>
 				{/each}
 			</ul>

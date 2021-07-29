@@ -2,6 +2,7 @@ import Home from './Home.svelte';
 import Activities from './Activities.svelte';
 import Activity from './Activity.svelte';
 import Categories from './Categories.svelte';
+import Category from './Category.svelte';
 import Client from './Client.svelte';
 import Clients from './Clients.svelte';
 import Companies from './Companies.svelte';
@@ -13,6 +14,7 @@ import Projects from './Projects.svelte';
 import Settings from './Settings.svelte';
 import Stats from './Stats.svelte';
 import Technologies from './Technologies.svelte';
+import Technology from './Technology.svelte';
 import NotFound from './NotFound.svelte';
 
 export default {
@@ -20,6 +22,7 @@ export default {
 	'/activity/all': Activities,
 	'/activity/details/:id': Activity,
 	'/category/all': Categories,
+	'/category/details/:id': Category,
 	'/client/all': Clients,
 	'/client/details/:id': Client,
 	'/company/all': Companies,
@@ -31,5 +34,6 @@ export default {
 	'/settings': Settings,
 	'/stats': Stats,
 	'/technology/all': Technologies,
+	'/technology/details/:id': Technology,
 	'*': NotFound,
 };
