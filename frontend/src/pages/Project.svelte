@@ -26,6 +26,7 @@ import { notifyErr } from '../helpers/notification';
 import { HttpStatus } from '../http/status';
 	import { __ } from "../i18n";
 import DeleteProjectModal from '../modals/DeleteProjectModal.svelte';
+import DownloadActivityReportModal from '../modals/DownloadActivityReportModal.svelte';
 import SaveActivityModal from '../modals/SaveActivityModal.svelte';
 	import SavePaymentModal from "../modals/SavePaymentModal.svelte";
 	import SaveProjectModal from "../modals/SaveProjectModal.svelte";
@@ -51,6 +52,7 @@ import SaveActivityModal from '../modals/SaveActivityModal.svelte';
 	let showDeleteModal = false;
 	let showAddPaymentModal = false;
 	let showAddActivityModal = false;
+	let showDownloadActivityReportModal = false;
 
 	/** @type {Partial<import('../DAL/payment').SavePayment> | null}*/
 	let newPaymentDetails = null;
@@ -61,6 +63,7 @@ import SaveActivityModal from '../modals/SaveActivityModal.svelte';
 	const actions = [
 		{ name: "edit", tooltip: __("Edit"), icon: "pencil" },
 		{ name: "delete", tooltip: __("Delete"), icon: "trash" },
+		{ name: "download", tooltip: __("Download"), icon: "download" },
 	];
 
 	const activityColumns = [
@@ -141,7 +144,8 @@ import SaveActivityModal from '../modals/SaveActivityModal.svelte';
 			<CardActions
 				{actions}
 				on:edit={() => (showUpdateModal = true)}
-				on:delete={() => (showDeleteModal = true)} />
+				on:delete={() => (showDeleteModal = true)}
+				on:download={() => (showDownloadActivityReportModal = true)} />
 			<h5>{__('Duration')}</h5>
 			<p>
 				{`${details.startDate.toLocaleString()} - ${details.endDate?.toLocaleString() ?? __('work in progress')}`}
@@ -315,4 +319,9 @@ import SaveActivityModal from '../modals/SaveActivityModal.svelte';
 	on:delete={() => pop()}
 	entity={details}
 	bind:show={showDeleteModal}
+/>
+
+<DownloadActivityReportModal
+	projectId={details?.id}
+	bind:show={showDownloadActivityReportModal}
 />

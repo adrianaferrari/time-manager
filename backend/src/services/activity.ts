@@ -3,14 +3,16 @@ import { Knex } from 'knex';
 import { DateOnly } from '@cdellacqua/date-only';
 import { Interval } from '@cdellacqua/interval';
 import BigNumber from 'bignumber.js';
+import { Readable } from 'stream';
 import {
-	findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId,
+	findAllGenerator, findAllStreamGenerator, findOneGenerator, fromQueryGenerator, fromQueryStreamGenerator, insertGetId,
 } from '../db/utils';
 import { uuid } from '../types/common';
 import { AsyncDataTableRequest, AsyncDataTableResponse } from '../types/async-data-table';
 import { define } from '../helpers/object';
 import * as category from './category';
 import * as project from './project';
+import knex from '../db';
 
 export const table = 'activity';
 
@@ -37,6 +39,9 @@ async function rowMapper(row: ActivityRaw): Promise<Activity> {
 export const find = findOneGenerator(table, columnNames, (row) => rowMapper(row));
 export const findAll = findAllGenerator(table, columnNames, (row) => rowMapper(row));
 export const fromQuery = fromQueryGenerator<Activity>(columnNames, (row) => rowMapper(row));
+
+export const findAllStream = findAllStreamGenerator(table, columnNames, (row) => rowMapper(row));
+export const fromQueryStream = fromQueryStreamGenerator(columnNames, (row) => rowMapper(row));
 
 export function create(activity: SaveActivity, trx?: Knex.Transaction): Promise<Activity> {
 	return transact([
@@ -164,6 +169,13 @@ export function timeSpentByFilterGrouped(
 			res.map(({ group, timeSpent }) => ({ group, timeSpent: new Interval(Number(timeSpent || 0)) })),
 		),
 	], trx);
+}
+
+export function findStreamFromDateRange(userId: uuid, from: DateOnly, to: DateOnly, projectId?: uuid): Readable {
+	return fromQueryStream(knex(table)
+		.where(define({ [cols.userId]: userId, [cols.projectId]: projectId }))
+		.where(cols.date, '<', to)
+		.where(cols.date, '>=', from));
 }
 
 export interface ActivityRaw {

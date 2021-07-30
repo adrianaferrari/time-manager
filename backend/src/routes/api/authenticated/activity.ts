@@ -1,6 +1,8 @@
 import { asyncWrapper } from '@cdellacqua/express-async-wrapper';
 import { Router } from 'express';
-import { param } from 'express-validator';
+import { body, param } from 'express-validator';
+import config from '../../../config';
+import { signUrl } from '../../../crypto/url';
 import { define } from '../../../helpers/object';
 import {
 	isActivity, isActivityFilter, isAsyncDataTableRequest, rejectOnFailedValidation, sanitizeActivity, sanitizeActivityFilter, sanitizeDataTableRequest,
@@ -53,6 +55,21 @@ r.get('/:id', [
 ], asyncWrapper(async (req, res) => {
 	const found = await activity.find(req.params.id);
 	res.json({ ...found });
+}));
+
+r.post('/csv', [
+	body('from').isDate(),
+	body('to').isDate(),
+	body('projectId').optional({ nullable: true, checkFalsy: true }).isUUID(),
+	rejectOnFailedValidation(),
+	verifyOwnershipMiddleware((req, _res) => define({
+		projectId: req.query.projectId,
+	})),
+], asyncWrapper(async (req, res) => {
+	const url = await signUrl(`/api/download/activity/${
+		res.locals.user.id
+	}/${req.body.from}/${req.body.to}/${req.body.projectId ?? ''}`, config.signedUrlExpirationSeconds);
+	res.status(201).send(url);
 }));
 
 r.get('/', [

@@ -4,7 +4,9 @@ const config = {
 	http: {
 		hostname: process.env.HOST!,
 		port: Number(process.env.PORT),
+		baseUrl: process.env.BASE_URL!,
 	},
+	signedUrlExpirationSeconds: Number(process.env.SIGNED_URL_EXPIRATION_SECONDS),
 	authentication: {
 		tokenExpirationSeconds: Number(process.env.JWT_EXPIRATION_SECONDS),
 	},
