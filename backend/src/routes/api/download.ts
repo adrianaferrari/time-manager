@@ -94,15 +94,15 @@ r.get('/activity/:userId/:from/:to', [
 						}
 						effort = rounded.plus(decimalRounding).toString();
 					} else if (req.query.roundTo === '0.5') {
-						const rounded = hours.decimalPlaces(0, BigNumber.ROUND_HALF_EVEN);
-						const decimalPlaces = hours.minus(rounded);
+						const integerPart = hours.decimalPlaces(0, BigNumber.ROUND_FLOOR);
+						const decimalPlaces = hours.minus(integerPart);
 						let decimalRounding = new BigNumber(0);
 						if (decimalPlaces.isGreaterThanOrEqualTo(0.25) && decimalPlaces.isLessThan(0.75)) {
 							decimalRounding = new BigNumber(0.5);
 						} else if (decimalRounding.isGreaterThanOrEqualTo(0.75)) {
 							decimalRounding = new BigNumber(1);
 						}
-						effort = rounded.plus(decimalRounding).toString();
+						effort = integerPart.plus(decimalRounding).toString();
 					} else {
 						effort = hours.toString();
 					}
