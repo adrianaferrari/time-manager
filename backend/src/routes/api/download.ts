@@ -85,11 +85,11 @@ r.get('/activity/:userId/:from/:to', [
 						let decimalRounding = new BigNumber(0);
 						if (decimalPlaces.isGreaterThanOrEqualTo(0.125) && decimalPlaces.isLessThan(0.375)) {
 							decimalRounding = new BigNumber(0.25);
-						} else if (decimalRounding.isGreaterThanOrEqualTo(0.375) && decimalPlaces.isLessThan(0.625)) {
+						} else if (decimalPlaces.isGreaterThanOrEqualTo(0.375) && decimalPlaces.isLessThan(0.625)) {
 							decimalRounding = new BigNumber(0.5);
-						} else if (decimalRounding.isGreaterThanOrEqualTo(0.625) && decimalPlaces.isLessThan(0.875)) {
+						} else if (decimalPlaces.isGreaterThanOrEqualTo(0.625) && decimalPlaces.isLessThan(0.875)) {
 							decimalRounding = new BigNumber(0.75);
-						} else if (decimalRounding.isGreaterThanOrEqualTo(0.875)) {
+						} else if (decimalPlaces.isGreaterThanOrEqualTo(0.875)) {
 							decimalRounding = new BigNumber(1);
 						}
 						effort = rounded.plus(decimalRounding).toString();
@@ -99,7 +99,7 @@ r.get('/activity/:userId/:from/:to', [
 						let decimalRounding = new BigNumber(0);
 						if (decimalPlaces.isGreaterThanOrEqualTo(0.25) && decimalPlaces.isLessThan(0.75)) {
 							decimalRounding = new BigNumber(0.5);
-						} else if (decimalRounding.isGreaterThanOrEqualTo(0.75)) {
+						} else if (decimalPlaces.isGreaterThanOrEqualTo(0.75)) {
 							decimalRounding = new BigNumber(1);
 						}
 						effort = integerPart.plus(decimalRounding).toString();
