@@ -117,6 +117,7 @@
 		</div>
 		<div class="uk-width-1-2@s uk-width-1-1 uk-flex uk-flex-bottom">
 			<Autocomplete
+				style="flex: 1;"
 				label={__('Category')}
 				options={$categories.map((c) => ({ label: c.name, value: c.id }))}
 				value={toSave.categoryId}
@@ -131,6 +132,7 @@
 		<div class="uk-width-1-2@s uk-width-1-1 uk-flex uk-flex-bottom">
 			<Autocomplete
 				label={__('Project')}
+				style="flex: 1;"
 				options={$projects.map((p) => ({ label: p.name, value: p.id }))}
 				value={toSave.projectId}
 				optional

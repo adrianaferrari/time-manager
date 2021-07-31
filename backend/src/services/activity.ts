@@ -171,11 +171,23 @@ export function timeSpentByFilterGrouped(
 	], trx);
 }
 
-export function findStreamFromDateRange(userId: uuid, from: DateOnly, to: DateOnly, projectId?: uuid): Readable {
-	return fromQueryStream(knex(table)
-		.where(define({ [cols.userId]: userId, [cols.projectId]: projectId }))
+export function findStreamFromDateRange(userId: uuid, from: DateOnly, to: DateOnly, projectId?: uuid, categoryIds?: uuid[]): Readable {
+	return knex(table)
+		.join(category.table, `${table}.${cols.categoryId}`, `${category.table}.${category.cols.id}`)
+		.where(`${table}.${cols.userId}`, userId)
 		.where(cols.date, '<', to)
-		.where(cols.date, '>=', from));
+		.where(cols.date, '>=', from)
+		.where((builder) => {
+			if (categoryIds && categoryIds.length) {
+				builder.whereIn(cols.categoryId, categoryIds);
+			}
+			if (projectId) {
+				builder.where(cols.projectId, projectId);
+			}
+		})
+		.orderBy(cols.date)
+		.select([cols.date, cols.timeSpent, cols.description, `${category.cols.name} as category`])
+		.stream();
 }
 
 export interface ActivityRaw {

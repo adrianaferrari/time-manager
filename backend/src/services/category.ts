@@ -57,6 +57,13 @@ export function isOwned(id: uuid, userId: uuid, trx?: Knex.Transaction): Promise
 	return find({ id, userId }, trx).then((res) => !!res);
 }
 
+export function areOwned(ids: uuid[], userId: uuid, trx?: Knex.Transaction): Promise<boolean> {
+	return transact([
+		(db) => fromQuery(db(table).where({ userId }).whereIn(cols.id, ids))
+			.then((found) => found.length === ids.length),
+	], trx);
+}
+
 export function alreadyExists(name: string, userId: uuid, id?: uuid, trx?: Knex.Transaction): Promise<boolean> {
 	return find({ name, userId }, trx).then((res) => (res ? res.id !== id : false));
 }

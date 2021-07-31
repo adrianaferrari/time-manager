@@ -65,7 +65,7 @@ $: entity, loadData(entity);
 </script>
 <Form {submitAsync}>
 	<div uk-grid class="uk-grid-column-small uk-grid-row-collapse">
-		<div class="uk-width-1-2">
+		<div class="uk-width-1-2@s uk-width-1-1">
 			<EmailInput 
 				value={toSave.email}
 				maxlength={150}
@@ -74,9 +74,10 @@ $: entity, loadData(entity);
 				label={__("Email")}
 			/>
 		</div>
-		<div class="uk-width-1-2 uk-flex uk-flex-bottom">
+		<div class="uk-width-1-2@s uk-width-1-1 uk-flex uk-flex-bottom">
 			<Autocomplete 
 				label={__("Company")}
+				style="flex: 1;"
 				optional
 				options={$companies.map((c) => ({ value: c.id, label: c.name }))}
 				value={toSave.companyId}
@@ -89,7 +90,7 @@ $: entity, loadData(entity);
 					icon="plus" />
 			</span>
 		</div>
-		<div class="uk-width-1-2">
+		<div class="uk-width-1-2@s uk-width-1-1">
 			<TextInput 
 				value={toSave.firstName}
 				minlength={1}
@@ -98,7 +99,7 @@ $: entity, loadData(entity);
 				label={__("First name")}
 			/>
 		</div>
-		<div class="uk-width-1-2">
+		<div class="uk-width-1-2@s uk-width-1-1">
 			<TextInput 
 				minlength={1}
 				maxlength={100}

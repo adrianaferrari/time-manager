@@ -38,6 +38,14 @@ function verifyOwnershipMiddleware(paramsExtractor: ((req: Request, res: Respons
 							}
 						});
 				case OwnedEntity.category:
+					if (typeof ownerships[key] !== 'string') {
+						return category.areOwned(ownerships[key]! as uuid[], userId)
+							.then((res) => {
+								if (!res) {
+									throw new HttpError(HttpStatus.Forbidden, 'some categories are not owned by this user');
+								}
+							});
+					}
 					return category.isOwned(ownerships[key]! as uuid, userId)
 						.then((res) => {
 							if (!res) {

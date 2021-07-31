@@ -5,10 +5,11 @@ import { pipeline, Transform } from 'stream';
 import BigNumber from 'bignumber.js';
 import { DateOnly } from '@cdellacqua/date-only';
 import { Interval } from '@cdellacqua/interval';
-import { param } from 'express-validator';
+import { param, query } from 'express-validator';
 import { rejectOnFailedValidation } from '../../helpers/validator';
 import * as activity from '../../services/activity';
 import { verifyUrlMiddleware } from '../../crypto/url';
+import { uuid } from '../../types/common';
 
 const r: Router = Router();
 export default r;
@@ -36,35 +37,80 @@ function streamCsv() {
 	});
 }
 
-r.get('/activity/:userId/:from/:to/:projectId', [
+r.get('/activity/:userId/:from/:to', [
 	param('userId').isUUID(),
 	param('from').isDate(),
 	param('to').isDate(),
-	param('projectId').optional({ nullable: true, checkFalsy: true }).isUUID(),
+	query('projectId').optional({ nullable: true, checkFalsy: true }).isUUID(),
+	query('categoryIds').optional({ nullable: true, checkFalsy: true }),
+	query('roundTo').isNumeric(),
 	rejectOnFailedValidation(),
 ], asyncWrapper(async (req, res, next) => {
 	const from = new DateOnly(req.params.from as string);
 	const to = new DateOnly(req.params.to as string);
 	res.header(
 		'Content-Disposition',
-		`attachment; filename="${from.toString()}_${to.toString()}${req.params.projectId ? `_${req.params.projectId}` : ''}.csv"`,
+		`attachment; filename="${from.toString()}_${to.toString()}.csv"`,
 	);
 	res.header('Content-Type', 'text/csv; charset=utf-8');
+	let categoryIds: uuid[] | undefined;
+	if (req.query.categoryIds && typeof req.query.categoryIds === 'string') {
+		categoryIds = [req.query.categoryIds];
+	} else if (req.query.categoryIds && req.query.categoryIds.length) {
+		categoryIds = req.query.categoryIds as uuid[];
+	}
 	pipeline(
 		activity.findStreamFromDateRange(
 			req.params.userId,
 			from,
 			to,
-			(req.params.projectId ?? undefined) as string | undefined,
+			(req.query.projectId ?? undefined) as uuid | undefined,
+			categoryIds,
 		),
 		new Transform({
 			objectMode: true,
 			transform(a, _, done) {
 				try {
+					const hours = new BigNumber(a.timeSpent).dividedBy(3600);
+					let effort;
+					if (req.query.roundTo === '0.1') {
+						effort = hours.toFixed(1, BigNumber.ROUND_HALF_EVEN);
+					} else if (req.query.roundTo === '0.01') {
+						effort = hours.toFixed(2, BigNumber.ROUND_HALF_EVEN);
+					} else if (req.query.roundTo === '1') {
+						effort = hours.toFixed(0, BigNumber.ROUND_HALF_EVEN);
+					} else if (req.query.roundTo === '0.25') {
+						const rounded = hours.decimalPlaces(0, BigNumber.ROUND_HALF_EVEN);
+						const decimalPlaces = hours.minus(rounded);
+						let decimalRounding = new BigNumber(0);
+						if (decimalPlaces.isGreaterThanOrEqualTo(0.125) && decimalPlaces.isLessThan(0.375)) {
+							decimalRounding = new BigNumber(0.25);
+						} else if (decimalRounding.isGreaterThanOrEqualTo(0.375) && decimalPlaces.isLessThan(0.625)) {
+							decimalRounding = new BigNumber(0.5);
+						} else if (decimalRounding.isGreaterThanOrEqualTo(0.625) && decimalPlaces.isLessThan(0.875)) {
+							decimalRounding = new BigNumber(0.75);
+						} else if (decimalRounding.isGreaterThanOrEqualTo(0.875)) {
+							decimalRounding = new BigNumber(1);
+						}
+						effort = rounded.plus(decimalRounding).toString();
+					} else if (req.query.roundTo === '0.5') {
+						const rounded = hours.decimalPlaces(0, BigNumber.ROUND_HALF_EVEN);
+						const decimalPlaces = hours.minus(rounded);
+						let decimalRounding = new BigNumber(0);
+						if (decimalPlaces.isGreaterThanOrEqualTo(0.25) && decimalPlaces.isLessThan(0.75)) {
+							decimalRounding = new BigNumber(0.5);
+						} else if (decimalRounding.isGreaterThanOrEqualTo(0.75)) {
+							decimalRounding = new BigNumber(1);
+						}
+						effort = rounded.plus(decimalRounding).toString();
+					} else {
+						effort = hours.toString();
+					}
 					this.push({
 						date: a.date,
-						effort: a.timeSpent,
+						effort,
 						description: a.description,
+						category: a.category,
 					});
 					done();
 				} catch (err) {

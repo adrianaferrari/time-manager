@@ -61,14 +61,23 @@ r.post('/csv', [
 	body('from').isDate(),
 	body('to').isDate(),
 	body('projectId').optional({ nullable: true, checkFalsy: true }).isUUID(),
+	body('categoryIds').optional({ nullable: true, checkFalsy: true }).isArray(),
+	body('categoryIds.*').isUUID(),
+	body('roundTo').isNumeric(),
 	rejectOnFailedValidation(),
 	verifyOwnershipMiddleware((req, _res) => define({
-		projectId: req.query.projectId,
+		projectId: req.body.projectId ?? undefined,
+		category: req.body.categoryIds?.lenght ? req.body.categoryIds : undefined,
 	})),
 ], asyncWrapper(async (req, res) => {
+	const queryParams = new URLSearchParams([
+		['projectId', req.body.projectId],
+		['categoryIds', req.body.categoryIds],
+		['roundTo', req.body.roundTo],
+	]);
 	const url = await signUrl(`/api/download/activity/${
 		res.locals.user.id
-	}/${req.body.from}/${req.body.to}/${req.body.projectId ?? ''}`, config.signedUrlExpirationSeconds);
+	}/${req.body.from}/${req.body.to}?${queryParams.toString()}`, config.signedUrlExpirationSeconds);
 	res.status(201).send(url);
 }));
 
