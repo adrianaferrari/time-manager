@@ -20,7 +20,9 @@ import Anchor from './Anchor.svelte';
 	<div class="uk-navbar-left">
 			<ul class="uk-navbar-nav">
 					<li class:uk-active={$location === '/'}>
-						<a href=""></a>
+						<a href="/" class="uk-navbar-item uk-logo">
+							<img src="assets/img/logo/64.png" />
+						</a>
 					</li>
 			</ul>
 	</div>
@@ -28,7 +30,7 @@ import Anchor from './Anchor.svelte';
 		<ul class="uk-navbar-nav">
 			{#if $size > Size.m}
 				{#each entries as entry}
-					<li class:uk-active={$location.startsWith(entry.href)}><a href={entry.href} use:link>{entry.label}</a></li>
+					<li class:uk-active={$location.startsWith(entry.href.replace('/all', ''))}><a href={entry.href} use:link>{entry.label}</a></li>
 				{/each}
 			{:else}
 				<li>

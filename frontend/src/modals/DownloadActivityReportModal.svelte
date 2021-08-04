@@ -11,6 +11,7 @@
 Select,
 	} from "custom-uikit-svelte";
 	import { tick } from "svelte";
+import IconButton from '../components/IconButton.svelte';
 import { categories } from '../DAL/category';
 	import { projects } from "../DAL/project";
 	import { axiosExtract, statusMatch } from "../helpers/axios";
@@ -19,8 +20,9 @@ import { categories } from '../DAL/category';
 	export let show = false;
 	export let from = new DateOnly()
 		.subMonths(1)
-		.subDays(new DateOnly().date - 1);
-	export let to = new DateOnly().subDays(new DateOnly().date - 1);
+		.subDays(new DateOnly().date - 1)
+		.toString();
+	export let to = new DateOnly().subDays(new DateOnly().date - 1).toString();
 	export let projectId = undefined;
 	export let categoryIds = [];
 	let roundTo = "0.5";
@@ -38,24 +40,56 @@ import { categories } from '../DAL/category';
 			statusMatch(err);
 		}
 	}
+
+	function decrease(dateString) {
+		const dateOnly = dateString ? new DateOnly(dateString) : new DateOnly();
+		return dateOnly.subMonths(1).toString();
+	}
+
+	function increase(dateString) {
+		const dateOnly = dateString ? new DateOnly(dateString) : new DateOnly();
+		return dateOnly.addMonths(1).toString();
+	}
 </script>
 
 <Modal bind:show title={__('Download activity report')}>
 	<Form submitAsync={handleDownload}>
 		<div uk-grid class="uk-grid-small">
-			<div class="uk-width-1-2">
+			<div class="uk-width-1-1 uk-flex uk-flex-bottom">
+				<IconButton 
+					icon="minus"
+					className="uk-margin-bottom uk-margin-small-right"
+					on:click={() => from = decrease(from)}
+				/>
 				<DatePicker
 					label={__('From (included)')}
 					value={from}
+					style="flex: 1;"
 					max={to}
 					on:change={({ target }) => (from = target.value)} />
+				<IconButton 
+					icon="plus"
+					className="uk-margin-bottom uk-margin-small-left"
+					on:click={() => from = increase(from)}
+				/>
 			</div>
-			<div class="uk-width-1-2">
+			<div class="uk-width-1-1 uk-flex uk-flex-bottom">
+				<IconButton 
+					icon="minus"
+					className="uk-margin-bottom uk-margin-small-right"
+					on:click={() => to = decrease(to)}
+				/>
 				<DatePicker
 					label={__('To (excluded)')}
+					style="flex: 1;"
 					value={to}
 					min={from}
 					on:change={({ target }) => (to = target.value)} />
+				<IconButton 
+					icon="plus"
+					className="uk-margin-bottom uk-margin-small-left"
+					on:click={() => to = increase(to)}
+				/>
 			</div>
 			<div class="uk-width-1-2">
 				<Autocomplete

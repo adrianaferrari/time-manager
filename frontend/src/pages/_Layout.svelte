@@ -11,4 +11,10 @@ import routes from './_routes';
 	<StackRouter {routes} transitionFn={slide(300)}/>
 </main>
 
-<footer />
+<footer>
+	<div class="uk-padding uk-text-center">
+		<span class="uk-text-small">
+			<span class="uk-text-primary uk-text-bold">Time Manager</span> by Adriana Ferrari © 2021
+		</span>
+	</div>
+</footer>

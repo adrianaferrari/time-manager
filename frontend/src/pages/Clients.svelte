@@ -1,8 +1,14 @@
 <script>
-	import { Breadcrumb, Button, DataTable, LoaderWrapper } from "custom-uikit-svelte";
-import { push } from 'svelte-stack-router';
+	import {
+		Breadcrumb,
+		Button,
+		Card,
+		DataTable,
+		LoaderWrapper,
+	} from "custom-uikit-svelte";
+	import { push } from "svelte-stack-router";
 	import { derived } from "svelte/store";
-import IconButton from '../components/IconButton.svelte';
+	import IconButton from "../components/IconButton.svelte";
 	import { clients } from "../DAL/client";
 	import { companies } from "../DAL/company";
 	import { __ } from "../i18n";
@@ -43,11 +49,11 @@ import IconButton from '../components/IconButton.svelte';
 			render: (id) => ({
 				component: IconButton,
 				props: {
-					icon: 'chevron-right',
+					icon: "chevron-right",
 				},
-				onClick: () => push(`/client/details/${id}`)
-			})
-		}
+				onClick: () => push(`/client/details/${id}`),
+			}),
+		},
 	];
 
 	let rows = [];
@@ -66,20 +72,24 @@ import IconButton from '../components/IconButton.svelte';
 
 <LoaderWrapper loading={$loading}>
 	<Breadcrumb
-		path={[{ label: __("Home"), href: '/#' }, { label: __('Clients') }]} />
+		path={[{ label: __('Home'), href: '/#' }, { label: __('Clients') }]} />
 	<div class="uk-container">
-		<DataTable
-			{columns}
-			{rows}
-			on:row-dblclick={({ detail }) => ((selected = detail), (showUpdateModal = true))} />
+		<Card>
+			<DataTable
+				{columns}
+				{rows}
+				recordsPerPage={15}
+				on:row-dblclick={({ detail }) => ((selected = detail), (showUpdateModal = true))} />
+		</Card>
 	</div>
 </LoaderWrapper>
 
 <AppendToBody>
-	<Button
+	<IconButton
 		style="position: fixed; right: 15px; bottom: 15px;"
 		icon="plus"
-		variant="secondary"
+		tooltip={`title: ${__("Add client")}; pos: left;`}
+		className="icon-button-secondary icon-button-large"
 		on:click={() => (showCreateModal = true)} />
 </AppendToBody>
 

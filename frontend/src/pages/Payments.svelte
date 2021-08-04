@@ -1,9 +1,15 @@
 <script>
 	import { DateOnly } from "@cdellacqua/date-only";
 	import BigNumber from "bignumber.js";
-	import { AsyncDataTable, Breadcrumb, Button, LoaderWrapper } from "custom-uikit-svelte";
-import { onResume, push } from 'svelte-stack-router';
-import IconButton from '../components/IconButton.svelte';
+	import {
+		AsyncDataTable,
+		Breadcrumb,
+		Button,
+		Card,
+		LoaderWrapper,
+	} from "custom-uikit-svelte";
+	import { onResume, push } from "svelte-stack-router";
+	import IconButton from "../components/IconButton.svelte";
 	import * as payment from "../DAL/payment";
 	import { projects } from "../DAL/project";
 	import { statusMatch } from "../helpers/axios";
@@ -51,11 +57,11 @@ import IconButton from '../components/IconButton.svelte';
 			render: (id, { projectId }) => ({
 				component: IconButton,
 				props: {
-					icon: 'chevron-right',
+					icon: "chevron-right",
 				},
-				onClick: () => push(`/project/${projectId}/payment/details/${id}`)
-			})
-		}
+				onClick: () => push(`/project/${projectId}/payment/details/${id}`),
+			}),
+		},
 	];
 
 	const loading = projects.refreshing;
@@ -75,27 +81,30 @@ import IconButton from '../components/IconButton.svelte';
 		if (resumeParams?.refresh) {
 			dataTable.reload();
 		}
-	})
+	});
 </script>
 
 <LoaderWrapper loading={$loading}>
 	<Breadcrumb
-		path={[{ label: __("Home"), href: '/#' }, { label: __('Payments') }]} />
+		path={[{ label: __('Home'), href: '/#' }, { label: __('Payments') }]} />
 	<div class="uk-container">
-		<AsyncDataTable
-			{dataProvider}
-			{dataProviderErrorHandler}
-			{columns}
-			bind:this={dataTable}
-			on:row-dblclick={({ detail }) => ((selected = detail), (showUpdateModal = true))} />
+		<Card>
+			<AsyncDataTable
+				{dataProvider}
+				{dataProviderErrorHandler}
+				{columns}
+				bind:this={dataTable}
+				on:row-dblclick={({ detail }) => ((selected = detail), (showUpdateModal = true))} />
+		</Card>
 	</div>
 </LoaderWrapper>
 
 <AppendToBody>
-	<Button
+	<IconButton
 		style="position: fixed; right: 15px; bottom: 15px;"
 		icon="plus"
-		variant="secondary"
+		tooltip={`title: ${__("Add payment")}; pos: left;`}
+		className="icon-button-secondary icon-button-large"
 		on:click={() => (showCreateModal = true)} />
 </AppendToBody>
 <SavePaymentModal

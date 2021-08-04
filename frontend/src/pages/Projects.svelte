@@ -1,14 +1,20 @@
 <script>
 	import { DateOnly } from "@cdellacqua/date-only";
 
-	import { Breadcrumb, Button, DataTable, LoaderWrapper } from "custom-uikit-svelte";
-import { push } from 'svelte-stack-router';
-import IconButton from '../components/IconButton.svelte';
+	import {
+		Breadcrumb,
+		Button,
+		Card,
+		DataTable,
+		LoaderWrapper,
+	} from "custom-uikit-svelte";
+	import { push } from "svelte-stack-router";
+	import IconButton from "../components/IconButton.svelte";
 	import { clients } from "../DAL/client";
 	import { projects } from "../DAL/project";
 	import { technologies } from "../DAL/technology";
 	import { dayLength } from "../DAL/user";
-import { printInterval } from '../helpers/interval';
+	import { printInterval } from "../helpers/interval";
 	import { __ } from "../i18n";
 	import SaveProjectModal from "../modals/SaveProjectModal.svelte";
 	import AppendToBody from "../router-aware/AppendToBody.svelte";
@@ -74,11 +80,11 @@ import { printInterval } from '../helpers/interval';
 			render: (id) => ({
 				component: IconButton,
 				props: {
-					icon: 'chevron-right',
+					icon: "chevron-right",
 				},
-				onClick: () => push(`/project/details/${id}`)
-			})
-		}
+				onClick: () => push(`/project/details/${id}`),
+			}),
+		},
 	];
 
 	let rows = [];
@@ -94,22 +100,24 @@ import { printInterval } from '../helpers/interval';
 	$: $projects, $dayLength, updateRows();
 </script>
 
-<LoaderWrapper loading={$loading}>
-	<Breadcrumb
-		path={[{ label: __("Home"), href: '/#' }, { label: __('Projects') }]} />
-	<div class="uk-container">
+<Breadcrumb
+path={[{ label: __('Home'), href: '/#' }, { label: __('Projects') }]} />
+<div class="uk-container">
+	<Card>
 		<DataTable
 			{columns}
 			{rows}
+			recordsPerPage={15}
 			on:row-dblclick={({ detail }) => ((selected = detail), (showUpdateModal = true))} />
-	</div>
-</LoaderWrapper>
+	</Card>
+</div>
 
 <AppendToBody>
-	<Button
+	<IconButton
 		style="position: fixed; right: 15px; bottom: 15px;"
 		icon="plus"
-		variant="secondary"
+		tooltip={`title: ${__("Add project")}; pos: left;`}
+		className="icon-button-secondary icon-button-large"
 		on:click={() => (showCreateModal = true)} />
 </AppendToBody>
 

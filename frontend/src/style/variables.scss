@@ -1,7 +1,7 @@
 $nav-header-text-transform: none;
 $offcanvas-bar-color-mode: dark;
 $offcanvas-bar-background: var(--global-background);
-$button-border-radius: 5px;
+$button-border-radius: 1000px;
 $global-box-shadow: 0 1px 3px 0 var(--global-background-darken);
 $card-default-box-shadow: $global-box-shadow;
 $global-small-box-shadow: $global-box-shadow;
@@ -12,6 +12,7 @@ $form-radio-checked-icon-color: #e6ebf1;
 $global-font-family: 'Rubik', -apple-system, sans-serif;
 $tab-margin-horizontal: 0;
 $global-gutter: 20px;
+$global-control-height: 35px;
 
 $navbar-nav-item-height: 2.5em;
 

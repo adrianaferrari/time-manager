@@ -8,6 +8,7 @@
 		Breadcrumb,
 		DatePicker,
 		LoaderWrapper,
+		Card,
 	} from "custom-uikit-svelte";
 	import { onResume, push } from "svelte-stack-router";
 	import { derived } from "svelte/store";
@@ -20,8 +21,8 @@
 	import SaveActivityModal from "../modals/SaveActivityModal.svelte";
 	import AppendToBody from "../router-aware/AppendToBody.svelte";
 
-	let from = undefined;
-	let to = undefined;
+	let from = new DateOnly().subDays(new DateOnly().date - 1).toString();
+	let to = new DateOnly().toString();
 	let categoryId = undefined;
 	let projectId = undefined;
 
@@ -104,44 +105,49 @@
 </script>
 
 <LoaderWrapper loading={$loading}>
-	<Breadcrumb path={[{ label: __("Home"), href: '/#' }, { label: __('Activities') }]} />
+	<Breadcrumb
+		path={[{ label: __('Home'), href: '/#' }, { label: __('Activities') }]} />
 	<div class="uk-container">
-		<div class="uk-flex uk-flex-wrap">
-			<div class="uk-width-1-4@m uk-width-1-2">
-				<DatePicker optional label={__('From')} bind:value={from} />
+		<Card>
+			<div class="uk-flex uk-flex-wrap">
+				<div class="uk-width-1-4@m uk-width-1-2">
+					<DatePicker optional label={__('From')} bind:value={from} />
+				</div>
+				<div class="uk-width-1-4@m uk-width-1-2">
+					<DatePicker optional label={__('To')} bind:value={to} />
+				</div>
+				<div class="uk-width-1-4@m uk-width-1-2">
+					<Autocomplete
+						optional
+						label={__('Category')}
+						options={$categories.map((c) => ({ label: c.name, value: c.id }))}
+						bind:value={categoryId} />
+				</div>
+				<div class="uk-width-1-4@m uk-width-1-2">
+					<Autocomplete
+						label={__('Project')}
+						options={$projects.map((p) => ({ label: p.name, value: p.id }))}
+						bind:value={projectId}
+						optional />
+				</div>
 			</div>
-			<div class="uk-width-1-4@m uk-width-1-2">
-				<DatePicker optional label={__('To')} bind:value={to} />
-			</div>
-			<div class="uk-width-1-4@m uk-width-1-2">
-				<Autocomplete
-					optional
-					label={__('Category')}
-					options={$categories.map((c) => ({ label: c.name, value: c.id }))}
-					bind:value={categoryId} />
-			</div>
-			<div class="uk-width-1-4@m uk-width-1-2">
-				<Autocomplete
-					label={__('Project')}
-					options={$projects.map((p) => ({ label: p.name, value: p.id }))}
-					bind:value={projectId}
-					optional />
-			</div>
-		</div>
-		<AsyncDataTable
-			{dataProvider}
-			{dataProviderErrorHandler}
-			{columns}
-			bind:this={dataTable}
-			on:row-dblclick={({ detail }) => ((selected = detail), (showUpdateModal = true))} />
+			<AsyncDataTable
+				{dataProvider}
+				{dataProviderErrorHandler}
+				{columns}
+				noResultText={__("No activities found matching these filters")}
+				bind:this={dataTable}
+				on:row-dblclick={({ detail }) => ((selected = detail), (showUpdateModal = true))} />
+		</Card>
 	</div>
 </LoaderWrapper>
 
 <AppendToBody>
-	<Button
+	<IconButton
 		style="position: fixed; right: 15px; bottom: 15px;"
 		icon="plus"
-		variant="secondary"
+		tooltip={`title: ${__("Add activity")}; pos: left;`}
+		className="icon-button-secondary icon-button-large"
 		on:click={() => (showCreateModal = true)} />
 </AppendToBody>
 

@@ -1,9 +1,9 @@
 <script>
-	import { Breadcrumb, Button } from "custom-uikit-svelte";
+	import { Breadcrumb, Button, Card } from "custom-uikit-svelte";
 	import { push } from "svelte-stack-router";
-import Anchor from '../components/Anchor.svelte';
+	import Anchor from "../components/Anchor.svelte";
 	import { __ } from "../i18n";
-import DownloadActivityReportModal from '../modals/DownloadActivityReportModal.svelte';
+	import DownloadActivityReportModal from "../modals/DownloadActivityReportModal.svelte";
 	import SaveActivityModal from "../modals/SaveActivityModal.svelte";
 	import SaveCategoryModal from "../modals/SaveCategoryModal.svelte";
 	import SaveClientModal from "../modals/SaveClientModal.svelte";
@@ -24,39 +24,105 @@ import DownloadActivityReportModal from '../modals/DownloadActivityReportModal.s
 
 <Breadcrumb path={[{ label: __('Home') }]} />
 <div class="uk-container">
-	<h4>{__('Shortcuts')}</h4>
-	<Button className="uk-margin-small-bottom" on:click={() => (showAddActivityModal = true)} icon="plus">
-		{__('New activity')}
-	</Button>
-	<Button className="uk-margin-small-bottom" on:click={() => (showAddCategoryModal = true)} icon="plus">
-		{__('New category')}
-	</Button>
-	<Button className="uk-margin-small-bottom" on:click={() => (showAddClientModal = true)} icon="plus">
-		{__('New client')}
-	</Button>
-	<Button className="uk-margin-small-bottom" on:click={() => (showAddCompanyModal = true)} icon="plus">
-		{__('New company')}
-	</Button>
-	<Button className="uk-margin-small-bottom" on:click={() => (showAddPaymentModal = true)} icon="plus">
-		{__('New payment')}
-	</Button>
-	<Button className="uk-margin-small-bottom" on:click={() => (showAddProjectModal = true)} icon="plus">
-		{__('New project')}
-	</Button>
-	<Button className="uk-margin-small-bottom" on:click={() => (showAddTechnologyModal = true)} icon="plus">
-		{__('New technology')}
-	</Button>
-	<h4>{__('Pages')}</h4>
-	<Anchor className="uk-margin-small-bottom uk-button uk-button-default" href='/activity/all'>{__('Activities')}</Anchor>
-	<Anchor className="uk-margin-small-bottom uk-button uk-button-default" href='/category/all'>{__('Categories')}</Anchor>
-	<Anchor className="uk-margin-small-bottom uk-button uk-button-default" href='/client/all'>{__('Clients')}</Anchor>
-	<Anchor className="uk-margin-small-bottom uk-button uk-button-default" href='/company/all'>{__('Companies')}</Anchor>
-	<Anchor className="uk-margin-small-bottom uk-button uk-button-default" href='/payment/all'>{__('Payments')}</Anchor>
-	<Anchor className="uk-margin-small-bottom uk-button uk-button-default" href='/project/all'>{__('Projects')}</Anchor>
-	<Anchor className="uk-margin-small-bottom uk-button uk-button-default" href='/stats'>{__('Stats')}</Anchor>
-	<Anchor className="uk-margin-small-bottom uk-button uk-button-default" href='/technology/all'>{__('Technologies')}</Anchor>
-	<h4>{__('Reports')}</h4>
-	<Button className="uk-margin-small-bottom" icon="donwload" on:click={() => showDownloadActivityReportModal = true}>{__("Activity")}</Button>
+	<Card className="uk-text-left@s uk-text-center">
+		<h4>{__('Shortcuts')}</h4>
+		<div>
+			<Button
+				className="uk-margin-small-bottom"
+				on:click={() => (showAddActivityModal = true)}
+				icon="plus">
+				{__('New activity')}
+			</Button>
+			<Button
+				className="uk-margin-small-bottom"
+				on:click={() => (showAddCategoryModal = true)}
+				icon="plus">
+				{__('New category')}
+			</Button>
+			<Button
+				className="uk-margin-small-bottom"
+				on:click={() => (showAddClientModal = true)}
+				icon="plus">
+				{__('New client')}
+			</Button>
+			<Button
+				className="uk-margin-small-bottom"
+				on:click={() => (showAddCompanyModal = true)}
+				icon="plus">
+				{__('New company')}
+			</Button>
+			<Button
+				className="uk-margin-small-bottom"
+				on:click={() => (showAddPaymentModal = true)}
+				icon="plus">
+				{__('New payment')}
+			</Button>
+			<Button
+				className="uk-margin-small-bottom"
+				on:click={() => (showAddProjectModal = true)}
+				icon="plus">
+				{__('New project')}
+			</Button>
+			<Button
+				className="uk-margin-small-bottom"
+				on:click={() => (showAddTechnologyModal = true)}
+				icon="plus">
+				{__('New technology')}
+			</Button>
+		</div>
+		<h4>{__('Pages')}</h4>
+		<div>
+			<Anchor
+				className="uk-margin-small-bottom uk-button uk-button-default"
+				href="/activity/all">
+				{__('Activities')}
+			</Anchor>
+			<Anchor
+				className="uk-margin-small-bottom uk-button uk-button-default"
+				href="/category/all">
+				{__('Categories')}
+			</Anchor>
+			<Anchor
+				className="uk-margin-small-bottom uk-button uk-button-default"
+				href="/client/all">
+				{__('Clients')}
+			</Anchor>
+			<Anchor
+				className="uk-margin-small-bottom uk-button uk-button-default"
+				href="/company/all">
+				{__('Companies')}
+			</Anchor>
+			<Anchor
+				className="uk-margin-small-bottom uk-button uk-button-default"
+				href="/payment/all">
+				{__('Payments')}
+			</Anchor>
+			<Anchor
+				className="uk-margin-small-bottom uk-button uk-button-default"
+				href="/project/all">
+				{__('Projects')}
+			</Anchor>
+			<Anchor
+				className="uk-margin-small-bottom uk-button uk-button-default"
+				href="/stats">
+				{__('Stats')}
+			</Anchor>
+			<Anchor
+				className="uk-margin-small-bottom uk-button uk-button-default"
+				href="/technology/all">
+				{__('Technologies')}
+			</Anchor>
+		</div>
+		<h4>{__('Reports')}</h4>
+		<div>
+			<Button
+				className="uk-margin-small-bottom"
+				icon="donwload"
+				on:click={() => (showDownloadActivityReportModal = true)}>
+				{__('Activity')}
+			</Button>
+		</div>
+	</Card>
 </div>
 
 <SaveActivityModal
@@ -87,6 +153,4 @@ import DownloadActivityReportModal from '../modals/DownloadActivityReportModal.s
 	bind:show={showAddTechnologyModal}
 	on:save={() => push('/technology/all')} />
 
-<DownloadActivityReportModal 
-	bind:show={showDownloadActivityReportModal}
-/>
+<DownloadActivityReportModal bind:show={showDownloadActivityReportModal} />

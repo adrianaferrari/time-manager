@@ -1,5 +1,5 @@
 <script>
-	import { Breadcrumb, Button, LoaderWrapper } from "custom-uikit-svelte";
+	import { Breadcrumb, Button, Card, LoaderWrapper } from "custom-uikit-svelte";
 import { push } from 'svelte-stack-router';
 	import { technologies } from "../DAL/technology";
 	import { __ } from "../i18n";
@@ -34,55 +34,60 @@ import { push } from 'svelte-stack-router';
 	<Breadcrumb
 		path={[{ label: __("Home"), href: '/#' }, { label: __('Technologies') }]} />
 	<div class="uk-container">
-		<div uk-grid class="uk-grid-small">
-			<div class="uk-width-5-6@l uk-width-4-5@m uk-width-3-4">
-				<div class="uk-flex uk-flex-wrap">
-					{#each $technologies as technology}
+		<Card>
+			<div uk-grid class="uk-grid-small">
+				<div class="uk-width-5-6@l uk-width-4-5@m uk-width-3-4">
+					<legend class="uk-text-italic uk-margin-small-bottom">
+						{__("Click on a technology to edit it, delete it or go to its details page.")}
+					</legend>
+					<div class="uk-flex uk-flex-wrap">
+						{#each $technologies as technology}
+							<Button
+								className="uk-margin-right uk-margin-bottom"
+								variant={selected === technology ? 'secondary' : 'default'}
+								on:click={(e) => select(e, technology)}>
+								{technology.name}
+							</Button>
+						{/each}
+					</div>
+				</div>
+				<div class="uk-width-1-6@l uk-width-1-5@m uk-width-1-4">
+					<div>
 						<Button
-							className="uk-margin-right uk-margin-bottom"
-							variant={selected === technology ? 'secondary' : 'default'}
-							on:click={(e) => select(e, technology)}>
-							{technology.name}
+							className="uk-width-1-1@s"
+							variant="secondary"
+							icon="plus"
+							on:click={(e) => (e.stopPropagation(), (showCreateModal = true))}>
+							{$size > Size.xs ? __('New') : ''}
 						</Button>
-					{/each}
+						<Button
+							className="uk-width-1-1@s uk-margin-small-top"
+							disabled={!selected}
+							variant="primary"
+							icon="forward"
+							on:click={(e) => (e.stopPropagation(), push(`/technology/details/${selected.id}`))}>
+							{$size > Size.xs ? __('Details') : ''}
+						</Button>
+						<Button
+							className="uk-width-1-1@s uk-margin-small-top"
+							disabled={!selected}
+							variant="primary"
+							icon="pencil"
+							on:click={(e) => (e.stopPropagation(), (showUpdateModal = true))}>
+							{$size > Size.xs ? __('Edit') : ''}
+						</Button>
+						<Button
+							className="uk-width-1-1@s uk-margin-small-top"
+							disabled={!selected}
+							variant="danger"
+							icon="trash"
+							on:click={(e) => (e.stopPropagation(), (showDeleteModal = true))}>
+							{$size > Size.xs ? __('Delete') : ''}
+						</Button>
+					</div>
 				</div>
 			</div>
-			<div class="uk-width-1-6@l uk-width-1-5@m uk-width-1-4">
-				<div>
-					<Button
-						className="uk-width-1-1@s"
-						variant="primary"
-						icon="plus"
-						on:click={(e) => (e.stopPropagation(), (showCreateModal = true))}>
-						{$size > Size.xs ? __('New') : ''}
-					</Button>
-					<Button
-						className="uk-width-1-1@s uk-margin-small-top"
-						disabled={!selected}
-						variant="secondary"
-						icon="forward"
-						on:click={(e) => (e.stopPropagation(), push(`/technology/details/${selected.id}`))}>
-						{$size > Size.xs ? __('Details') : ''}
-					</Button>
-					<Button
-						className="uk-width-1-1@s uk-margin-small-top"
-						disabled={!selected}
-						variant="primary"
-						icon="pencil"
-						on:click={(e) => (e.stopPropagation(), (showUpdateModal = true))}>
-						{$size > Size.xs ? __('Edit') : ''}
-					</Button>
-					<Button
-						className="uk-width-1-1@s uk-margin-small-top"
-						disabled={!selected}
-						variant="danger"
-						icon="trash"
-						on:click={(e) => (e.stopPropagation(), (showDeleteModal = true))}>
-						{$size > Size.xs ? __('Delete') : ''}
-					</Button>
-				</div>
-			</div>
-		</div>
+		</Card>
 	</div>
 </LoaderWrapper>
 
