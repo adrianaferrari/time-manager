@@ -65,7 +65,7 @@
 				name: entity.name,
 				startDate: entity.startDate.clone(),
 				clientId: entity.clientId,
-				currency: entity.currency,
+				currency: entity.price ? entity.currency : null,
 				endDate: entity.endDate?.clone(),
 				estimatedEffort: entity.estimatedEffort?.clone(),
 				price: entity.price ? new BigNumber(entity.price) : null,
@@ -227,9 +227,10 @@
 		<div class="uk-width-1-3">
 			<Select
 				label={__('Currency')}
-				options={[{ label: __('Select a currency'), value: undefined }, ...Object.values(Currency).map(
-						(currency) => ({ value: currency, label: __(currency) })
-					)]}
+				placeholder={__('Select a currency')}
+				options={Object.values(Currency).map(
+					(currency) => ({ value: currency, label: __(currency) })
+				)}
 				value={toSave.currency}
 				optional={!toSave.price}
 				on:change={({ detail }) => (toSave.currency = detail)} />
