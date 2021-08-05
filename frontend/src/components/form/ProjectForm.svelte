@@ -65,10 +65,10 @@
 				name: entity.name,
 				startDate: entity.startDate.clone(),
 				clientId: entity.clientId,
-				currency: entity.price ? entity.currency : null,
+				currency: entity.price && Number(entity.price) ? entity.currency : null,
 				endDate: entity.endDate?.clone(),
 				estimatedEffort: entity.estimatedEffort?.clone(),
-				price: entity.price ? new BigNumber(entity.price) : null,
+				price: entity.price && Number(entity.price) ? new BigNumber(entity.price) : null,
 				technologyIds: entity.technologyIds,
 			};
 			isCompleted = !!entity.endDate;
