@@ -3,9 +3,11 @@ import { Interval } from '@cdellacqua/interval';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { asyncReadable } from 'svelte-async-readable';
+import { derived } from 'svelte/store';
 import { axiosExtract } from '../helpers/axios';
 import type { Currency } from '../helpers/currency';
 import { Activity, ActivityRaw, mapper as activityMapper } from './activity';
+import { clients } from './client';
 import { Payment, PaymentRaw, mapper as paymentMapper } from './payment';
 
 export const projects = asyncReadable({
@@ -15,6 +17,9 @@ export const projects = asyncReadable({
 	dataProvider: () => axiosExtract<ProjectRaw[]>(axios.get('/auth/project')),
 	mapper: (rawList) => rawList.map((raw) => mapper(raw)),
 });
+
+export const projectsWithClient = derived([projects, clients], ([$projects, $clients]) => $projects
+	.map((p) => ({ ...p, client: $clients.find((c) => c.id === p.clientId) })));
 
 export function mapper(raw: ProjectRaw): Project {
 	return {

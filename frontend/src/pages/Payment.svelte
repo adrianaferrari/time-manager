@@ -2,7 +2,7 @@
 	import { Breadcrumb, Card, LoaderWrapper } from "custom-uikit-svelte";
 	import { onMount } from "svelte";
 
-	import { pop, setResumable } from "svelte-stack-router";
+	import { pop, push, replace, setResumable } from "svelte-stack-router";
 	import Anchor from "../components/Anchor.svelte";
 import CardActions from '../components/CardActions.svelte';
 import IconButton from '../components/IconButton.svelte';
@@ -46,7 +46,7 @@ import SavePaymentModal from '../modals/SavePaymentModal.svelte';
 		}
 		loading = true;
 		try {
-			details = await get(params.id, params.projectId);
+			details = await get(params.id);
 			project = $projects.find((p) => p.id === details.projectId);
 		} catch (err) {
 			statusMatch(err, {
@@ -87,7 +87,7 @@ import SavePaymentModal from '../modals/SavePaymentModal.svelte';
 <SavePaymentModal 
 	entity={details}
 	bind:show={showUpdateModal}
-	on:save={() => loadData()}
+	on:save={({ detail }) => replace(`/payment/details/${detail[0].id}`)}
 />
 
 <DeletePaymentModal 

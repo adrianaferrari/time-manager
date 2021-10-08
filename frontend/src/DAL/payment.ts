@@ -17,25 +17,25 @@ export function mapper(raw: PaymentRaw): Payment {
 }
 
 export function list(dataTableReq: AsyncDataTableRequest, filters: PaymentFilter): Promise<AsyncDataTableResponse<Payment>> {
-	return axiosExtract<AsyncDataTableResponse<PaymentRaw>>(axios.get('/auth/project/all/payment', { params: { ...dataTableReq, ...filters } }))
+	return axiosExtract<AsyncDataTableResponse<PaymentRaw>>(axios.get('/auth/payment', { params: { ...dataTableReq, ...filters } }))
 		.then((res) => ({ ...res, records: res.records.map((raw) => mapper(raw)) }));
 }
 
-export function save(payment: SavePayment, id?: string): Promise<Payment> {
+export function save(payment: SavePayment, id?: string): Promise<Payment[]> {
 	const axiosCall = id
-		? axios.put(`/auth/project/${payment.projectId}/payment/${id}`, payment)
-		: axios.post(`/auth/project/${payment.projectId}/payment`, payment);
-	return axiosExtract<PaymentRaw>(axiosCall)
+		? axios.put(`/auth/payment/${id}`, payment)
+		: axios.post('/auth/payment', payment);
+	return axiosExtract<PaymentRaw[]>(axiosCall)
+		.then((res) => res.map((el) => mapper(el)));
+}
+
+export function get(id: string): Promise<Payment> {
+	return axiosExtract<PaymentRaw>(axios.get(`/auth/payment/${id}`))
 		.then((res) => mapper(res));
 }
 
-export function get(id: string, projectId: string): Promise<Payment> {
-	return axiosExtract<PaymentRaw>(axios.get(`/auth/project/${projectId}/payment/${id}`))
-		.then((res) => mapper(res));
-}
-
-export function del(id: string, projectId: string): Promise<void> {
-	return axiosExtract(axios.delete(`/auth/project/${projectId}/payment/${id}`));
+export function del(id: string): Promise<void> {
+	return axiosExtract(axios.delete(`/auth/payment/${id}`));
 }
 
 export interface PaymentRaw {
@@ -60,7 +60,9 @@ export interface SavePayment {
 	date: DateOnly,
 	amount: BigNumber,
 	currency: Currency,
-	projectId: string,
+	projectIds: string[],
+	from?: Date | undefined,
+	to?: Date | undefined
 }
 
 export interface PaymentFilter {

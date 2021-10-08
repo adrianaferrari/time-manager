@@ -136,3 +136,8 @@
 }
 
 @mixin hook-form-disabled(){ border-color: $form-disabled-border; -webkit-text-fill-color: var(--global-muted-color); }
+
+@mixin hook-badge(){
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}

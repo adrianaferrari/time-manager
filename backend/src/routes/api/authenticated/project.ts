@@ -16,34 +16,7 @@ import { define } from '../../../helpers/object';
 const r: Router = Router();
 export default r;
 
-r.get('/all/payment', [
-	...isAsyncDataTableRequest([
-		payment.cols.date,
-		'project.name',
-		payment.cols.amount,
-		payment.cols.currency,
-	]),
-	...isPaymentFilter(),
-	...sanitizeDataTableRequest(),
-	...sanitizePaymentFilter(),
-	rejectOnFailedValidation(),
-], asyncWrapper(async (req, res) => {
-	const query = req.query as any;
-	const filter: payment.FilterPaymentRequest = {
-		pageIndex: query.pageIndex,
-		orderBy: query.orderBy,
-		query: query.query,
-		recordsPerPage: query.recordsPerPage,
-		filters: {
-			projectId: query.projectId,
-			from: query.from,
-			to: query.to,
-		},
-	};
-	res.json(await payment.list(res.locals.user.id, filter));
-}));
-
-r.use('/:id/payment', asyncWrapper(async (req, res, next) => {
+r.use('/:id', asyncWrapper(async (req, res, next) => {
 	const projectEntity = await project.find({ id: req.params.id });
 	if (!projectEntity) {
 		throw new HttpError(HttpStatus.NotFound, 'project does not exist');
@@ -53,7 +26,7 @@ r.use('/:id/payment', asyncWrapper(async (req, res, next) => {
 	}
 	res.locals.project = projectEntity;
 	next();
-}), paymentRoutes);
+}));
 
 r.put('/:id', [
 	param('id').isUUID(),
@@ -103,6 +76,7 @@ r.get('/:id', [
 	const timeSpentByCategory = await activity.timeSpentByFilterGrouped(
 		res.locals.user.id,
 		{ [activity.cols.projectId]: req.params.id },
+		undefined,
 		undefined,
 		activity.cols.categoryId,
 	);

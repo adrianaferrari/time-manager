@@ -28,7 +28,7 @@ export default {
 	'/company/all': Companies,
 	'/company/details/:id': Company,
 	'/payment/all': Payments,
-	'/project/:projectId/payment/details/:id': Payment,
+	'/payment/details/:id': Payment,
 	'/project/all': Projects,
 	'/project/details/:id': Project,
 	'/settings': Settings,

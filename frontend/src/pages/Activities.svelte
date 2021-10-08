@@ -15,7 +15,7 @@
 	import IconButton from "../components/IconButton.svelte";
 	import * as activity from "../DAL/activity";
 	import { categories } from "../DAL/category";
-	import { projects } from "../DAL/project";
+	import { projects, projectsWithClient } from "../DAL/project";
 	import { statusMatch } from "../helpers/axios";
 	import { __ } from "../i18n";
 	import SaveActivityModal from "../modals/SaveActivityModal.svelte";
@@ -126,7 +126,7 @@
 				<div class="uk-width-1-4@m uk-width-1-2">
 					<Autocomplete
 						label={__('Project')}
-						options={$projects.map((p) => ({ label: p.name, value: p.id }))}
+						options={$projectsWithClient.map((p) => ({ value: p.id, label: `${p.name} - (${`${p.client?.firstName ?? ''} ${p.client?.lastName ?? ''}`.trim() || 'N/A'})`}))}
 						bind:value={projectId}
 						optional />
 				</div>

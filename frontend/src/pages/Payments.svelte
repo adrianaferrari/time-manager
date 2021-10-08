@@ -59,7 +59,7 @@
 				props: {
 					icon: "chevron-right",
 				},
-				onClick: () => push(`/project/${projectId}/payment/details/${id}`),
+				onClick: () => push(`/payment/details/${id}`),
 			}),
 		},
 	];

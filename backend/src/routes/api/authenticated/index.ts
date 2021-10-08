@@ -4,6 +4,7 @@ import activityRoutes from './activity';
 import categoryRoutes from './category';
 import clientRoutes from './client';
 import companyRoutes from './company';
+import paymentRoutes from './payment';
 import projectRoutes from './project';
 import statsRoutes from './stats';
 import technologyRoutes from './technology';
@@ -23,6 +24,8 @@ r.use('/category', categoryRoutes);
 r.use('/client', clientRoutes);
 
 r.use('/company', companyRoutes);
+
+r.use('/payment', paymentRoutes);
 
 r.use('/project', projectRoutes);
 

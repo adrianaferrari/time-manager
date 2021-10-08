@@ -15,7 +15,7 @@ Select,
 import IconButton from '../components/IconButton.svelte';
 import { categories } from '../DAL/category';
 import { clients } from '../DAL/client';
-	import { projects } from "../DAL/project";
+	import { projects, projectsWithClient } from "../DAL/project";
 	import { axiosExtract, statusMatch } from "../helpers/axios";
 	import { __ } from "../i18n";
 
@@ -134,7 +134,7 @@ import { clients } from '../DAL/client';
 						<Autocomplete
 							label={__('Project')}
 							value={projectId}
-							options={$projects.map((p) => ({ label: p.name, value: p.id }))}
+							options={$projectsWithClient.map((p) => ({ value: p.id, label: `${p.name} - (${`${p.client?.firstName ?? ''} ${p.client?.lastName ?? ''}`.trim() || 'N/A'})`}))}
 							on:change={({ detail }) => (projectId = detail)} />
 					</div>
 				{:else if filterType === 'client'}

@@ -147,8 +147,13 @@ export function timeSpentByFilter(
 }
 
 export function timeSpentByFilterGrouped(
-	userId: uuid, filter?: Record<string, any> | string | number, filterIn?: { col: string, values: any[] }, groupBy?: string, trx?: Knex.Transaction,
-): Promise<Interval> {
+	userId: uuid,
+	filter?: Record<string, any> | string | number,
+	filterIn?: { col: string, values: any[] },
+	filterWithOperators?: { col: string, operator: string, value: any }[],
+	groupBy?: string,
+	trx?: Knex.Transaction,
+): Promise<{ group: any, timeSpent: Interval }[]> {
 	return transact([
 		(db) => db(table)
 			.where(
@@ -158,6 +163,11 @@ export function timeSpentByFilterGrouped(
 					}
 					if (filterIn) {
 						builder.whereIn(filterIn.col, filterIn.values);
+					}
+					if (filterWithOperators) {
+						filterWithOperators.forEach((f) => {
+							builder.where(f.col, f.operator, f.value);
+						});
 					}
 				},
 			)

@@ -2,6 +2,7 @@ import { DateOnly } from '@cdellacqua/date-only';
 import { transact } from '@cdellacqua/knex-transact';
 import BigNumber from 'bignumber.js';
 import { Knex } from 'knex';
+import { Interval } from '@cdellacqua/interval';
 import {
 	findAllGenerator, findOneGenerator, fromQueryGenerator, insertGetId,
 } from '../db/utils';
@@ -9,6 +10,8 @@ import { define } from '../helpers/object';
 import { AsyncDataTableRequest, AsyncDataTableResponse } from '../types/async-data-table';
 import { Currency, uuid } from '../types/common';
 import * as project from './project';
+import * as activity from './activity';
+import { SerializableError } from '@cdellacqua/serializable-error';
 
 export const table = 'payment';
 
@@ -113,6 +116,37 @@ export function list(userId: uuid, filter: FilterPaymentRequest, trx?: Knex.Tran
 	], trx);
 }
 
+export function split(oldId: uuid|undefined, userId: uuid, payment: SaveMultiplePayment, trx?: Knex.Transaction): Promise<Payment[]> {
+	return transact([async (db) => {
+		if (oldId) {
+			await del(oldId, db);
+		}
+		const effortsByProject = await activity.timeSpentByFilterGrouped(userId, undefined, { col: activity.cols.projectId, values: payment.projectIds }, [
+			{ col: activity.cols.date, operator: '>=', value: payment.from },
+			{ col: activity.cols.date, operator: '<', value: payment.to },
+		], activity.cols.projectId, db);
+		const totalEffort = effortsByProject.reduce((tot, curr) => tot.plus(curr.timeSpent.totalSeconds), new BigNumber(0));
+		if (totalEffort.isEqualTo(0)) {
+			throw new SerializableError('no activities found in the chosen interval');
+		}
+		const results = await Promise.all(payment.projectIds.map((projectId) => {
+			const currentEffort = effortsByProject.find((effort) => effort.group === projectId)?.timeSpent ?? new Interval(0);
+			const coefficient = new BigNumber(currentEffort.totalSeconds).dividedBy(totalEffort);
+			const amount = payment.amount.multipliedBy(coefficient);
+			if (amount.isGreaterThan(0)) {
+				return create({
+					amount,
+					currency: payment.currency,
+					date: payment.date,
+					projectId,
+				}, db);
+			}
+			return Promise.resolve(null);
+		}));
+		return results.filter((r) => r);
+	}], trx);
+}
+
 export interface PaymentRaw {
 	id: uuid,
 	date: DateOnly,
@@ -138,6 +172,14 @@ export interface SavePayment {
 	projectId: uuid,
 }
 
+export interface SaveMultiplePayment {
+	date: DateOnly,
+	amount: BigNumber,
+	currency: Currency,
+	projectIds: uuid[],
+	from: DateOnly,
+	to: DateOnly,
+}
 export interface FilterPaymentRequest extends AsyncDataTableRequest {
 	filters: {
 		from?: DateOnly | null,

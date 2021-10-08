@@ -141,7 +141,10 @@ export function isPayment(): ValidationChain[] {
 		body('date').isDate(),
 		body('amount').isDecimal(),
 		body('currency').isIn(Object.values(Currency)),
-		body('projectId').isUUID(),
+		body('projectIds').isArray({ min: 1 }),
+		body('projectIds.*').isUUID(),
+		body('from').optional({ nullable: true, checkFalsy: true }).isDate(),
+		body('to').optional({ nullable: true, checkFalsy: true }).isDate(),
 	];
 }
 
@@ -248,6 +251,8 @@ export function sanitizePayment(): ValidationChain[] {
 	return [
 		body('date').customSanitizer((value) => DateOnly.fromString(value)),
 		body('amount').customSanitizer((value) => new BigNumber(value)),
+		body('from').customSanitizer((value) => value && DateOnly.fromString(value)),
+		body('to').customSanitizer((value) => value && DateOnly.fromString(value)),
 	];
 }
 

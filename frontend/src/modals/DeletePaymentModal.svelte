@@ -14,7 +14,7 @@ import { HttpStatus } from '../http/status';
 
 	async function formSubmitAsync() {
 		try {
-			await del(entity.id, entity.projectId);
+			await del(entity.id);
 			show = false;
 			dispatch('delete', entity);
 			notifySuccess(__("Payment deleted"));

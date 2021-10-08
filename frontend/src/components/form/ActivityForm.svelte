@@ -14,7 +14,8 @@
 	import { createEventDispatcher, tick } from "svelte";
 	import { save } from "../../DAL/activity";
 	import { categories } from "../../DAL/category";
-	import { projects } from "../../DAL/project";
+import { clients } from '../../DAL/client';
+	import { projects, projectsWithClient } from "../../DAL/project";
 	import { statusMatch } from "../../helpers/axios";
 	import { notifyErr, notifySuccess } from "../../helpers/notification";
 	import { HttpStatus } from "../../http/status";
@@ -133,7 +134,7 @@
 			<Autocomplete
 				label={__('Project')}
 				style="flex: 1;"
-				options={$projects.map((p) => ({ label: p.name, value: p.id }))}
+				options={$projectsWithClient.map((p) => ({ value: p.id, label: `${p.name} - (${`${p.client?.firstName ?? ''} ${p.client?.lastName ?? ''}`.trim() || 'N/A'})`}))}
 				value={toSave.projectId}
 				optional
 				on:change={({ detail }) => (toSave.projectId = detail)} />
