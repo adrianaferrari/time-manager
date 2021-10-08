@@ -156,3 +156,25 @@ li.uk-nav-header.active {
 	width: 45px;
 	height: 45px;
 }
+
+.custom-uk-radio-wrapper {
+	> div {
+		div {
+			button {
+				border-radius: 0;
+			}
+			&:first-child {
+				button {
+					border-top-left-radius: $button-border-radius;
+					border-bottom-left-radius: $button-border-radius;
+				}
+			}
+			&:last-child {
+				button {
+					border-top-right-radius: $button-border-radius;
+					border-bottom-right-radius: $button-border-radius;
+				}
+			}
+		}
+	}
+}

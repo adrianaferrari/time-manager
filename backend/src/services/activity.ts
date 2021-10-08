@@ -95,7 +95,7 @@ export function list(userId: uuid, filter: FilterActivityRequest, trx?: Knex.Tra
 						return qb;
 					});
 				if (filtered) {
-					base.where(`${table}.${cols.description}`, 'like', `%${filter.query || ''}%`);
+					base.where(`${table}.${cols.description}`, 'ilike', `%${filter.query || ''}%`);
 				}
 				return base;
 			};
@@ -171,9 +171,10 @@ export function timeSpentByFilterGrouped(
 	], trx);
 }
 
-export function findStreamFromDateRange(userId: uuid, from: DateOnly, to: DateOnly, projectId?: uuid, categoryIds?: uuid[]): Readable {
+export function findStreamFromDateRange(userId: uuid, from: DateOnly, to: DateOnly, projectId?: uuid, categoryIds?: uuid[], clientId?: uuid): Readable {
 	return knex(table)
 		.join(category.table, `${table}.${cols.categoryId}`, `${category.table}.${category.cols.id}`)
+		.join(project.table, `${table}.${cols.projectId}`, `${project.table}.${project.cols.id}`)
 		.where(`${table}.${cols.userId}`, userId)
 		.where(cols.date, '<', to)
 		.where(cols.date, '>=', from)
@@ -184,9 +185,18 @@ export function findStreamFromDateRange(userId: uuid, from: DateOnly, to: DateOn
 			if (projectId) {
 				builder.where(cols.projectId, projectId);
 			}
+			if (clientId) {
+				builder.where(project.cols.clientId, clientId);
+			}
 		})
-		.orderBy(cols.date)
-		.select([cols.date, cols.timeSpent, cols.description, `${category.cols.name} as category`])
+		.orderBy([{ column: `${project.table}.${project.cols.name}`, order: 'asc' }, { column: cols.date, order: 'asc' }])
+		.select([
+			cols.date,
+			cols.timeSpent,
+			cols.description,
+			`${category.table}.${category.cols.name} as category`,
+			`${project.table}.${project.cols.name} as project`,
+		])
 		.stream();
 }
 

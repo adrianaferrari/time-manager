@@ -323,5 +323,6 @@ import SaveActivityModal from '../modals/SaveActivityModal.svelte';
 
 <DownloadActivityReportModal
 	projectId={details?.id}
+	filterType="project"
 	bind:show={showDownloadActivityReportModal}
 />

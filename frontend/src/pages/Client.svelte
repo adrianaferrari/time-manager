@@ -14,6 +14,7 @@ import { dayLength } from '../DAL/user';
 import { printInterval } from '../helpers/interval';
 	import { __ } from "../i18n";
 import DeleteClientModal from '../modals/DeleteClientModal.svelte';
+import DownloadActivityReportModal from '../modals/DownloadActivityReportModal.svelte';
 import SaveClientModal from '../modals/SaveClientModal.svelte';
 
 	export let params = {
@@ -30,10 +31,12 @@ import SaveClientModal from '../modals/SaveClientModal.svelte';
 
 	let showUpdateModal = false;
 	let showDeleteModal = false;
+	let showDownloadActivityReportModal = false;
 
 	const actions = [
 		{ name: 'edit', tooltip: __("Edit"), icon: 'pencil' },
 		{ name: 'delete', tooltip: __("Delete"), icon: 'trash' },
+		{ name: "download", tooltip: __("Download"), icon: "download" },
 	];
 
 	setResumable(false);
@@ -70,7 +73,7 @@ import SaveClientModal from '../modals/SaveClientModal.svelte';
 			{actions}
 			on:edit={() => showUpdateModal = true}
 			on:delete={() => showDeleteModal = true}
-		/>
+			on:download={() => (showDownloadActivityReportModal = true)} />
 		<h5>{__('Email')}</h5>
 		<p>{details.email || __('N/A')}</p>
 		<h5>{__('Company')}</h5>
@@ -104,4 +107,10 @@ import SaveClientModal from '../modals/SaveClientModal.svelte';
 	entity={details}
 	bind:show={showDeleteModal}
 	on:delete={() => pop()}
+/>
+
+<DownloadActivityReportModal
+	clientId={details?.id}
+	filterType="client"
+	bind:show={showDownloadActivityReportModal}
 />

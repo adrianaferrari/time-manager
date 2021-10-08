@@ -42,6 +42,7 @@ r.get('/activity/:userId/:from/:to', [
 	param('from').isDate(),
 	param('to').isDate(),
 	query('projectId').optional({ nullable: true, checkFalsy: true }).isUUID(),
+	query('clientId').optional({ nullable: true, checkFalsy: true }).isUUID(),
 	query('categoryIds').optional({ nullable: true, checkFalsy: true }),
 	query('roundTo').isNumeric(),
 	rejectOnFailedValidation(),
@@ -66,6 +67,7 @@ r.get('/activity/:userId/:from/:to', [
 			to,
 			(req.query.projectId ?? undefined) as uuid | undefined,
 			categoryIds,
+			(req.query.clientId ?? undefined) as uuid | undefined,
 		),
 		new Transform({
 			objectMode: true,
@@ -111,9 +113,10 @@ r.get('/activity/:userId/:from/:to', [
 						effort,
 						description: a.description,
 						category: a.category,
+						project: a.project,
 					});
 					done();
-				} catch (err) {
+				} catch (err: any) {
 					done(err);
 				}
 			},

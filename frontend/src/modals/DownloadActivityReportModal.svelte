@@ -8,11 +8,13 @@
 		DatePicker,
 		Form,
 		Modal,
+Radio,
 Select,
 	} from "custom-uikit-svelte";
 	import { tick } from "svelte";
 import IconButton from '../components/IconButton.svelte';
 import { categories } from '../DAL/category';
+import { clients } from '../DAL/client';
 	import { projects } from "../DAL/project";
 	import { axiosExtract, statusMatch } from "../helpers/axios";
 	import { __ } from "../i18n";
@@ -24,6 +26,9 @@ import { categories } from '../DAL/category';
 		.toString();
 	export let to = new DateOnly().subDays(new DateOnly().date - 1).toString();
 	export let projectId = undefined;
+	export let clientId = undefined;
+	/** @type {'none'|'project'|'client'}*/
+	export let filterType = 'none';
 	export let categoryIds = [];
 	let roundTo = "0.5";
 	let downloadLink = null;
@@ -33,7 +38,14 @@ import { categories } from '../DAL/category';
 			downloadLink = null;
 			await tick();
 			downloadLink = await axiosExtract(
-				axios.post("/auth/activity/csv", { from, to, projectId, categoryIds, roundTo })
+				axios.post("/auth/activity/csv", { 
+					from, 
+					to, 
+					projectId: filterType === 'project' ? projectId : undefined, 
+					categoryIds, 
+					roundTo, 
+					clientId: filterType === 'client' ? clientId : undefined,
+				})
 			);
 			//show = false;
 		} catch (err) {
@@ -91,29 +103,50 @@ import { categories } from '../DAL/category';
 					on:click={() => to = increase(to)}
 				/>
 			</div>
-			<div class="uk-width-1-2">
-				<Autocomplete
-					label={__('Project')}
-					optional
-					value={projectId}
-					options={$projects.map((p) => ({ label: p.name, value: p.id }))}
-					on:change={({ detail }) => (projectId = detail)} />
-			</div>
-			<div class="uk-width-1-2">
-				<Select
-					label={__('Round to')}
-					optional
-					value={roundTo}
-					options={[
-						{ label: __("30 minutes (0.5h)"), value: "0.5" },
-						{ label: __("15 minutes (0.25h)"), value: "0.25" },
-						{ label: __("No decimal places"), value: "1" },
-						{ label: __("1 decimal place"), value: "0.1" },
-						{ label: __("2 decimal places"), value: "0.01"},
-					]}
-					on:change={({ detail }) => (roundTo = detail)} />
-			</div>
 			<div class="uk-width-1-1">
+				<Select
+				label={__('Round to')}
+				optional
+				value={roundTo}
+				options={[
+					{ label: __("30 minutes (0.5h)"), value: "0.5" },
+					{ label: __("15 minutes (0.25h)"), value: "0.25" },
+					{ label: __("No decimal places"), value: "1" },
+					{ label: __("1 decimal place"), value: "0.1" },
+					{ label: __("2 decimal places"), value: "0.01"},
+				]}
+					on:change={({ detail }) => (roundTo = detail)} />
+				</div>
+				<div class="uk-width-1-1">
+					<Radio 
+						options={[
+							{ value: "project", label: __("Project") },
+							{ value: "client", label: __("Client") },
+							{ value: "none", label: __("None")}
+						]}
+						label={__("Filter type")}
+						value={filterType}
+						on:change={({ detail }) => (filterType = detail)}
+					/>
+				</div>
+				{#if filterType === 'project'}
+					<div class="uk-width-1-1">
+						<Autocomplete
+							label={__('Project')}
+							value={projectId}
+							options={$projects.map((p) => ({ label: p.name, value: p.id }))}
+							on:change={({ detail }) => (projectId = detail)} />
+					</div>
+				{:else if filterType === 'client'}
+					<div class="uk-width-1-1">
+						<Autocomplete
+							label={__('Client')}
+							value={clientId}
+							options={$clients.map((c) => ({ label: `${c.firstName} ${c.lastName}`, value: c.id }))}
+							on:change={({ detail }) => (clientId = detail)} />
+					</div>
+				{/if}
+				<div class="uk-width-1-1">
 				<Autocomplete
 					label={__('Categories to include (leave empty to include all)')}
 					optional
