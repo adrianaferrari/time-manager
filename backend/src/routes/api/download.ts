@@ -82,7 +82,7 @@ r.get('/activity/:userId/:from/:to', [
 					} else if (req.query.roundTo === '1') {
 						effort = hours.toFixed(0, BigNumber.ROUND_HALF_EVEN);
 					} else if (req.query.roundTo === '0.25') {
-						const rounded = hours.decimalPlaces(0, BigNumber.ROUND_HALF_EVEN);
+						const rounded = hours.decimalPlaces(0, BigNumber.ROUND_FLOOR);
 						const decimalPlaces = hours.minus(rounded);
 						let decimalRounding = new BigNumber(0);
 						if (decimalPlaces.isGreaterThanOrEqualTo(0.125) && decimalPlaces.isLessThan(0.375)) {
